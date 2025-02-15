@@ -6,7 +6,8 @@ public enum PlayerState
     Walking,
     Crouching,
     Dashing,
-    Jumping
+    Jumping,
+    WallRunning  // New state for wall running
 }
 
 [RequireComponent(typeof(Rigidbody))]
@@ -76,6 +77,23 @@ public class FPS_Controller : MonoBehaviour
     private bool canDash = true;
     public bool isDashing = false;
 
+    [Header("Wall Run Settings")]
+    [Tooltip("Launch speed along the wall (orthogonal to the surface normal).")]
+    public float wallRunLaunchSpeed = 10f;
+    [Tooltip("Acceleration applied along the wall while wall running.")]
+    public float wallRunAcceleration = 5f;
+    [Tooltip("Maximum horizontal speed achievable while wall running.")]
+    public float maxWallRunSpeed = 20f;
+    [Tooltip("Reduced gravity multiplier while wall running (0 = no gravity, 1 = normal gravity).")]
+    public float wallRunGravity = 0.3f;
+    [Tooltip("Maximum duration for a wall run.")]
+    public float maxWallRunTime = 2f;
+    [Tooltip("Distance for the raycast to detect walls.")]
+    public float wallRunRayDistance = 1.0f;
+    private float wallRunTimer = 0f;
+    private bool isWallRunning = false;
+    private Vector3 currentWallNormal;
+
     // Enum state machine: exposes the current player action.
     private PlayerState currentState = PlayerState.Idle;
     public PlayerState CurrentState { get { return currentState; } }
@@ -117,7 +135,7 @@ public class FPS_Controller : MonoBehaviour
         standHeadLocalPos = head.localPosition;
         crouchHeadLocalPos = new Vector3(standHeadLocalPos.x, standHeadLocalPos.y - crouchCameraHeight, standHeadLocalPos.z);
 
-        // Lock and hide the cursor for FPS control
+        // Lock and hide the cursor for FPS control.
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -138,26 +156,39 @@ public class FPS_Controller : MonoBehaviour
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, whatIsGround);
         if (grounded)
         {
-            // Reset jump count when touching the ground.
+            // Reset jump count and end wall run when on ground.
             jumpCount = 0;
+            if (isWallRunning)
+                EndWallRun();
         }
 
         // --- Movement Input ---
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        // --- Jump Input (with Double Jump) ---
-        // Allow jump if the player is on the ground or has remaining jumps.
-        if (Input.GetKeyDown(jumpKey) && readyToJump && (grounded || jumpCount < maxJumpCount))
+        // --- Jump Input (Double Jump & Wall Jump) ---
+        if (Input.GetKeyDown(jumpKey) && readyToJump && (grounded || jumpCount < maxJumpCount || isWallRunning))
         {
-            // If crouched and jump is pressed, try to stand up first if there's room overhead.
             if (isCrouching && CanStand())
             {
                 StopCrouching();
             }
+            // If wall running, perform a wall jump that pushes off the wall.
+            if (isWallRunning)
+            {
+                //print a message to the console
+                Debug.Log("Performing wall jump: " + currentWallNormal);
+                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+                rb.AddForce((Vector3.up + currentWallNormal) * jumpForce, ForceMode.Impulse);
+                EndWallRun();
+                jumpCount = 1; // Count as one jump used.
+            }
+            else
+            {
+                Jump();
+                jumpCount++;
+            }
             readyToJump = false;
-            Jump();
-            jumpCount++;
             Invoke(nameof(ResetJump), jumpCooldown);
         }
 
@@ -168,7 +199,6 @@ public class FPS_Controller : MonoBehaviour
         }
         else
         {
-            // Only attempt to stand if currently crouching and there’s room overhead.
             if (isCrouching && CanStand())
             {
                 StopCrouching();
@@ -179,6 +209,20 @@ public class FPS_Controller : MonoBehaviour
         if (Input.GetKeyDown(dashKey) && canDash && !isCrouching)
         {
             Dash();
+        }
+
+        // --- Wall Run Check ---
+        if (!grounded && !isWallRunning && rb.velocity.y < 0)
+        {
+            CheckForWallRun();
+        }
+        else if (isWallRunning)
+        {
+            wallRunTimer += Time.deltaTime;
+            if (wallRunTimer > maxWallRunTime || !IsWallStillValid())
+            {
+                EndWallRun();
+            }
         }
 
         // Smooth head (camera) position transition.
@@ -195,18 +239,33 @@ public class FPS_Controller : MonoBehaviour
         // Dash overrides other states; otherwise, use crouch speed if crouching, or normal speed.
         currentWalkSpeed = isDashing ? maxSpeed : (isCrouching ? crouchSpeed : originalMoveSpeed);
 
-        // Update the state machine (lowest-priority states last).
+        // Update the state machine.
         UpdatePlayerState();
     }
 
     private void FixedUpdate()
     {
-        MovePlayer();
+        // If not wall running, process normal movement.
+        if (!isWallRunning)
+        {
+            MovePlayer();
+        }
+        else
+        {
+            // During wall run, ignore player input to preserve the launched momentum.
+            SpeedControl();
+        }
+
+        // While wall running, apply wall run behavior.
+        if (isWallRunning)
+        {
+            WallRunMovement();
+        }
     }
 
     private void MovePlayer()
     {
-        // Calculate movement direction based on the player's forward/right (horizontal only).
+        // Calculate movement direction based on player's forward/right (horizontal only).
         Vector3 moveDirection = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
 
         if (grounded)
@@ -251,7 +310,7 @@ public class FPS_Controller : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks if there is sufficient room above the player to return to standing height.
+    /// Checks if there is room above the player to stand up.
     /// </summary>
     private bool CanStand()
     {
@@ -273,7 +332,6 @@ public class FPS_Controller : MonoBehaviour
     {
         canDash = false;
         isDashing = true;
-        // Determine dash direction based on input (or default to forward if no input).
         Vector3 dashDirection = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
         if (dashDirection == Vector3.zero)
             dashDirection = transform.forward;
@@ -282,20 +340,103 @@ public class FPS_Controller : MonoBehaviour
         Invoke(nameof(ResetDash), dashCooldown);
     }
 
-    /// <summary>
-    /// Ends the dash effect.
-    /// </summary>
     private void EndDash()
     {
         isDashing = false;
     }
 
-    /// <summary>
-    /// Resets the dash so the player can dash again.
-    /// </summary>
     private void ResetDash()
     {
         canDash = true;
+    }
+
+    /// <summary>
+    /// Checks for a wall on either side to initiate a wall run.
+    /// </summary>
+    private void CheckForWallRun()
+    {
+        RaycastHit hit;
+        // Check left side.
+        if (Physics.Raycast(transform.position, -transform.right, out hit, wallRunRayDistance))
+        {
+            if (hit.normal.y < 0.2f) // nearly vertical wall
+            {
+                StartWallRun(hit.normal);
+                return;
+            }
+        }
+        // Check right side.
+        if (Physics.Raycast(transform.position, transform.right, out hit, wallRunRayDistance))
+        {
+            if (hit.normal.y < 0.2f)
+            {
+                StartWallRun(hit.normal);
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Begins wall running given a valid wall normal.
+    /// Immediately launches the player along the wall.
+    /// </summary>
+    private void StartWallRun(Vector3 wallNormal)
+    {
+        isWallRunning = true;
+        wallRunTimer = 0f;
+        currentWallNormal = wallNormal;
+        rb.useGravity = false;
+
+        // Calculate the wall tangent (direction along the wall).
+        Vector3 wallTangent = Vector3.Cross(currentWallNormal, Vector3.up).normalized;
+        if (Vector3.Dot(wallTangent, transform.forward) < 0)
+            wallTangent = -wallTangent;
+
+        // Launch the player along the wall.
+        rb.velocity = wallTangent * wallRunLaunchSpeed + new Vector3(0, rb.velocity.y, 0);
+    }
+
+    /// <summary>
+    /// Ends the wall run, restoring normal gravity.
+    /// </summary>
+    private void EndWallRun()
+    {
+        isWallRunning = false;
+        wallRunTimer = 0f;
+        rb.useGravity = true;
+    }
+
+    /// <summary>
+    /// Checks if the wall we are running on is still valid.
+    /// </summary>
+    private bool IsWallStillValid()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, -currentWallNormal, out hit, wallRunRayDistance))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Applies wall run behavior by preserving momentum, gradually increasing speed, and ramping up gravity.
+    /// </summary>
+    private void WallRunMovement()
+    {
+        // Ramp up gravity over the wall run time so the player starts to descend.
+        float gravityMultiplier = Mathf.Lerp(0f, 1f, wallRunTimer / maxWallRunTime);
+        rb.AddForce(Vector3.up * Physics.gravity.y * wallRunGravity * gravityMultiplier, ForceMode.Acceleration);
+
+        // Increase speed along the wall.
+        Vector3 wallTangent = Vector3.Cross(currentWallNormal, Vector3.up).normalized;
+        if (Vector3.Dot(wallTangent, transform.forward) < 0)
+            wallTangent = -wallTangent;
+        Vector3 currentTangentVel = Vector3.Project(rb.velocity, wallTangent);
+        if (currentTangentVel.magnitude < maxWallRunSpeed)
+        {
+            rb.AddForce(wallTangent * wallRunAcceleration, ForceMode.Acceleration);
+        }
     }
 
     /// <summary>
@@ -303,7 +444,11 @@ public class FPS_Controller : MonoBehaviour
     /// </summary>
     private void UpdatePlayerState()
     {
-        if (isDashing)
+        if (isWallRunning)
+        {
+            currentState = PlayerState.WallRunning;
+        }
+        else if (isDashing)
         {
             currentState = PlayerState.Dashing;
         }
