@@ -4,10 +4,13 @@ public enum PlayerState
 {
     Idle,
     Walking,
+    Sprinting,
     Crouching,
     Dashing,
     Jumping,
-    WallRunning  // New state for wall running
+    WallRunning,
+    Sliding,
+    RailRiding
 }
 
 [RequireComponent(typeof(Rigidbody))]
@@ -41,8 +44,13 @@ public class FPS_Controller : MonoBehaviour
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
-    public KeyCode crouchKey = KeyCode.LeftControl; // change this key as desired
-    public KeyCode dashKey = KeyCode.LeftShift;     // dash key
+    public KeyCode crouchKey = KeyCode.LeftControl;
+    public KeyCode dashKey = KeyCode.E;
+    public KeyCode sprintKey = KeyCode.LeftShift;
+
+    [Header("Sprinting Settings")]
+    [Tooltip("Speed when sprinting.")]
+    public float sprintSpeed = 8f;
 
     [Header("Ground Check")]
     [Tooltip("Used for the raycast length (e.g., the player’s capsule height).")]
@@ -94,48 +102,57 @@ public class FPS_Controller : MonoBehaviour
     private bool isWallRunning = false;
     private Vector3 currentWallNormal;
 
-    // Enum state machine: exposes the current player action.
+    [Header("Slide Settings")]
+    [Tooltip("Slide is essentially a dash that forces crouch height.")]
+    public float slideSpeed = 12f;
+    private bool isSliding = false;
+
+    [Header("Rail Riding Settings")]
+    [Tooltip("Reference to the Rail object when riding a rail.")]
+    private Rail currentRail = null;
+    [Tooltip("Offset to position the player on top of the rail.")]
+    public float railVerticalOffset = 1f;
+    private bool isOnRail = false;
+
+    // Enum state machine.
     private PlayerState currentState = PlayerState.Idle;
     public PlayerState CurrentState { get { return currentState; } }
 
-    // Internal references
+    // Internal references.
     private Rigidbody rb;
     private CapsuleCollider capsuleCollider;
 
-    // Input
+    // Input.
     private float horizontalInput;
     private float verticalInput;
 
-    // Original values
+    // Original values.
     private float originalColliderHeight;
     private Vector3 originalColliderCenter;
     private float originalMoveSpeed;
     private Vector3 standHeadLocalPos;
     private Vector3 crouchHeadLocalPos;
 
-    // Crouch state
+    // Crouch state.
     private bool isCrouching = false;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true;  // Prevent physics from rotating the player
+        rb.freezeRotation = true;
 
         capsuleCollider = GetComponent<CapsuleCollider>();
         if (capsuleCollider == null)
-        {
             Debug.LogError("No CapsuleCollider found on the player!");
-        }
+
         originalColliderHeight = capsuleCollider.height;
         originalColliderCenter = capsuleCollider.center;
         originalMoveSpeed = moveSpeed;
         currentWalkSpeed = originalMoveSpeed;
 
-        // Store head's original local position and compute its crouched position.
         standHeadLocalPos = head.localPosition;
         crouchHeadLocalPos = new Vector3(standHeadLocalPos.x, standHeadLocalPos.y - crouchCameraHeight, standHeadLocalPos.z);
 
-        // Lock and hide the cursor for FPS control.
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -144,7 +161,7 @@ public class FPS_Controller : MonoBehaviour
 
     private void Update()
     {
-        // --- Mouse Look ---
+        // Mouse look.
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
         transform.Rotate(Vector3.up * mouseX);
@@ -152,66 +169,85 @@ public class FPS_Controller : MonoBehaviour
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
         head.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-        // --- Ground Check ---
+        // Ground check.
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, whatIsGround);
         if (grounded)
         {
-            // Reset jump count and end wall run when on ground.
             jumpCount = 0;
             if (isWallRunning)
                 EndWallRun();
+            if (isOnRail)
+                ExitRail();
         }
 
-        // --- Movement Input ---
+        // Movement input.
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        // --- Jump Input (Double Jump & Wall Jump) ---
-        if (Input.GetKeyDown(jumpKey) && readyToJump && (grounded || jumpCount < maxJumpCount || isWallRunning))
+        // Jump input.
+        if (Input.GetKeyDown(jumpKey) && readyToJump && (grounded || jumpCount < maxJumpCount || isWallRunning || isOnRail))
         {
+            if (isOnRail)
+            {
+                ExitRail();
+            }
             if (isCrouching && CanStand())
             {
                 StopCrouching();
             }
-            // If wall running, perform a wall jump that pushes off the wall.
             if (isWallRunning)
             {
-                //print a message to the console
                 Debug.Log("Performing wall jump: " + currentWallNormal);
                 rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
                 rb.AddForce((Vector3.up + currentWallNormal) * jumpForce, ForceMode.Impulse);
                 EndWallRun();
-                jumpCount = 1; // Count as one jump used.
+                jumpCount = 1;
             }
             else
             {
                 Jump();
                 jumpCount++;
+                if (grounded && Input.GetKey(sprintKey))
+                {
+                    ResetDash(); // Reset dash cooldown when sprinting and jumping.
+                }
             }
             readyToJump = false;
             Invoke(nameof(ResetJump), jumpCooldown);
         }
 
-        // --- Crouch Input ---
-        if (Input.GetKey(crouchKey))
+        // Crouch / Slide input.
+        if (Input.GetKeyDown(crouchKey))
         {
-            StartCrouching();
+            // If sprinting (sprint key held) and grounded, trigger slide.
+            if (Input.GetKey(sprintKey) && grounded && !isSliding)
+            {
+                Slide();
+            }
+            else
+            {
+                StartCrouching();
+            }
         }
-        else
+        else if (!Input.GetKey(crouchKey))
         {
-            if (isCrouching && CanStand())
+            if (isSliding)
+            {
+                EndSlide();
+            }
+            else if (isCrouching && CanStand())
             {
                 StopCrouching();
             }
         }
 
-        // --- Dash Input ---
+        // Dash input.
         if (Input.GetKeyDown(dashKey) && canDash && !isCrouching)
         {
             Dash();
         }
 
-        // --- Wall Run Check ---
+        // Wall run check.
         if (!grounded && !isWallRunning && rb.velocity.y < 0)
         {
             CheckForWallRun();
@@ -225,38 +261,52 @@ public class FPS_Controller : MonoBehaviour
             }
         }
 
-        // Smooth head (camera) position transition.
+        // Smooth head transition.
         head.localPosition = Vector3.Lerp(head.localPosition, isCrouching ? crouchHeadLocalPos : standHeadLocalPos, crouchTransitionSpeed * Time.deltaTime);
-
-        // Smooth collider transition.
         float targetHeight = isCrouching ? crouchHeight : originalColliderHeight;
         capsuleCollider.height = Mathf.Lerp(capsuleCollider.height, targetHeight, crouchTransitionSpeed * Time.deltaTime);
         Vector3 targetCenter = originalColliderCenter;
         targetCenter.y -= (originalColliderHeight - targetHeight) / 2;
         capsuleCollider.center = Vector3.Lerp(capsuleCollider.center, targetCenter, crouchTransitionSpeed * Time.deltaTime);
 
-        // Update current walk speed:
-        // Dash overrides other states; otherwise, use crouch speed if crouching, or normal speed.
-        currentWalkSpeed = isDashing ? maxSpeed : (isCrouching ? crouchSpeed : originalMoveSpeed);
+        // Update current walk speed.
+        if (isOnRail && currentRail != null)
+        {
+            currentWalkSpeed = currentRail.railSpeed; // Use rail speed.
+        }
+        else if (isDashing)
+            currentWalkSpeed = maxSpeed;
+        else if (isSliding)
+            currentWalkSpeed = slideSpeed;
+        else if (isCrouching)
+            currentWalkSpeed = crouchSpeed;
+        else if (Input.GetKey(sprintKey) && grounded)
+            currentWalkSpeed = sprintSpeed;
+        else
+            currentWalkSpeed = originalMoveSpeed;
 
-        // Update the state machine.
         UpdatePlayerState();
     }
 
     private void FixedUpdate()
     {
-        // If not wall running, process normal movement.
-        if (!isWallRunning)
+        if (isOnRail && currentRail != null)
+        {
+            // Stick the player to the top of the rail.
+            Vector3 targetPos = currentRail.GetClosestPointOnRail(rb.position) + Vector3.up * railVerticalOffset;
+            rb.position = Vector3.Lerp(rb.position, targetPos, 0.2f);
+            Vector3 railDir = currentRail.GetRailDirection();
+            rb.velocity = new Vector3(railDir.x * currentRail.railSpeed, rb.velocity.y, railDir.z * currentRail.railSpeed);
+        }
+        else if (!isWallRunning && !isSliding)
         {
             MovePlayer();
         }
         else
         {
-            // During wall run, ignore player input to preserve the launched momentum.
             SpeedControl();
         }
 
-        // While wall running, apply wall run behavior.
         if (isWallRunning)
         {
             WallRunMovement();
@@ -265,20 +315,16 @@ public class FPS_Controller : MonoBehaviour
 
     private void MovePlayer()
     {
-        // Calculate movement direction based on player's forward/right (horizontal only).
         Vector3 moveDirection = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
-
         if (grounded)
             rb.AddForce(moveDirection * currentWalkSpeed * 10f, ForceMode.Force);
         else
             rb.AddForce(moveDirection * currentWalkSpeed * 10f * airMultiplier, ForceMode.Force);
-
         SpeedControl();
     }
 
     private void SpeedControl()
     {
-        // Limit horizontal speed without affecting vertical velocity.
         Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         if (flatVel.magnitude > currentWalkSpeed)
         {
@@ -289,7 +335,6 @@ public class FPS_Controller : MonoBehaviour
 
     private void Jump()
     {
-        // Reset vertical velocity and apply jump impulse.
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
@@ -309,9 +354,6 @@ public class FPS_Controller : MonoBehaviour
         isCrouching = false;
     }
 
-    /// <summary>
-    /// Checks if there is room above the player to stand up.
-    /// </summary>
     private bool CanStand()
     {
         float sphereRadius = capsuleCollider.radius * 0.9f;
@@ -325,9 +367,6 @@ public class FPS_Controller : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// Initiates a dash in the current movement direction.
-    /// </summary>
     private void Dash()
     {
         canDash = false;
@@ -351,21 +390,52 @@ public class FPS_Controller : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks for a wall on either side to initiate a wall run.
+    /// Performs a slide by using the dash impulse while forcing crouch height.
+    /// The slide persists until the player releases the crouch key.
     /// </summary>
+    private void Slide()
+    {
+        isSliding = true;
+        canDash = false;
+        StartCrouching();
+        Vector3 slideDirection = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
+        if (slideDirection == Vector3.zero)
+            slideDirection = transform.forward;
+        rb.AddForce(slideDirection * dashForce, ForceMode.Impulse);
+    }
+
+    private void EndSlide()
+    {
+        isSliding = false;
+        Invoke(nameof(ResetDash), dashCooldown);
+    }
+
+    // Rail riding integration.
+    public void EnterRail(Rail rail)
+    {
+        isOnRail = true;
+        currentRail = rail;
+        rb.useGravity = false;
+    }
+
+    public void ExitRail()
+    {
+        isOnRail = false;
+        currentRail = null;
+        rb.useGravity = true;
+    }
+
     private void CheckForWallRun()
     {
         RaycastHit hit;
-        // Check left side.
         if (Physics.Raycast(transform.position, -transform.right, out hit, wallRunRayDistance))
         {
-            if (hit.normal.y < 0.2f) // nearly vertical wall
+            if (hit.normal.y < 0.2f)
             {
                 StartWallRun(hit.normal);
                 return;
             }
         }
-        // Check right side.
         if (Physics.Raycast(transform.position, transform.right, out hit, wallRunRayDistance))
         {
             if (hit.normal.y < 0.2f)
@@ -376,29 +446,18 @@ public class FPS_Controller : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Begins wall running given a valid wall normal.
-    /// Immediately launches the player along the wall.
-    /// </summary>
     private void StartWallRun(Vector3 wallNormal)
     {
         isWallRunning = true;
         wallRunTimer = 0f;
         currentWallNormal = wallNormal;
         rb.useGravity = false;
-
-        // Calculate the wall tangent (direction along the wall).
         Vector3 wallTangent = Vector3.Cross(currentWallNormal, Vector3.up).normalized;
         if (Vector3.Dot(wallTangent, transform.forward) < 0)
             wallTangent = -wallTangent;
-
-        // Launch the player along the wall.
         rb.velocity = wallTangent * wallRunLaunchSpeed + new Vector3(0, rb.velocity.y, 0);
     }
 
-    /// <summary>
-    /// Ends the wall run, restoring normal gravity.
-    /// </summary>
     private void EndWallRun()
     {
         isWallRunning = false;
@@ -406,45 +465,37 @@ public class FPS_Controller : MonoBehaviour
         rb.useGravity = true;
     }
 
-    /// <summary>
-    /// Checks if the wall we are running on is still valid.
-    /// </summary>
     private bool IsWallStillValid()
     {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, -currentWallNormal, out hit, wallRunRayDistance))
-        {
             return true;
-        }
         return false;
     }
 
-    /// <summary>
-    /// Applies wall run behavior by preserving momentum, gradually increasing speed, and ramping up gravity.
-    /// </summary>
     private void WallRunMovement()
     {
-        // Ramp up gravity over the wall run time so the player starts to descend.
         float gravityMultiplier = Mathf.Lerp(0f, 1f, wallRunTimer / maxWallRunTime);
         rb.AddForce(Vector3.up * Physics.gravity.y * wallRunGravity * gravityMultiplier, ForceMode.Acceleration);
-
-        // Increase speed along the wall.
         Vector3 wallTangent = Vector3.Cross(currentWallNormal, Vector3.up).normalized;
         if (Vector3.Dot(wallTangent, transform.forward) < 0)
             wallTangent = -wallTangent;
         Vector3 currentTangentVel = Vector3.Project(rb.velocity, wallTangent);
         if (currentTangentVel.magnitude < maxWallRunSpeed)
-        {
             rb.AddForce(wallTangent * wallRunAcceleration, ForceMode.Acceleration);
-        }
     }
 
-    /// <summary>
-    /// Updates the player's state based on movement and input.
-    /// </summary>
     private void UpdatePlayerState()
     {
-        if (isWallRunning)
+        if (isOnRail)
+        {
+            currentState = PlayerState.RailRiding;
+        }
+        else if (isSliding)
+        {
+            currentState = PlayerState.Sliding;
+        }
+        else if (isWallRunning)
         {
             currentState = PlayerState.WallRunning;
         }
@@ -462,11 +513,15 @@ public class FPS_Controller : MonoBehaviour
         }
         else if (Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f)
         {
-            currentState = PlayerState.Walking;
+            if (Input.GetKey(sprintKey) && grounded)
+                currentState = PlayerState.Sprinting;
+            else
+                currentState = PlayerState.Walking;
         }
         else
         {
             currentState = PlayerState.Idle;
         }
+        Debug.Log("Current State: " + currentState);
     }
 }

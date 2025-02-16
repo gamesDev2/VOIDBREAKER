@@ -131,8 +131,10 @@ MonoBehaviour:
   airMultiplier: 0.5
   maxJumpCount: 2
   jumpKey: 32
-  crouchKey: 306
-  dashKey: 304
+  crouchKey: 99
+  dashKey: 101
+  sprintKey: 304
+  sprintSpeed: 8
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
@@ -147,6 +149,12 @@ MonoBehaviour:
   dashDuration: 0.5
   dashCooldown: 0.3
   isDashing: 0
+  wallRunLaunchSpeed: 10
+  wallRunAcceleration: 5
+  maxWallRunSpeed: 20
+  wallRunGravity: 0.3
+  maxWallRunTime: 2
+  wallRunRayDistance: 1
 --- !u!54 &494950789588206386
 Rigidbody:
   m_ObjectHideFlags: 0

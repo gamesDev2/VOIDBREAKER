@@ -1,0 +1,34 @@
+Basic Movement:
+
+W, A, S, D: Move forward, left, backward, and right.
+Mouse Movement: Look around (rotate your view).
+Jumping:
+
+Spacebar: Jump.
+• Supports double jumping (jump once more in air).
+• If wall running, pressing Space will perform a wall jump.
+Sprinting:
+
+Left Shift (hold): Sprint (increases movement speed).
+• Note: Sprinting is only available when grounded.
+Crouching & Sliding:
+
+C (hold): Crouch.
+• When not sprinting, simply crouch to lower your profile.
+Slide:
+• While sprinting (holding Left Shift) and grounded, press Left Control to trigger a slide.
+• The slide acts like a dash but forces you to remain crouched until you release the crouch key.
+Dashing:
+
+E (press): Dash (a quick burst of speed in the movement direction).
+• Dash is not available when crouching.
+Wall Running:
+
+When airborne and approaching a nearly vertical wall while falling, the player will start wall running automatically.
+During wall running, momentum is preserved along the wall.
+Press Space to perform a wall jump off the wall.
+Rail Riding:
+
+When the player enters a rail trigger area (see Rail object), they “stick” to the top of the rail.
+While rail riding, movement is forced along the rail’s direction at high speed.
+Press Space to jump off the rail at any time.
