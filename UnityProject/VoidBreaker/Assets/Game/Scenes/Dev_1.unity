@@ -24,7 +24,7 @@ RenderSettings:
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 0
+  m_AmbientMode: 4
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
@@ -4039,6 +4039,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7051418737531362172, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7051418737531362172, guid: f93138cca030223478a1b96c5ca95b04,
+        type: 3}
       propertyPath: antialiasing
       value: 2
       objectReference: {fileID: 0}
@@ -4100,7 +4105,7 @@ PrefabInstance:
     - target: {fileID: 7762630527756405147, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: mouseSensitivity
-      value: 100
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 7762630527756405147, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}

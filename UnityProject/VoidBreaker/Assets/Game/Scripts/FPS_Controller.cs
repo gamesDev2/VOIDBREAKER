@@ -390,6 +390,7 @@ public class FPS_Controller : MonoBehaviour
         }
         else
         {
+            Debug.Log(xRotation);
             // Normal head rotation and FOV when not rolling.
             head.localRotation = Quaternion.Euler(xRotation, 0, 0);
             if (playerCamera != null)

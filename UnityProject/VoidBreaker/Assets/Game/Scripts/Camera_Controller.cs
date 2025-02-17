@@ -95,11 +95,12 @@ public class Camera_Controller : MonoBehaviour
 
         if (playerOrientation != null)
         {
-            playerOrientation.rotation = Quaternion.Lerp(
-                playerOrientation.rotation,
-                Quaternion.Euler(0f, _yRotation * 2f, 0f),
-                Time.deltaTime
-            );
+            //playerOrientation.rotation = Quaternion.Euler(_xRotation, _yRotation * 2f, 0f);
+            //playerOrientation.rotation = Quaternion.Lerp(
+            //    playerOrientation.rotation,
+            //    Quaternion.Euler(0f, _yRotation * 2f, 0f),
+            //    Time.deltaTime
+            //);
         }
     }
 
