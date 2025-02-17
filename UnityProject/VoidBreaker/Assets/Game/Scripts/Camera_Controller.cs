@@ -37,6 +37,10 @@ public class Camera_Controller : MonoBehaviour
     [Tooltip("How quickly shake intensity decays.")]
     public float shakeDecaySpeed = 5f;
 
+    [Header("Performance Settings")]
+    [Tooltip("Maximum deltaTime used for camera updates to avoid large jumps due to lag spikes.")]
+    public float maxDeltaTime = 0.033f; // ~33ms (approx 30 FPS)
+
     [Header("References")]
     [Tooltip("Typically the parent object for horizontal rotation. " +
              "This script handles vertical rotation on the Camera itself.")]
@@ -53,6 +57,9 @@ public class Camera_Controller : MonoBehaviour
 
     // Reference to the FPS_Controller to detect state (e.g., dashing).
     private FPS_Controller fpsController;
+
+    // Cached deltaTime for this frame, clamped to maxDeltaTime.
+    private float dt;
 
     private void Awake()
     {
@@ -77,6 +84,9 @@ public class Camera_Controller : MonoBehaviour
 
     private void Update()
     {
+        // Clamp Time.deltaTime to prevent large jumps during lag spikes.
+        dt = Mathf.Min(Time.deltaTime, maxDeltaTime);
+
         HandleMouseLook();
         HandleCameraTilt();
         HandleHeadBob();
@@ -86,8 +96,8 @@ public class Camera_Controller : MonoBehaviour
 
     private void HandleMouseLook()
     {
-        float mouseX = Input.GetAxisRaw("Mouse X") * horizontalSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * verticalSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxisRaw("Mouse X") * horizontalSensitivity * dt;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * verticalSensitivity * dt;
 
         _yRotation += mouseX;
         _xRotation -= mouseY;
@@ -95,12 +105,8 @@ public class Camera_Controller : MonoBehaviour
 
         if (playerOrientation != null)
         {
-            //playerOrientation.rotation = Quaternion.Euler(_xRotation, _yRotation * 2f, 0f);
-            //playerOrientation.rotation = Quaternion.Lerp(
-            //    playerOrientation.rotation,
-            //    Quaternion.Euler(0f, _yRotation * 2f, 0f),
-            //    Time.deltaTime
-            //);
+            // Optionally, apply horizontal rotation to the player orientation.
+            // Example: playerOrientation.rotation = Quaternion.Euler(0f, _yRotation, 0f);
         }
     }
 
@@ -112,7 +118,7 @@ public class Camera_Controller : MonoBehaviour
         float currentZ = transform.localEulerAngles.z;
         if (currentZ > 180) currentZ -= 360;
 
-        float newZ = Mathf.LerpAngle(currentZ, targetZRoll, Time.deltaTime * tiltSpeed);
+        float newZ = Mathf.LerpAngle(currentZ, targetZRoll, dt * tiltSpeed);
         transform.localRotation = Quaternion.Euler(_xRotation, 0f, newZ);
     }
 
@@ -126,7 +132,7 @@ public class Camera_Controller : MonoBehaviour
 
         if (isMoving)
         {
-            _headBobTimer += Time.deltaTime * bobSpeed;
+            _headBobTimer += dt * bobSpeed;
             float bobOffset = Mathf.Sin(_headBobTimer) * bobAmount;
             transform.localPosition = _originalLocalPos + _shakeOffset + new Vector3(0f, bobOffset, 0f);
         }
@@ -136,7 +142,7 @@ public class Camera_Controller : MonoBehaviour
             transform.localPosition = Vector3.Lerp(
                 transform.localPosition,
                 _originalLocalPos + _shakeOffset,
-                Time.deltaTime * bobSpeed
+                dt * bobSpeed
             );
         }
     }
@@ -145,7 +151,7 @@ public class Camera_Controller : MonoBehaviour
     {
         // Determine sprinting state (using Left Shift as an example)
         bool isSprinting = Input.GetKey(KeyCode.LeftShift);
-        // Check if the player is dashing via the player's state
+        // Check if the player is dashing via the player's state.
         bool isDashing = fpsController != null && fpsController.CurrentState == PlayerState.Dashing;
 
         float targetFOV = defaultFOV;
@@ -161,7 +167,7 @@ public class Camera_Controller : MonoBehaviour
             targetFOV = sprintFOV;
         }
 
-        _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, targetFOV, Time.deltaTime * transitionSpeed);
+        _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, targetFOV, dt * transitionSpeed);
     }
 
     private void HandleCameraShake()
@@ -169,7 +175,7 @@ public class Camera_Controller : MonoBehaviour
         if (_currentShakeIntensity > 0)
         {
             _shakeOffset = Random.insideUnitSphere * _currentShakeIntensity;
-            _currentShakeIntensity -= shakeDecaySpeed * Time.deltaTime;
+            _currentShakeIntensity -= shakeDecaySpeed * dt;
             if (_currentShakeIntensity < 0)
             {
                 _currentShakeIntensity = 0;
