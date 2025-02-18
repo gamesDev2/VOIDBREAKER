@@ -18,6 +18,8 @@ public enum PlayerState
 [RequireComponent(typeof(CapsuleCollider))]
 public class FPS_Controller : MonoBehaviour
 {
+    #region Public Fields
+
     [Header("Hierarchy References")]
     [Tooltip("Drag the 'Head' transform here (child of the Player).")]
     public Transform head;
@@ -37,8 +39,8 @@ public class FPS_Controller : MonoBehaviour
     public float rollMultiplier = 10f;
 
     [Header("Mouse Settings")]
+    [Tooltip("Only used for horizontal rotation (yaw).")]
     public float mouseSensitivity = 100f;
-    private float xRotation = 0f;
 
     [Header("Movement Settings")]
     [Tooltip("Base walking speed.")]
@@ -50,12 +52,10 @@ public class FPS_Controller : MonoBehaviour
     public float jumpCooldown = 0.25f;
     [Tooltip("Multiplier for horizontal movement while in the air.")]
     public float airMultiplier = 0.5f;
-    private bool readyToJump = true;
 
     [Header("Double Jump Settings")]
     [Tooltip("Maximum number of jumps (including the initial jump).")]
     public int maxJumpCount = 2;
-    private int jumpCount = 0;
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -72,7 +72,6 @@ public class FPS_Controller : MonoBehaviour
     public float playerHeight = 2f;
     [Tooltip("Which layers count as ground?")]
     public LayerMask whatIsGround;
-    private bool grounded;
 
     [Header("Crouch Settings")]
     [Tooltip("Collider height when crouching.")]
@@ -85,8 +84,6 @@ public class FPS_Controller : MonoBehaviour
     public float crouchCameraHeight = 0.5f;
 
     [Header("Speed Settings")]
-    [Tooltip("Current effective walking speed.")]
-    public float currentWalkSpeed;
     [Tooltip("Maximum speed achievable during a dash.")]
     public float maxSpeed = 10f;
 
@@ -97,8 +94,6 @@ public class FPS_Controller : MonoBehaviour
     public float dashDuration = 0.2f;
     [Tooltip("Cooldown before you can dash again.")]
     public float dashCooldown = 2f;
-    private bool canDash = true;
-    public bool isDashing = false;
 
     [Header("Wall Run Settings")]
     [Tooltip("Launch speed along the wall (orthogonal to the surface normal).")]
@@ -113,21 +108,14 @@ public class FPS_Controller : MonoBehaviour
     public float maxWallRunTime = 2f;
     [Tooltip("Distance for the raycast to detect walls.")]
     public float wallRunRayDistance = 1.0f;
-    private float wallRunTimer = 0f;
-    private bool isWallRunning = false;
-    private Vector3 currentWallNormal;
 
     [Header("Slide Settings")]
     [Tooltip("Slide is essentially a dash that forces crouch height.")]
     public float slideSpeed = 12f;
-    private bool isSliding = false;
 
     [Header("Rail Riding Settings")]
-    [Tooltip("Reference to the Rail object when riding a rail.")]
-    private Rail currentRail = null;
     [Tooltip("Offset to position the player on top of the rail.")]
     public float railVerticalOffset = 1f;
-    private bool isOnRail = false;
 
     [Header("High Fall Roll Settings")]
     [Tooltip("Enable or disable the high fall roll feature.")]
@@ -138,16 +126,6 @@ public class FPS_Controller : MonoBehaviour
     public float rollDuration = 0.5f;
     [Tooltip("Forward impulse applied when rolling.")]
     public float rollForce = 5f;
-    // Internal tracking for fall.
-    private float fallStartHeight;
-    private float fallStartTime;
-    private bool fallStarted = false;
-
-    // For camera roll effect.
-    private float rollEffectStartTime;
-    private float targetCameraFovIncrease;
-    private float targetCameraRollAngle;
-    private bool isRolling = false;
 
     [Header("Non-Wall Runnable Push Settings")]
     [Tooltip("Force to push the player downward if colliding with a non-wall runnable object while in air and pressing movement.")]
@@ -158,37 +136,67 @@ public class FPS_Controller : MonoBehaviour
     public float pushHeightThreshold = 2f;
     [Tooltip("Minimum time (in seconds) between push events.")]
     public float pushCooldown = 1f;
-    private float lastPushTime = 0f;
 
     [Header("Ground Pound Settings")]
     [Tooltip("Downward force applied when ground pounding.")]
     public float groundPoundForce = 20f;
-    // Tracks whether a ground pound is currently active.
-    private bool isGroundPounding = false;
 
-    // Enum state machine.
-    private PlayerState currentState = PlayerState.Idle;
-    public PlayerState CurrentState { get { return currentState; } }
+    [Header("Performance Settings")]
+    [Tooltip("Maximum deltaTime to use for Update calculations (to handle FPS spikes).")]
+    public float maxDeltaTime = 0.033f; // ~33ms (~30 FPS)
 
-    // Internal references.
+    #endregion
+
+    #region Private Fields
+
     private Rigidbody rb;
     private CapsuleCollider capsuleCollider;
 
-    // Input.
     private float horizontalInput;
     private float verticalInput;
 
-    // Original values.
     private float originalColliderHeight;
     private Vector3 originalColliderCenter;
     private float originalMoveSpeed;
     private Vector3 standHeadLocalPos;
     private Vector3 crouchHeadLocalPos;
 
-    // Crouch state.
+    private bool readyToJump = true;
+    private int jumpCount = 0;
     private bool isCrouching = false;
+    private bool grounded = false;
 
-    private void Start()
+    private bool canDash = true;
+    private bool isDashing = false;
+
+    private float wallRunTimer = 0f;
+    private bool isWallRunning = false;
+    private Vector3 currentWallNormal;
+
+    private bool isSliding = false;
+    private bool isOnRail = false;
+    private Rail currentRail = null;
+
+    private float fallStartHeight;
+    private float fallStartTime;
+    private bool fallStarted = false;
+
+    private float rollEffectStartTime;
+    private float targetCameraFovIncrease;
+    private float targetCameraRollAngle;
+    private bool isRolling = false;
+
+    private float lastPushTime = 0f;
+    private bool isGroundPounding = false;
+
+    private PlayerState currentState = PlayerState.Idle;
+    public PlayerState CurrentState { get { return currentState; } }
+
+    #endregion
+
+    #region Unity Methods
+
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -200,86 +208,151 @@ public class FPS_Controller : MonoBehaviour
         originalColliderHeight = capsuleCollider.height;
         originalColliderCenter = capsuleCollider.center;
         originalMoveSpeed = moveSpeed;
-        currentWalkSpeed = originalMoveSpeed;
-
         standHeadLocalPos = head.localPosition;
         crouchHeadLocalPos = new Vector3(standHeadLocalPos.x, standHeadLocalPos.y - crouchCameraHeight, standHeadLocalPos.z);
+        currentState = PlayerState.Idle;
 
-        // If no camera is assigned, try to get one from the head.
         if (playerCamera == null)
             playerCamera = head.GetComponent<Camera>();
-
-        // Set camera to its base FOV.
         if (playerCamera != null)
             playerCamera.fieldOfView = baseFov;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
         readyToJump = true;
     }
 
     private void Update()
     {
-        // --- Mouse Look ---
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-        transform.Rotate(Vector3.up * mouseX);
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        float dt = Mathf.Min(Time.deltaTime, maxDeltaTime);
+        ProcessMouseLook(dt);
+        ProcessGroundCheck();
+        ProcessFallRoll(dt);
+        ProcessMovementInput();
+        ProcessJumpInput();
+        ProcessCrouchAndGroundPoundInput();
+        ProcessDashInput();
+        ProcessWallRunCheck(dt);
+        SmoothHeadAndCollider(dt);
+        UpdateCurrentWalkSpeed();
+        UpdatePlayerState();
+        UpdateCameraController();
+    }
 
-        // --- Ground Check ---
+    private void FixedUpdate()
+    {
+        if (isRolling)
+        {
+            SpeedControl();
+            return;
+        }
+
+        if (isOnRail && currentRail != null)
+        {
+            // Find the closest point on the rail and force its vertical position.
+            Vector3 railPoint = currentRail.GetClosestPointOnRail(rb.position);
+            railPoint.y += railVerticalOffset;
+
+            // Smoothly interpolate horizontal position toward the rail while snapping Y.
+            Vector3 newPos = rb.position;
+            newPos.x = Mathf.Lerp(rb.position.x, railPoint.x, 0.2f);
+            newPos.z = Mathf.Lerp(rb.position.z, railPoint.z, 0.2f);
+            newPos.y = railPoint.y;
+            rb.MovePosition(newPos);
+
+            // Get the rail's horizontal direction.
+            Vector3 railDir = currentRail.GetRailDirection();
+            railDir = Vector3.ProjectOnPlane(railDir, Vector3.up).normalized;
+
+            // Reverse direction if the player is facing opposite.
+            if (Vector3.Dot(transform.forward, railDir) < 0f)
+            {
+                railDir = -railDir;
+            }
+
+            // Set horizontal velocity only.
+            rb.velocity = railDir * currentRail.railSpeed;
+            // Force vertical velocity to zero.
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+        }
+
+
+        else if (!isWallRunning && !isSliding)
+            MovePlayer();
+        else
+            SpeedControl();
+
+        if (isWallRunning)
+            WallRunMovement();
+
+        CheckForNonWallRunnableCollision();
+
+
+        Debug.Log("Current State: " + currentState + " | Velocity: " + rb.velocity.magnitude);
+    }
+
+    #endregion
+
+    #region Input & Update Methods
+
+    private void ProcessMouseLook(float dt)
+    {
+        // Horizontal (yaw) rotation is applied here
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * dt;
+        transform.Rotate(Vector3.up * mouseX);
+    }
+
+    private void ProcessGroundCheck()
+    {
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, whatIsGround);
         if (grounded)
         {
             jumpCount = 0;
-            isGroundPounding = false; // Reset ground pound when landed.
+            isGroundPounding = false;
             if (isWallRunning)
                 EndWallRun();
             if (isOnRail)
                 ExitRail();
         }
+    }
 
-        // --- High Fall Roll Tracking ---
+    private void ProcessFallRoll(float dt)
+    {
         if (enableHighFallRoll)
         {
-            // When leaving the ground, start tracking the fall.
             if (!grounded && !fallStarted)
             {
                 fallStarted = true;
                 fallStartHeight = transform.position.y;
                 fallStartTime = Time.time;
             }
-            // When landing, check the fall distance.
             else if (grounded && fallStarted && !isRolling)
             {
                 float fallDistance = fallStartHeight - transform.position.y;
                 if (fallDistance >= highFallRollThreshold)
-                {
                     StartRoll();
-                }
-                fallStarted = false; // Reset fall tracking.
+                fallStarted = false;
             }
         }
+    }
 
-        // --- Movement Input ---
+    private void ProcessMovementInput()
+    {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
+    }
 
-        // --- Jump Input ---
-        if (Input.GetKeyDown(jumpKey) && readyToJump && (grounded || jumpCount < maxJumpCount || isWallRunning || isOnRail))
+    private void ProcessJumpInput()
+    {
+        if (Input.GetKeyDown(jumpKey) && readyToJump &&
+            (grounded || jumpCount < maxJumpCount || isWallRunning || isOnRail))
         {
             if (isOnRail)
-            {
                 ExitRail();
-            }
             if (isCrouching && CanStand())
-            {
                 StopCrouching();
-            }
             if (isWallRunning)
             {
-                Debug.Log("Performing wall jump: " + currentWallNormal);
                 rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
                 rb.AddForce((Vector3.up + currentWallNormal) * jumpForce, ForceMode.Impulse);
                 EndWallRun();
@@ -290,80 +363,70 @@ public class FPS_Controller : MonoBehaviour
                 Jump();
                 jumpCount++;
                 if (grounded && Input.GetKey(sprintKey))
-                {
-                    ResetDash(); // Reset dash cooldown when sprinting and jumping.
-                }
+                    ResetDash();
             }
             readyToJump = false;
             Invoke(nameof(ResetJump), jumpCooldown);
         }
+    }
 
-        // --- Crouch / Ground Pound Input ---
+    private void ProcessCrouchAndGroundPoundInput()
+    {
         if (Input.GetKeyDown(crouchKey))
         {
             if (!grounded)
-            {
-                // If in air and CTRL is pressed, perform a ground pound.
                 GroundPound();
-            }
             else
             {
-                // If grounded, trigger slide if sprinting; otherwise, start crouching.
                 if (Input.GetKey(sprintKey) && grounded && !isSliding)
-                {
                     Slide();
-                }
                 else
-                {
                     StartCrouching();
-                }
             }
         }
         else if (!Input.GetKey(crouchKey))
         {
             if (isSliding)
-            {
                 EndSlide();
-            }
             else if (isCrouching && CanStand())
-            {
                 StopCrouching();
-            }
         }
+    }
 
-        // --- Dash Input ---
+    private void ProcessDashInput()
+    {
         if (Input.GetKeyDown(dashKey) && canDash && !isCrouching)
-        {
             Dash();
-        }
+    }
 
-        // --- Wall Run Check ---
+    private void ProcessWallRunCheck(float dt)
+    {
         if (!grounded && !isWallRunning && rb.velocity.y < 0)
-        {
             CheckForWallRun();
-        }
         else if (isWallRunning)
         {
-            wallRunTimer += Time.deltaTime;
+            wallRunTimer += dt;
             if (wallRunTimer > maxWallRunTime || !IsWallStillValid())
-            {
                 EndWallRun();
-            }
         }
+    }
 
-        // --- Smooth Head and Collider Transition ---
-        head.localPosition = Vector3.Lerp(head.localPosition, isCrouching ? crouchHeadLocalPos : standHeadLocalPos, crouchTransitionSpeed * Time.deltaTime);
+    private void SmoothHeadAndCollider(float dt)
+    {
+        head.localPosition = Vector3.Lerp(head.localPosition,
+                                          isCrouching ? crouchHeadLocalPos : standHeadLocalPos,
+                                          crouchTransitionSpeed * dt);
         float targetHeight = isCrouching ? crouchHeight : originalColliderHeight;
-        capsuleCollider.height = Mathf.Lerp(capsuleCollider.height, targetHeight, crouchTransitionSpeed * Time.deltaTime);
+        capsuleCollider.height = Mathf.Lerp(capsuleCollider.height, targetHeight, crouchTransitionSpeed * dt);
         Vector3 targetCenter = originalColliderCenter;
-        targetCenter.y -= (originalColliderHeight - targetHeight) / 2;
-        capsuleCollider.center = Vector3.Lerp(capsuleCollider.center, targetCenter, crouchTransitionSpeed * Time.deltaTime);
+        targetCenter.y -= (originalColliderHeight - targetHeight) / 2f;
+        capsuleCollider.center = Vector3.Lerp(capsuleCollider.center, targetCenter, crouchTransitionSpeed * dt);
+    }
 
-        // --- Update Current Walk Speed ---
+    private void UpdateCurrentWalkSpeed()
+    {
         if (isOnRail && currentRail != null)
-        {
-            currentWalkSpeed = currentRail.railSpeed; // Use rail speed.
-        }
+            currentWalkSpeed = currentRail.railSpeed;
         else if (isDashing)
             currentWalkSpeed = maxSpeed;
         else if (isSliding)
@@ -374,66 +437,51 @@ public class FPS_Controller : MonoBehaviour
             currentWalkSpeed = sprintSpeed;
         else
             currentWalkSpeed = originalMoveSpeed;
-
-        // --- Update Camera Roll & FOV if Rolling ---
-        if (isRolling)
-        {
-            float elapsedRoll = Time.time - rollEffectStartTime;
-            float t = Mathf.Clamp01(elapsedRoll / rollDuration);
-            // Lerp from the target (maximum) values back to zero.
-            float currentRollAngle = Mathf.Lerp(targetCameraRollAngle, 0, t);
-            float currentFovIncrease = Mathf.Lerp(targetCameraFovIncrease, 0, t);
-            if (playerCamera != null)
-                playerCamera.fieldOfView = baseFov + currentFovIncrease;
-            // Combine pitch (xRotation) with roll (z rotation).
-            head.localRotation = Quaternion.Euler(xRotation, 0, currentRollAngle);
-        }
-        else
-        {
-            Debug.Log(xRotation);
-            // Normal head rotation and FOV when not rolling.
-            head.localRotation = Quaternion.Euler(xRotation, 0, 0);
-            if (playerCamera != null)
-                playerCamera.fieldOfView = baseFov;
-        }
-
-        UpdatePlayerState();
     }
 
-    private void FixedUpdate()
+    private void UpdatePlayerState()
     {
-        // --- Disable normal movement while rolling ---
         if (isRolling)
         {
-            SpeedControl();
+            currentState = PlayerState.Rolling;
             return;
         }
-
-        if (isOnRail && currentRail != null)
-        {
-            // Stick the player to the top of the rail.
-            Vector3 targetPos = currentRail.GetClosestPointOnRail(rb.position) + Vector3.up * railVerticalOffset;
-            rb.position = Vector3.Lerp(rb.position, targetPos, 0.2f);
-            Vector3 railDir = currentRail.GetRailDirection();
-            rb.velocity = new Vector3(railDir.x * currentRail.railSpeed, rb.velocity.y, railDir.z * currentRail.railSpeed);
-        }
-        else if (!isWallRunning && !isSliding)
-        {
-            MovePlayer();
-        }
+        if (isOnRail)
+            currentState = PlayerState.RailRiding;
+        else if (isSliding)
+            currentState = PlayerState.Sliding;
+        else if (isWallRunning)
+            currentState = PlayerState.WallRunning;
+        else if (isDashing)
+            currentState = PlayerState.Dashing;
+        else if (!grounded)
+            currentState = PlayerState.Jumping;
+        else if (isCrouching)
+            currentState = PlayerState.Crouching;
+        else if (Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f)
+            currentState = (Input.GetKey(sprintKey) && grounded) ? PlayerState.Sprinting : PlayerState.Walking;
         else
-        {
-            SpeedControl();
-        }
-
-        if (isWallRunning)
-        {
-            WallRunMovement();
-        }
-
-        // --- Check for collisions with non-wall runnable objects ---
-        CheckForNonWallRunnableCollision();
+            currentState = PlayerState.Idle;
     }
+
+    private void UpdateCameraController()
+    {
+        if (playerCamera != null)
+        {
+            Camera_Controller camCtrl = playerCamera.GetComponent<Camera_Controller>();
+            if (camCtrl != null)
+            {
+                camCtrl.SetPlayerState(currentState);
+                camCtrl.SetRollFovOffset(CurrentRollFovOffset);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Movement & Utility Methods
+
+    private float currentWalkSpeed; // current effective walk speed
 
     private void MovePlayer()
     {
@@ -511,10 +559,6 @@ public class FPS_Controller : MonoBehaviour
         canDash = true;
     }
 
-    /// <summary>
-    /// Performs a slide by using the dash impulse while forcing crouch height.
-    /// The slide persists until the player releases the crouch key.
-    /// </summary>
     private void Slide()
     {
         isSliding = true;
@@ -532,13 +576,17 @@ public class FPS_Controller : MonoBehaviour
         Invoke(nameof(ResetDash), dashCooldown);
     }
 
-    // Rail riding integration.
     public void EnterRail(Rail rail)
     {
         isOnRail = true;
         currentRail = rail;
         rb.useGravity = false;
+        // Immediately snap the player’s vertical position to the rail’s surface plus offset.
+        Vector3 railPoint = currentRail.GetClosestPointOnRail(rb.position);
+        railPoint.y += railVerticalOffset;
+        rb.position = new Vector3(rb.position.x, railPoint.y, rb.position.z);
     }
+
 
     public void ExitRail()
     {
@@ -550,7 +598,6 @@ public class FPS_Controller : MonoBehaviour
     private void CheckForWallRun()
     {
         RaycastHit hit;
-        // Check left side.
         if (Physics.Raycast(transform.position, -transform.right, out hit, wallRunRayDistance))
         {
             if (hit.normal.y < 0.2f && hit.collider.CompareTag("WallRun"))
@@ -559,7 +606,6 @@ public class FPS_Controller : MonoBehaviour
                 return;
             }
         }
-        // Check right side.
         if (Physics.Raycast(transform.position, transform.right, out hit, wallRunRayDistance))
         {
             if (hit.normal.y < 0.2f && hit.collider.CompareTag("WallRun"))
@@ -592,13 +638,10 @@ public class FPS_Controller : MonoBehaviour
     private bool IsWallStillValid()
     {
         RaycastHit hit;
-        // Cast a ray from the player's position in the opposite direction of the wall's normal.
         if (Physics.Raycast(transform.position, -currentWallNormal, out hit, wallRunRayDistance, whatIsGround))
         {
-            // Only consider walls tagged "WallRun".
             if (hit.collider.CompareTag("WallRun"))
             {
-                // If the distance to the wall is too short (e.g. less than 0.3f), cancel the wall run.
                 if (hit.distance < 0.3f)
                     return false;
                 return true;
@@ -619,125 +662,70 @@ public class FPS_Controller : MonoBehaviour
             rb.AddForce(wallTangent * wallRunAcceleration, ForceMode.Acceleration);
     }
 
-    private void UpdatePlayerState()
-    {
-        // Rolling takes precedence over other states.
-        if (isRolling)
-        {
-            currentState = PlayerState.Rolling;
-            Debug.Log("Current State: " + currentState);
-            return;
-        }
-        if (isOnRail)
-        {
-            currentState = PlayerState.RailRiding;
-        }
-        else if (isSliding)
-        {
-            currentState = PlayerState.Sliding;
-        }
-        else if (isWallRunning)
-        {
-            currentState = PlayerState.WallRunning;
-        }
-        else if (isDashing)
-        {
-            currentState = PlayerState.Dashing;
-        }
-        else if (!grounded)
-        {
-            currentState = PlayerState.Jumping;
-        }
-        else if (isCrouching)
-        {
-            currentState = PlayerState.Crouching;
-        }
-        else if (Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f)
-        {
-            if (Input.GetKey(sprintKey) && grounded)
-                currentState = PlayerState.Sprinting;
-            else
-                currentState = PlayerState.Walking;
-        }
-        else
-        {
-            currentState = PlayerState.Idle;
-        }
-        Debug.Log("Current State: " + currentState);
-    }
-
-    /// <summary>
-    /// Initiates a roll after a high fall.
-    /// Also computes camera roll and FOV boost based on how long the fall lasted.
-    /// </summary>
-    private void StartRoll()
-    {
-        if (isRolling)
-            return;
-
-        // Calculate how long the player was falling.
-        float fallDuration = Time.time - fallStartTime;
-        // Compute the maximum FOV increase and roll angle based on fall duration.
-        targetCameraFovIncrease = Mathf.Clamp(fallDuration * fovMultiplier, 0, maxFovIncrease);
-        targetCameraRollAngle = Mathf.Clamp(fallDuration * rollMultiplier, 0, maxCameraRollAngle);
-
-        isRolling = true;
-        currentState = PlayerState.Rolling;
-        rollEffectStartTime = Time.time;
-        // Apply a forward impulse for extra roll momentum.
-        rb.AddForce(transform.forward * rollForce, ForceMode.Impulse);
-        // End the roll after the designated duration.
-        Invoke(nameof(EndRoll), rollDuration);
-    }
-
-    private void EndRoll()
-    {
-        isRolling = false;
-        // After rolling, the state will update based on inputs/grounded status.
-    }
-
-    /// <summary>
-    /// If the player is in air and pressing movement keys, perform an OverlapSphere check.
-    /// If a collider is found that is NOT tagged "WallRun", push the player downward.
-    /// The push is only applied if the player's Y position is above a threshold and if a cooldown period has passed.
-    /// </summary>
     private void CheckForNonWallRunnableCollision()
     {
         if (!grounded && (Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f))
         {
-            // Only push if the player's height is above the threshold and the cooldown has elapsed.
             if (transform.position.y > pushHeightThreshold && Time.time - lastPushTime >= pushCooldown)
             {
                 float sphereRadius = capsuleCollider.radius * sphereRadiusMultiplier;
                 Collider[] hits = Physics.OverlapSphere(transform.position, sphereRadius);
                 foreach (Collider col in hits)
                 {
-                    // Skip self.
                     if (col.gameObject == gameObject)
                         continue;
-                    // If the collider isn't tagged as "WallRun", apply a downward force.
                     if (!col.CompareTag("WallRun"))
                     {
                         rb.AddForce(Vector3.down * pushForce, ForceMode.VelocityChange);
                         lastPushTime = Time.time;
-                        break; // Only need to push once.
+                        break;
                     }
                 }
             }
         }
     }
 
-    /// <summary>
-    /// Performs a ground pound when the player is in air and presses the crouch key.
-    /// Applies a strong downward force. This is only triggered when airborne.
-    /// </summary>
     private void GroundPound()
     {
         if (isGroundPounding)
             return;
-
         isGroundPounding = true;
         rb.AddForce(Vector3.down * groundPoundForce, ForceMode.VelocityChange);
         Debug.Log("Ground Pound triggered!");
     }
+
+    public float CurrentRollFovOffset
+    {
+        get
+        {
+            if (isRolling)
+            {
+                float elapsed = Time.time - rollEffectStartTime;
+                float t = Mathf.Clamp01(elapsed / rollDuration);
+                return Mathf.Lerp(targetCameraFovIncrease, 0f, t);
+            }
+            return 0f;
+        }
+    }
+
+    private void StartRoll()
+    {
+        if (isRolling)
+            return;
+        float fallDuration = Time.time - fallStartTime;
+        targetCameraFovIncrease = Mathf.Clamp(fallDuration * fovMultiplier, 0f, maxFovIncrease);
+        targetCameraRollAngle = Mathf.Clamp(fallDuration * rollMultiplier, 0f, maxCameraRollAngle);
+        isRolling = true;
+        currentState = PlayerState.Rolling;
+        rollEffectStartTime = Time.time;
+        rb.AddForce(transform.forward * rollForce, ForceMode.Impulse);
+        Invoke(nameof(EndRoll), rollDuration);
+    }
+
+    private void EndRoll()
+    {
+        isRolling = false;
+    }
+
+    #endregion
 }
