@@ -2934,8 +2934,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a13fd22bcd545cf468981422e6303fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localGoals: []
-  actionAssets: []
+  localGoals:
+  - goalName: To get OpenGL to work
+    priority: 1
+  actionAssets:
+  - {fileID: 0}
   currentDirectorGoal:
     goalName: 
     priority: 0
