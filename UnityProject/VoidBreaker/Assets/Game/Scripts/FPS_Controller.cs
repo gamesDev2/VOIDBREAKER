@@ -143,7 +143,7 @@ public class FPS_Controller : MonoBehaviour
 
     [Header("Performance Settings")]
     [Tooltip("Maximum deltaTime to use for Update calculations (to handle FPS spikes).")]
-    public float maxDeltaTime = 0.033f; // ~33ms (~30 FPS)
+    public float maxDeltaTime = 0.016f; // ~60 fps
 
     #endregion
 

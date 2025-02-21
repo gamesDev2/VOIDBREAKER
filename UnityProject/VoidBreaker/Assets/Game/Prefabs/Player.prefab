@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1024069977192298185}
   - component: {fileID: 7762630527756405147}
   - component: {fileID: 494950789588206386}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
@@ -123,6 +123,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   head: {fileID: 3331553298692531508}
+  playerCamera: {fileID: 0}
+  baseFov: 60
+  maxFovIncrease: 20
+  fovMultiplier: 10
+  maxCameraRollAngle: 20
+  rollMultiplier: 10
   mouseSensitivity: 100
   moveSpeed: 5
   groundDrag: 6
@@ -143,18 +149,28 @@ MonoBehaviour:
   crouchSpeed: 3
   crouchTransitionSpeed: 8
   crouchCameraHeight: 0.5
-  currentWalkSpeed: 0
   maxSpeed: 20
   dashForce: 15
   dashDuration: 0.5
   dashCooldown: 0.3
-  isDashing: 0
   wallRunLaunchSpeed: 10
   wallRunAcceleration: 5
   maxWallRunSpeed: 20
   wallRunGravity: 0.3
   maxWallRunTime: 2
   wallRunRayDistance: 1
+  slideSpeed: 12
+  railVerticalOffset: 1
+  enableHighFallRoll: 1
+  highFallRollThreshold: 5
+  rollDuration: 0.5
+  rollForce: 5
+  pushForce: 10
+  sphereRadiusMultiplier: 1.2
+  pushHeightThreshold: 2
+  pushCooldown: 1
+  groundPoundForce: 20
+  maxDeltaTime: 0.016
 --- !u!54 &494950789588206386
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -191,7 +207,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3331553298692531508}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -228,7 +244,7 @@ GameObject:
   - component: {fileID: 7051418737531362172}
   - component: {fileID: 1022813388246793526}
   - component: {fileID: 8044020828575531127}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player_Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -451,7 +467,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   verticalSensitivity: 100
-  horizontalSensitivity: 300
   verticalClampAngle: 25
   tiltAngle: 5
   tiltSpeed: 10
@@ -464,7 +479,7 @@ MonoBehaviour:
   fovTransitionSpeed: 10
   dashFOVTransitionSpeed: 15
   shakeDecaySpeed: 5
-  playerOrientation: {fileID: 3331553298692531508}
+  maxDeltaTime: 0.033
 --- !u!114 &8044020828575531127
 MonoBehaviour:
   m_ObjectHideFlags: 0
