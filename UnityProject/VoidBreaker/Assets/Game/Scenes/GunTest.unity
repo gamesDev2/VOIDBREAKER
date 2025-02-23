@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
-  fireRate: 2
+  fireRate: 10
   ammoCount: 20
   reloadTime: 2
   range: 1000
