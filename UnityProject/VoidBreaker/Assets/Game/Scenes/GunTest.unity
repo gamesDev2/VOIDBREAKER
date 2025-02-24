@@ -167,15 +167,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
-  fireRate: 10
-  ammoCount: 20
+  fireRate: 50
+  ammoCount: 500
   reloadTime: 2
   range: 1000
-  shootButton: 323
+  ammoRemaining: 0
   bulletHole: {fileID: 487256724424140589, guid: 8b4d592f488ac78459e7e54ad10a8356,
     type: 3}
   tagToHit: bob
-  ammoRemaining: 0
 --- !u!1 &211550264
 GameObject:
   m_ObjectHideFlags: 0
@@ -265,7 +264,7 @@ Transform:
   m_GameObject: {fileID: 211550264}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 34, y: 80.9, z: -58.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -414,7 +413,7 @@ PrefabInstance:
     - target: {fileID: 308166568604371310, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.77
+      value: 3.21
       objectReference: {fileID: 0}
     - target: {fileID: 308166568604371310, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
@@ -455,6 +454,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7762630527756405147, guid: f93138cca030223478a1b96c5ca95b04,
+        type: 3}
+      propertyPath: mouseSensitivity
+      value: 300
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 553033659443092884}
   - component: {fileID: 487256724424140589}
+  - component: {fileID: 1513634264524718071}
   m_Layer: 0
   m_Name: BulletHole
   m_TagString: Untagged
@@ -55,6 +56,19 @@ MonoBehaviour:
   m_DecalLayerMask: 1
   m_ScaleMode: 0
   m_Offset: {x: 0, y: 0, z: 0}
-  m_Size: {x: 0.2, y: 0.2, z: 1}
+  m_Size: {x: 0.2, y: 0.2, z: 0.1}
   m_FadeFactor: 1
   m_Version: 2
+--- !u!114 &1513634264524718071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7476048776624124567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45bcce7bb9baac344a9b48afd42c2332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxBulletDecals: 500

@@ -17,19 +17,28 @@ public class gunShooting : MonoBehaviour
     public float reloadTime = 2;
     [Tooltip("How far the gun can hit targets from")]
     public float range = 100.0f;
-    [Header("Input")]
-    public KeyCode shootButton = KeyCode.Mouse0;
+
+
+    [Header("Remaining Ammunition")]
+    [SerializeField]
+    private int ammoRemaining;
+
     [Header("Hit Decal")]
     [Tooltip("Prefab to a decal projector containing a bullet hole")]
     public DecalProjector bulletHole;
+
+
     [Header("Tag")]
     [Tooltip("Anything with this tag should have a \"OnHit\" method")]
     public string tagToHit;
 
-    private float timeSinceLastShot;
-    private float timeSinceLastReload;
-    public int ammoRemaining;
-    private bool reloading;
+    
+
+    private float timeSinceLastShot = 0;
+    private float timeSinceLastReload = 0;
+    
+    private bool reloading = false;
+    private bool firing = false;
 
     void Start()
     {
@@ -42,15 +51,36 @@ public class gunShooting : MonoBehaviour
         timeSinceLastReload += Time.deltaTime;
 
 
-        if (timeSinceLastReload > reloadTime && ammoRemaining < ammoCount)
+        if (timeSinceLastReload > reloadTime / ammoCount && ammoRemaining < ammoCount && !firing)
         {
             ammoRemaining++;
             timeSinceLastReload = 0;
         }
+
+        if (firing)
+        {
+            Shoot();
+        }
     }
 
-    public void Shoot()
+    public void startFire()
     {
+        firing = true;
+    }
+
+    public void stopFire()
+    {
+        firing = false;
+    }
+
+
+    private void Shoot()
+    {
+        if (playerCamera == null)
+        {
+            return;
+        }
+
         if (ammoRemaining < 1)
         {
             reloading = true;
@@ -75,7 +105,7 @@ public class gunShooting : MonoBehaviour
             timeSinceLastShot = 0;
         }
 
-        
+
     }
 
     private void handleHit(ref RaycastHit _hit)

@@ -24,9 +24,14 @@ public class gunHandle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey(shootButton) && gun != null)
+        if(Input.GetKeyDown(shootButton) && gun != null)
         {
-            gun.Shoot();
+            gun.startFire();
+        }
+
+        if (Input.GetKeyUp(shootButton) && gun != null)
+        {
+            gun.stopFire();
         }
     }
 
