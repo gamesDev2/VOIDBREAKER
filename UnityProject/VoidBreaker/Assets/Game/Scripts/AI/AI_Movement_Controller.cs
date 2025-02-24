@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum AIMovementState
+public enum AIPlayerState
 {
     Idle,
     Walking,
@@ -16,10 +16,9 @@ public enum AIMovementState
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
-public class AI_MovementController : MonoBehaviour
+public class AI_Movement_Controller : MonoBehaviour
 {
     #region Public Fields
-
 
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
@@ -29,20 +28,20 @@ public class AI_MovementController : MonoBehaviour
     public float airMultiplier = 0.5f;
     public int maxJumpCount = 2;
 
-    [Header("Speeds & Key Movement")]
+    [Header("Sprinting Settings")]
     public float sprintSpeed = 8f;
+
+    [Header("Crouch Settings")]
+    public float crouchHeight = 1f;
     public float crouchSpeed = 3f;
+    public float crouchTransitionSpeed = 8f;
+    public float crouchCameraHeight = 0.5f;
+
+    [Header("Dash Settings")]
     public float dashForce = 15f;
     public float dashDuration = 0.2f;
     public float dashCooldown = 2f;
-    public float slideSpeed = 12f;
-
-    [Header("Collider & Ground Check")]
-    public float playerHeight = 2f;
-    public LayerMask whatIsGround;
-    public float crouchHeight = 1f;
-    public float crouchTransitionSpeed = 8f;
-    public float crouchCameraHeight = 0.5f;
+    public float maxSpeed = 10f;   // top dash speed
 
     [Header("Wall Run Settings")]
     public float wallRunLaunchSpeed = 10f;
@@ -52,28 +51,33 @@ public class AI_MovementController : MonoBehaviour
     public float maxWallRunTime = 2f;
     public float wallRunRayDistance = 1.0f;
 
-    [Header("Rail Riding")]
+    [Header("Slide Settings")]
+    public float slideSpeed = 12f;
+
+    [Header("Rail Riding Settings")]
     public float railVerticalOffset = 1f;
 
-    [Header("High Fall Roll")]
+    [Header("High Fall Roll Settings")]
     public bool enableHighFallRoll = true;
     public float highFallRollThreshold = 5f;
     public float rollDuration = 0.5f;
     public float rollForce = 5f;
 
-    [Header("Non-Wall Runnable Push")]
+    [Header("Non-Wall Runnable Push Settings")]
     public float pushForce = 10f;
     public float sphereRadiusMultiplier = 1.2f;
     public float pushHeightThreshold = 2f;
     public float pushCooldown = 1f;
 
-    [Header("Ground Pound")]
+    [Header("Ground Pound Settings")]
     public float groundPoundForce = 20f;
 
-    [Header("Performance")]
+    [Header("Performance Settings")]
     public float maxDeltaTime = 0.016f; // ~60 fps
 
-    [HideInInspector] public AIMovementState currentState = AIMovementState.Idle;
+    [Header("Ground Check")]
+    public float playerHeight = 2f;
+    public LayerMask whatIsGround;
 
     #endregion
 
@@ -82,18 +86,19 @@ public class AI_MovementController : MonoBehaviour
     private Rigidbody rb;
     private CapsuleCollider capsuleCollider;
 
-    // Movement inputs driven by AI
+    // AI-driven input fields
     private float horizontalInput;
     private float verticalInput;
-    private bool wantToJump;
-    private bool wantToCrouch;
-    private bool wantToSprint;
-    private bool wantToDash;
+    private bool wantSprint;
+    private bool wantCrouch;
+    private bool wantJump;
+    private bool wantDash;
+    // For AI rotation (yaw)
+    private float aiLookYaw;
 
     private float originalColliderHeight;
     private Vector3 originalColliderCenter;
     private float originalMoveSpeed;
-
     private Vector3 standHeadLocalPos;
     private Vector3 crouchHeadLocalPos;
 
@@ -125,8 +130,38 @@ public class AI_MovementController : MonoBehaviour
     private float lastPushTime = 0f;
     private bool isGroundPounding = false;
 
-    // For storing current walk speed
+    private AIPlayerState currentState = AIPlayerState.Idle;
+    public AIPlayerState CurrentState { get { return currentState; } }
+
     private float currentWalkSpeed;
+
+    #endregion
+
+    #region AI Input Methods
+
+    /// <summary>
+    /// Call this from your AI script every frame to set the movement & action inputs.
+    /// </summary>
+    /// <param name="horizontal">[-1..1] strafe</param>
+    /// <param name="vertical">[-1..1] forward/back</param>
+    /// <param name="wantSprint">Should the AI attempt to sprint?</param>
+    /// <param name="wantCrouch">Should the AI attempt to crouch/slide/groundpound?</param>
+    /// <param name="wantJump">Should the AI attempt to jump?</param>
+    /// <param name="wantDash">Should the AI attempt to dash?</param>
+    /// <param name="lookYaw">Desired yaw rotation in degrees this frame.</param>
+    public void SetAIInput(float horizontal, float vertical,
+                           bool wantSprint, bool wantCrouch,
+                           bool wantJump, bool wantDash,
+                           float lookYaw)
+    {
+        this.horizontalInput = horizontal;
+        this.verticalInput = vertical;
+        this.wantSprint = wantSprint;
+        this.wantCrouch = wantCrouch;
+        this.wantJump = wantJump;
+        this.wantDash = wantDash;
+        this.aiLookYaw = lookYaw;
+    }
 
     #endregion
 
@@ -139,17 +174,14 @@ public class AI_MovementController : MonoBehaviour
 
         capsuleCollider = GetComponent<CapsuleCollider>();
         if (capsuleCollider == null)
-            Debug.LogError("No CapsuleCollider found on the player!");
+            Debug.LogError("No CapsuleCollider found on the AI character!");
 
         originalColliderHeight = capsuleCollider.height;
         originalColliderCenter = capsuleCollider.center;
         originalMoveSpeed = moveSpeed;
 
-        // If you had a "head" transform for the camera, adapt as needed:
-        standHeadLocalPos = Vector3.zero;
-        crouchHeadLocalPos = new Vector3(0, -crouchCameraHeight, 0);
 
-
+        currentState = AIPlayerState.Idle;
         readyToJump = true;
     }
 
@@ -157,16 +189,21 @@ public class AI_MovementController : MonoBehaviour
     {
         float dt = Mathf.Min(Time.deltaTime, maxDeltaTime);
 
+        // 1) Rotate horizontally according to AI yaw
+        transform.Rotate(Vector3.up * aiLookYaw);
+
+        // 2) Check ground, fall logic
         ProcessGroundCheck();
         ProcessFallRoll(dt);
-        ProcessMovementLogic();  // uses AI inputs
-        ProcessJumpLogic();
-        ProcessCrouchLogic();
-        ProcessDashLogic();
+
+        // 3) Movement logic (no direct Input calls—AI sets the variables)
+        ProcessJumpInput();
+        ProcessCrouchAndGroundPoundInput();
+        ProcessDashInput();
         ProcessWallRunCheck(dt);
-        SmoothColliderAndCamera(dt);
+        SmoothHeadAndCollider(dt);
         UpdateCurrentWalkSpeed();
-        UpdateState();
+        UpdatePlayerState();
     }
 
     private void FixedUpdate()
@@ -179,7 +216,24 @@ public class AI_MovementController : MonoBehaviour
 
         if (isOnRail && currentRail != null)
         {
-            HandleRailMovement();
+            // Rail-riding logic
+            Vector3 railPoint = currentRail.GetClosestPointOnRail(rb.position);
+            railPoint.y += railVerticalOffset;
+
+            Vector3 newPos = rb.position;
+            newPos.x = Mathf.Lerp(rb.position.x, railPoint.x, 0.2f);
+            newPos.z = Mathf.Lerp(rb.position.z, railPoint.z, 0.2f);
+            newPos.y = railPoint.y;
+            rb.MovePosition(newPos);
+
+            Vector3 railDir = currentRail.GetRailDirection();
+            railDir = Vector3.ProjectOnPlane(railDir, Vector3.up).normalized;
+
+            if (Vector3.Dot(transform.forward, railDir) < 0f)
+                railDir = -railDir;
+
+            rb.velocity = railDir * currentRail.railSpeed;
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         }
         else if (!isWallRunning && !isSliding)
         {
@@ -198,28 +252,46 @@ public class AI_MovementController : MonoBehaviour
 
     #endregion
 
-    #region Public AI Control Methods
+    #region Movement Logic
 
-    /// <summary>
-    /// Call this every frame from your AI script to set movement inputs.
-    /// horizontal and vertical range: [-1..1].
-    /// </summary>
-    public void SetMovementInput(float horizontal, float vertical, bool sprint, bool crouch, bool jump, bool dash)
+    private void ProcessGroundCheck()
     {
-        horizontalInput = horizontal;
-        verticalInput = vertical;
-        wantToSprint = sprint;
-        wantToCrouch = crouch;
-        wantToJump = jump;
-        wantToDash = dash;
+        grounded = Physics.Raycast(transform.position, Vector3.down,
+                                   playerHeight * 0.5f + 0.3f, whatIsGround);
+        if (grounded)
+        {
+            jumpCount = 0;
+            isGroundPounding = false;
+            if (isWallRunning)
+                EndWallRun();
+            if (isOnRail)
+                ExitRail();
+        }
     }
 
-    /// <summary>
-    /// If your AI wants to forcibly jump right now, call this method directly.
-    /// </summary>
-    public void AIJump()
+    private void ProcessFallRoll(float dt)
     {
-        if (readyToJump && (grounded || jumpCount < maxJumpCount || isWallRunning || isOnRail))
+        if (!enableHighFallRoll) return;
+
+        if (!grounded && !fallStarted)
+        {
+            fallStarted = true;
+            fallStartHeight = transform.position.y;
+            fallStartTime = Time.time;
+        }
+        else if (grounded && fallStarted && !isRolling)
+        {
+            float fallDistance = fallStartHeight - transform.position.y;
+            if (fallDistance >= highFallRollThreshold)
+                StartRoll();
+            fallStarted = false;
+        }
+    }
+
+    private void ProcessJumpInput()
+    {
+        if (wantJump && readyToJump &&
+            (grounded || jumpCount < maxJumpCount || isWallRunning || isOnRail))
         {
             if (isOnRail) ExitRail();
             if (isCrouching && CanStand()) StopCrouching();
@@ -233,118 +305,27 @@ public class AI_MovementController : MonoBehaviour
             }
             else
             {
-                PerformJump();
+                Jump();
                 jumpCount++;
             }
             readyToJump = false;
             Invoke(nameof(ResetJump), jumpCooldown);
         }
+        // Reset the AI jump input so we don't keep spamming
+        wantJump = false;
     }
 
-    /// <summary>
-    /// If your AI wants to forcibly dash right now, call this method directly.
-    /// </summary>
-    public void AIDash()
+    private void ProcessCrouchAndGroundPoundInput()
     {
-        if (canDash && !isCrouching)
-            StartDash();
-    }
-
-    /// <summary>
-    /// If your AI wants to forcibly crouch, call this method.
-    /// </summary>
-    public void AICrouch(bool crouch)
-    {
-        if (crouch) StartCrouching();
-        else if (isCrouching && CanStand()) StopCrouching();
-    }
-
-    /// <summary>
-    /// If your AI wants to forcibly ground pound (when airborne), call this.
-    /// </summary>
-    public void AIGroundPound()
-    {
-        if (!grounded && !isGroundPounding)
+        if (wantCrouch)
         {
-            isGroundPounding = true;
-            rb.AddForce(Vector3.down * groundPoundForce, ForceMode.VelocityChange);
-        }
-    }
-
-    /// <summary>
-    /// Teleport or set position for the AI (e.g., from a GOAP Action).
-    /// </summary>
-    public void AISetPosition(Vector3 position)
-    {
-        rb.position = position;
-        rb.velocity = Vector3.zero;
-    }
-
-    #endregion
-
-    #region Internal Logic Methods
-
-    private void ProcessGroundCheck()
-    {
-        grounded = Physics.Raycast(transform.position, Vector3.down,
-            playerHeight * 0.5f + 0.3f, whatIsGround);
-        if (grounded)
-        {
-            jumpCount = 0;
-            isGroundPounding = false;
-            if (isWallRunning) EndWallRun();
-            if (isOnRail) ExitRail();
-        }
-    }
-
-    private void ProcessFallRoll(float dt)
-    {
-        if (enableHighFallRoll)
-        {
-            if (!grounded && !fallStarted)
-            {
-                fallStarted = true;
-                fallStartHeight = transform.position.y;
-                fallStartTime = Time.time;
-            }
-            else if (grounded && fallStarted && !isRolling)
-            {
-                float fallDistance = fallStartHeight - transform.position.y;
-                if (fallDistance >= highFallRollThreshold)
-                    StartRoll();
-                fallStarted = false;
-            }
-        }
-    }
-
-    private void ProcessMovementLogic()
-    {
-        // Movement input is set by AI via SetMovementInput()
-        // We'll just keep them for horizontalInput, verticalInput, etc.
-    }
-
-    private void ProcessJumpLogic()
-    {
-        if (wantToJump)
-        {
-            AIJump();
-            // Reset the flag so we don't spam jump
-            wantToJump = false;
-        }
-    }
-
-    private void ProcessCrouchLogic()
-    {
-        // If AI wants to crouch
-        if (wantToCrouch)
-        {
-            // If airborne => ground pound
-            if (!grounded) AIGroundPound();
+            if (!grounded)
+                GroundPound();
             else
             {
                 // Possibly do a slide if sprinting
-                if (wantToSprint && grounded && !isSliding)
-                    StartSlide();
+                if (wantSprint && grounded && !isSliding)
+                    Slide();
                 else
                     StartCrouching();
             }
@@ -352,21 +333,20 @@ public class AI_MovementController : MonoBehaviour
         else
         {
             // If sliding, end slide
-            if (isSliding) EndSlide();
-            // else if crouching, stand up
-            else if (isCrouching && CanStand()) StopCrouching();
+            if (isSliding)
+                EndSlide();
+            else if (isCrouching && CanStand())
+                StopCrouching();
         }
-        // Reset the crouch input
-        wantToCrouch = false;
+        // Reset AI crouch input
+        wantCrouch = false;
     }
 
-    private void ProcessDashLogic()
+    private void ProcessDashInput()
     {
-        if (wantToDash)
-        {
-            AIDash();
-            wantToDash = false;
-        }
+        if (wantDash && canDash && !isCrouching)
+            Dash();
+        wantDash = false;
     }
 
     private void ProcessWallRunCheck(float dt)
@@ -381,18 +361,14 @@ public class AI_MovementController : MonoBehaviour
         }
     }
 
-    private void SmoothColliderAndCamera(float dt)
+    private void SmoothHeadAndCollider(float dt)
     {
-        // Smoothly adjust capsule height
         float targetHeight = isCrouching ? crouchHeight : originalColliderHeight;
         capsuleCollider.height = Mathf.Lerp(capsuleCollider.height, targetHeight, crouchTransitionSpeed * dt);
 
         Vector3 targetCenter = originalColliderCenter;
         targetCenter.y -= (originalColliderHeight - targetHeight) / 2f;
         capsuleCollider.center = Vector3.Lerp(capsuleCollider.center, targetCenter, crouchTransitionSpeed * dt);
-
-        // If you had a "head" transform, you could move it up/down. If you have a camera child, do so here:
-        // (Skipping in this example unless you have a head transform to move)
     }
 
     private void UpdateCurrentWalkSpeed()
@@ -400,42 +376,59 @@ public class AI_MovementController : MonoBehaviour
         if (isOnRail && currentRail != null)
             currentWalkSpeed = currentRail.railSpeed;
         else if (isDashing)
-            currentWalkSpeed = dashForce;  // or maxSpeed
+            currentWalkSpeed = maxSpeed;
         else if (isSliding)
             currentWalkSpeed = slideSpeed;
         else if (isCrouching)
             currentWalkSpeed = crouchSpeed;
-        else if (wantToSprint && grounded)
+        else if (wantSprint && grounded)
             currentWalkSpeed = sprintSpeed;
         else
             currentWalkSpeed = moveSpeed;
     }
 
-    private void UpdateState()
+    private void UpdatePlayerState()
     {
         if (isRolling)
         {
-            currentState = AIMovementState.Rolling;
+            currentState = AIPlayerState.Rolling;
             return;
         }
         if (isOnRail)
-            currentState = AIMovementState.RailRiding;
+            currentState = AIPlayerState.RailRiding;
         else if (isSliding)
-            currentState = AIMovementState.Sliding;
+            currentState = AIPlayerState.Sliding;
         else if (isWallRunning)
-            currentState = AIMovementState.WallRunning;
+            currentState = AIPlayerState.WallRunning;
         else if (isDashing)
-            currentState = AIMovementState.Dashing;
+            currentState = AIPlayerState.Dashing;
         else if (!grounded)
-            currentState = AIMovementState.Jumping;
+            currentState = AIPlayerState.Jumping;
         else if (isCrouching)
-            currentState = AIMovementState.Crouching;
+            currentState = AIPlayerState.Crouching;
         else if (Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f)
-            currentState = (wantToSprint && grounded) ? AIMovementState.Sprinting : AIMovementState.Walking;
+            currentState = (wantSprint && grounded) ? AIPlayerState.Sprinting : AIPlayerState.Walking;
         else
-            currentState = AIMovementState.Idle;
+            currentState = AIPlayerState.Idle;
     }
 
+    private float CurrentRollFovOffset
+    {
+        get
+        {
+            if (isRolling)
+            {
+                float elapsed = Time.time - rollEffectStartTime;
+                float t = Mathf.Clamp01(elapsed / rollDuration);
+                return Mathf.Lerp(targetCameraFovIncrease, 0f, t);
+            }
+            return 0f;
+        }
+    }
+
+    #endregion
+
+    #region Core Movement
 
     private void MovePlayer()
     {
@@ -444,7 +437,6 @@ public class AI_MovementController : MonoBehaviour
             rb.AddForce(moveDir * currentWalkSpeed * 10f, ForceMode.Force);
         else
             rb.AddForce(moveDir * currentWalkSpeed * 10f * airMultiplier, ForceMode.Force);
-
         SpeedControl();
     }
 
@@ -458,7 +450,7 @@ public class AI_MovementController : MonoBehaviour
         }
     }
 
-    private void PerformJump()
+    private void Jump()
     {
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -491,7 +483,7 @@ public class AI_MovementController : MonoBehaviour
         return true;
     }
 
-    private void StartDash()
+    private void Dash()
     {
         canDash = false;
         isDashing = true;
@@ -513,7 +505,7 @@ public class AI_MovementController : MonoBehaviour
         canDash = true;
     }
 
-    private void StartSlide()
+    private void Slide()
     {
         isSliding = true;
         canDash = false;
@@ -548,30 +540,14 @@ public class AI_MovementController : MonoBehaviour
         rb.useGravity = true;
     }
 
-    private void HandleRailMovement()
-    {
-        Vector3 railPoint = currentRail.GetClosestPointOnRail(rb.position);
-        railPoint.y += railVerticalOffset;
+    #endregion
 
-        Vector3 newPos = rb.position;
-        newPos.x = Mathf.Lerp(rb.position.x, railPoint.x, 0.2f);
-        newPos.z = Mathf.Lerp(rb.position.z, railPoint.z, 0.2f);
-        newPos.y = railPoint.y;
-        rb.MovePosition(newPos);
-
-        Vector3 railDir = currentRail.GetRailDirection();
-        railDir = Vector3.ProjectOnPlane(railDir, Vector3.up).normalized;
-
-        if (Vector3.Dot(transform.forward, railDir) < 0f)
-            railDir = -railDir;
-
-        rb.velocity = railDir * currentRail.railSpeed;
-        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-    }
+    #region Wall Run Logic
 
     private void CheckForWallRun()
     {
         RaycastHit hit;
+        // Check left
         if (Physics.Raycast(transform.position, -transform.right, out hit, wallRunRayDistance))
         {
             if (hit.normal.y < 0.2f && hit.collider.CompareTag("WallRun"))
@@ -580,6 +556,7 @@ public class AI_MovementController : MonoBehaviour
                 return;
             }
         }
+        // Check right
         if (Physics.Raycast(transform.position, transform.right, out hit, wallRunRayDistance))
         {
             if (hit.normal.y < 0.2f && hit.collider.CompareTag("WallRun"))
@@ -616,7 +593,8 @@ public class AI_MovementController : MonoBehaviour
         {
             if (hit.collider.CompareTag("WallRun"))
             {
-                if (hit.distance < 0.3f) return false;
+                if (hit.distance < 0.3f)
+                    return false;
                 return true;
             }
         }
@@ -627,13 +605,19 @@ public class AI_MovementController : MonoBehaviour
     {
         float gravityMultiplier = Mathf.Lerp(0f, 1f, wallRunTimer / maxWallRunTime);
         rb.AddForce(Vector3.up * Physics.gravity.y * wallRunGravity * gravityMultiplier, ForceMode.Acceleration);
+
         Vector3 wallTangent = Vector3.Cross(currentWallNormal, Vector3.up).normalized;
         if (Vector3.Dot(wallTangent, transform.forward) < 0)
             wallTangent = -wallTangent;
+
         Vector3 currentTangentVel = Vector3.Project(rb.velocity, wallTangent);
         if (currentTangentVel.magnitude < maxWallRunSpeed)
             rb.AddForce(wallTangent * wallRunAcceleration, ForceMode.Acceleration);
     }
+
+    #endregion
+
+    #region Other
 
     private void CheckForNonWallRunnableCollision()
     {
@@ -657,12 +641,20 @@ public class AI_MovementController : MonoBehaviour
         }
     }
 
+    private void GroundPound()
+    {
+        if (isGroundPounding) return;
+        isGroundPounding = true;
+        rb.AddForce(Vector3.down * groundPoundForce, ForceMode.VelocityChange);
+        Debug.Log($"{gameObject.name}: Ground Pound triggered!");
+    }
+
     private void StartRoll()
     {
         if (isRolling) return;
         float fallDuration = Time.time - fallStartTime;
         isRolling = true;
-        currentState = AIMovementState.Rolling;
+        currentState = AIPlayerState.Rolling;
         rollEffectStartTime = Time.time;
         rb.AddForce(transform.forward * rollForce, ForceMode.Impulse);
         Invoke(nameof(EndRoll), rollDuration);

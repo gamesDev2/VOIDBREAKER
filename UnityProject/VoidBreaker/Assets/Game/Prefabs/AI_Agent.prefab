@@ -12,12 +12,13 @@ GameObject:
   - component: {fileID: 8864001584904256018}
   - component: {fileID: 7988640733655967015}
   - component: {fileID: 254316129621930616}
+  - component: {fileID: 8729751293060178360}
   - component: {fileID: 1024069977192298185}
   - component: {fileID: 494950789588206386}
   - component: {fileID: 1231225850891549101}
   m_Layer: 0
   m_Name: AI_Agent
-  m_TagString: Untagged
+  m_TagString: AI
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -65,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2e6b9edee44403540b5afba5b7a26cf1, type: 2}
+  - {fileID: 2100000, guid: 8a1f70959f42d294c903a990002ad78a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -100,42 +101,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  groundDrag: 6
-  jumpForce: 5
-  jumpCooldown: 0.25
-  airMultiplier: 0.5
-  maxJumpCount: 2
-  sprintSpeed: 8
-  crouchSpeed: 3
-  dashForce: 15
-  dashDuration: 0.2
-  dashCooldown: 2
-  slideSpeed: 12
-  playerHeight: 2
-  whatIsGround:
-    serializedVersion: 2
-    m_Bits: 1
-  crouchHeight: 1
-  crouchTransitionSpeed: 8
-  crouchCameraHeight: 0.5
-  wallRunLaunchSpeed: 10
-  wallRunAcceleration: 5
-  maxWallRunSpeed: 20
-  wallRunGravity: 0.3
-  maxWallRunTime: 2
-  wallRunRayDistance: 1
-  railVerticalOffset: 1
-  enableHighFallRoll: 1
-  highFallRollThreshold: 5
-  rollDuration: 0.5
-  rollForce: 5
-  pushForce: 10
-  sphereRadiusMultiplier: 1.2
-  pushHeightThreshold: 2
-  pushCooldown: 1
-  groundPoundForce: 20
-  maxDeltaTime: 0.016
-  currentState: 0
+--- !u!114 &8729751293060178360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 261127723893921020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05e2fa86faca8ae498117426df2aafa6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  availableActionsSO:
+  - {fileID: 11400000, guid: 3620f0f42af8dc84abf03e07ddb3df26, type: 2}
+  - {fileID: 11400000, guid: 02f2b1845f050c440b969ce17136515d, type: 2}
+  - {fileID: 11400000, guid: 7e9303dbb5962c143a4a375a3f9d49cd, type: 2}
+  knownAllies: []
 --- !u!136 &1024069977192298185
 CapsuleCollider:
   m_ObjectHideFlags: 0

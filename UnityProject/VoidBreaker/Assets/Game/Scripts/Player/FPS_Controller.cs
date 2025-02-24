@@ -288,8 +288,8 @@ public class FPS_Controller : MonoBehaviour
         CheckForNonWallRunnableCollision();
 
 
-        Debug.Log("Current State: " + currentState + " | Velocity: " + rb.velocity.magnitude);
-    }
+/*        Debug.Log("Current State: " + currentState + " | Velocity: " + rb.velocity.magnitude);
+*/    }
 
     #endregion
 
