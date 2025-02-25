@@ -11,7 +11,7 @@ public class AI_Agent : MonoBehaviour
     // The current goal state
     public Dictionary<string, bool> goal = new Dictionary<string, bool>();
 
-    // New: references to other agents (assigned by AIDirectorGoap)
+    // References to other agents (assigned by the AIDirectorGoap)
     public List<AI_Agent> knownAllies = new List<AI_Agent>();
 
     private List<GoalAction> actions;
@@ -23,9 +23,9 @@ public class AI_Agent : MonoBehaviour
         planner = new GoapPlanner();
         // Copy from the assigned ScriptableObject list
         actions = new List<GoalAction>(availableActionsSO);
-        Debug.Log($"{gameObject.name}: Found {actions.Count} GOAP actions (ScriptableObjects).");
+        Debug.Log($"{gameObject.name}: Found {actions.Count} GOAP actions.");
 
-        // Default goal if the director doesn't override
+        // Default goal if the director doesn't override it
         goal.Clear();
         goal.Add("following", true);
     }
@@ -62,5 +62,35 @@ public class AI_Agent : MonoBehaviour
                 Debug.LogWarning($"{gameObject.name}: Action {action.name} failed to perform.");
             }
         }
+    }
+
+    // -------------------------------------------------------------
+    // COMMUNICATION METHODS
+    // -------------------------------------------------------------
+
+    /// <summary>
+    /// Sends a message string to all known allies.
+    /// </summary>
+    public void BroadcastMessageToAllies(string message)
+    {
+        foreach (var ally in knownAllies)
+        {
+            if (ally != null)
+            {
+                ally.ReceiveMessage(this, message);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Called when another AI agent sends us a message.
+    /// You can parse the message and change goals or states accordingly.
+    /// </summary>
+    public void ReceiveMessage(AI_Agent from, string message)
+    {
+        Debug.Log($"{name} received message '{message}' from {from.name}.");
+        // Example usage:
+        // if (message == "PlayerClose") { goal.Clear(); goal.Add("coordinatedAttack", true); }
+        // else if (message == "Retreat") { ... }
     }
 }

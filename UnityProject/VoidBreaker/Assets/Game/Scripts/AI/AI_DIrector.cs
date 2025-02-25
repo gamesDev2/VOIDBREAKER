@@ -15,35 +15,31 @@ public class AIDirectorGoap : MonoBehaviour
 
     void Awake()
     {
-        // For each agent, create a list of all the other agents (i.e., "allies").
+        // For each agent, build a list of the other agents (allies)
         for (int i = 0; i < agents.Count; i++)
         {
-            // Copy the full list
             List<AI_Agent> allyList = new List<AI_Agent>(agents);
-            // Remove the agent itself from the allyList
-            allyList.RemoveAt(i);
-            // Assign to that agent
+            allyList.RemoveAt(i); // remove self
             agents[i].knownAllies = allyList;
         }
     }
 
     void Update()
     {
-        // If the player isn't valid or doesn't have the "Player" tag, do nothing.
+        // If the player is invalid or not tagged as "Player," do nothing
         if (player == null || !player.CompareTag("Player"))
             return;
 
-        // For each agent, decide what goal to assign.
+        // Decide the global goal for each agent
         foreach (var agent in agents)
         {
             if (agent == null) continue;
-
-            // Ensure the agent knows who to follow/attack
             agent.player = player.transform;
 
-            // assign a "coordinatedAttack" goal. Otherwise, "following".
             float distance = Vector3.Distance(agent.transform.position, player.transform.position);
 
+            // If "forceGroupAttack" is true or player is close, set goal to "coordinatedAttack"
+            // otherwise default to "following"
             if (forceGroupAttack || distance < groupAttackDistance)
             {
                 SetAgentGoal(agent, "coordinatedAttack");
@@ -55,7 +51,7 @@ public class AIDirectorGoap : MonoBehaviour
         }
     }
 
-    private void SetAgentGoal(AI_Agent agent, string goalKey) // Helper method to set a goal for an agent
+    private void SetAgentGoal(AI_Agent agent, string goalKey)
     {
         agent.goal.Clear();
         agent.goal.Add(goalKey, true);

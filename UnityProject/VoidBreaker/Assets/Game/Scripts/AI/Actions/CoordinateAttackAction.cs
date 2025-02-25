@@ -1,111 +1,122 @@
 using UnityEngine;
-using System.Linq; // For .Any() if you want
 
-[CreateAssetMenu(menuName = "GoalActions/CoordinateAttack")]
-public class CoordinateAttackActionSO : GoalAction
+[CreateAssetMenu(menuName = "GoalActions/CoordinatedAttack")]
+public class CoordinatedAttackAction : GoalAction
 {
-    public float allySupportDistance = 10f; // how close an ally needs to be
-    public float moveSpeedDuringAttack = 3f;
+    [Header("Attack Settings")]
+    [Tooltip("Distance within which the AI can attack the player.")]
+    public float attackRange = 3f;
+
+    [Tooltip("If the AI is farther than this from the player, it may sprint.")]
+    public float sprintDistance = 10f;
+
+    [Header("Ally Coordination")]
+    [Tooltip("How close an ally must be to consider this a 'coordinated' attack.")]
+    public float allySupportDistance = 8f;
+
+    [Tooltip("If true, requires at least one ally also targeting 'coordinatedAttack' within allySupportDistance.")]
+    public bool requireAllySupport = true;
 
     private void OnEnable()
     {
+        // This action satisfies the "coordinatedAttack" goal
         effects.Clear();
         effects.Add("coordinatedAttack");
     }
 
-    public override void ResetAction()
-    {
-        // No special reset in this example
-    }
-
-    public override bool IsDone()
-    {
-        // If you want this to be continuous, always return false
-        return false;
-    }
-
+    /// <summary>
+    /// Checks if we can do a coordinated attack:
+    /// - The agent must have a valid player.
+    /// - (Optional) At least one ally is also going for "coordinatedAttack" and is within allySupportDistance.
+    /// </summary>
     public override bool CheckProceduralPrecondition(AI_Agent agent)
     {
-        // 1) Must have a player
-        if (agent.player == null)
-        {
-            Debug.LogWarning($"{agent.name}: CoordinateAttackAction precondition failed (no player).");
-            return false;
-        }
+        if (agent.player == null) return false;
 
-        // 2) Must have at least one ally in range
-        bool hasAllyNearby = false;
-        foreach (var ally in agent.knownAllies)
+        // If we require ally support, verify there's an ally in range
+        if (requireAllySupport)
         {
-            if (ally == null) continue;
-            float dist = Vector3.Distance(agent.transform.position, ally.transform.position);
-            if (dist <= allySupportDistance)
+            bool hasAlly = false;
+            foreach (var ally in agent.knownAllies)
             {
-                hasAllyNearby = true;
-                break;
+                if (ally == null) continue;
+                // Check if ally's goal is also "coordinatedAttack"
+                if (ally.goal.ContainsKey("coordinatedAttack") && ally.goal["coordinatedAttack"])
+                {
+                    float dist = Vector3.Distance(agent.transform.position, ally.transform.position);
+                    if (dist <= allySupportDistance)
+                    {
+                        hasAlly = true;
+                        break;
+                    }
+                }
             }
-        }
-
-        if (!hasAllyNearby)
-        {
-            Debug.LogWarning($"{agent.name}: No allies within {allySupportDistance}m, can't do a coordinated attack.");
-            return false;
+            if (!hasAlly) return false;
         }
 
         return true;
     }
 
+    /// <summary>
+    /// Called once when the planner picks this action. Reset any internal state if needed.
+    /// </summary>
+    public override bool ResetAction()
+    {
+        // No internal state to reset in this example
+        return true;
+    }
+
+    /// <summary>
+    /// Returns whether the action is complete.
+    /// Since we want a continuous "coordinated attack," we can keep it going indefinitely.
+    /// </summary>
+    public override bool IsDone()
+    {
+        return false;
+    }
+
+    /// <summary>
+    /// Called every frame while this action is active. Moves the AI into range and "attacks."
+    /// </summary>
     public override bool Perform(AI_Agent agent)
     {
         if (agent.player == null) return false;
 
-        // Grab the AI_FPS_Controller
-        AI_Movement_Controller controller = agent.GetComponent<AI_Movement_Controller>();
-        if (controller == null)
-        {
-            Debug.LogWarning($"{agent.name}: Missing AI_FPS_Controller component.");
-            return false;
-        }
+        // Use your advanced AI movement controller
+        AI_Movement_Controller movement = agent.GetComponent<AI_Movement_Controller>();
+        if (movement == null) return false;
 
-        // Compute direction to player
+        // Direction to player
         Vector3 toPlayer = agent.player.position - agent.transform.position;
         float distance = toPlayer.magnitude;
 
-        // If we're farther than stopDistance, move forward
-        if (distance > allySupportDistance)
+        // If out of attack range, move closer
+        float verticalInput = (distance > attackRange) ? 1f : 0f;
+
+        // Possibly sprint if far from the player
+        bool wantSprint = (distance > sprintDistance);
+
+        // We'll do a simple rotation to face the player
+        float angle = Vector3.SignedAngle(agent.transform.forward, toPlayer.normalized, Vector3.up);
+
+        // If within attack range, "attack" the player
+        if (distance <= attackRange)
         {
-            // We'll compute a simple yaw rotation to face the player.
-
-            Vector3 forward = agent.transform.forward;
-            float angle = Vector3.SignedAngle(forward, toPlayer.normalized, Vector3.up);
-
-            // For simplicity, we directly rotate by that angle this frame
-            float lookYaw = angle;
-
-            // Move forward (vertical=1). No sprint/crouch/jump/dash by default.
-            controller.SetAIInput(
-                horizontal: 0f,
-                vertical: 1f,
-                wantSprint: false,
-                wantCrouch: false,
-                wantJump: false,
-                wantDash: false,
-                lookYaw: lookYaw
-            );
+            verticalInput = 0f; // stop moving forward
+            // Insert your real attack logic here
+            Debug.Log($"{agent.name} is COORDINATED-ATTACKING the player!");
         }
-        else
-        {
-            // Already close enough: stop moving & stop turning
-            controller.SetAIInput(
-                horizontal: 0f,
-                vertical: 0f,
-                wantSprint: false,
-                wantCrouch: false,
-                wantJump: false,
-                wantDash: false,
-                lookYaw: 0f
-            );
-        }
+
+        // Set AI input
+        movement.SetAIInput(
+            horizontal: 0f,
+            vertical: verticalInput,
+            wantSprint: wantSprint,
+            wantCrouch: false,
+            wantJump: false,
+            wantDash: false,
+            lookYaw: angle
+        );
 
         return true;
     }

@@ -86,21 +86,18 @@ public class AI_Movement_Controller : MonoBehaviour
     private Rigidbody rb;
     private CapsuleCollider capsuleCollider;
 
-    // AI-driven input fields
+    // AI-driven input
     private float horizontalInput;
     private float verticalInput;
     private bool wantSprint;
     private bool wantCrouch;
     private bool wantJump;
     private bool wantDash;
-    // For AI rotation (yaw)
     private float aiLookYaw;
 
     private float originalColliderHeight;
     private Vector3 originalColliderCenter;
     private float originalMoveSpeed;
-    private Vector3 standHeadLocalPos;
-    private Vector3 crouchHeadLocalPos;
 
     private bool readyToJump = true;
     private int jumpCount = 0;
@@ -123,8 +120,6 @@ public class AI_Movement_Controller : MonoBehaviour
     private bool fallStarted = false;
 
     private float rollEffectStartTime;
-    private float targetCameraFovIncrease;
-    private float targetCameraRollAngle;
     private bool isRolling = false;
 
     private float lastPushTime = 0f;
@@ -139,16 +134,6 @@ public class AI_Movement_Controller : MonoBehaviour
 
     #region AI Input Methods
 
-    /// <summary>
-    /// Call this from your AI script every frame to set the movement & action inputs.
-    /// </summary>
-    /// <param name="horizontal">[-1..1] strafe</param>
-    /// <param name="vertical">[-1..1] forward/back</param>
-    /// <param name="wantSprint">Should the AI attempt to sprint?</param>
-    /// <param name="wantCrouch">Should the AI attempt to crouch/slide/groundpound?</param>
-    /// <param name="wantJump">Should the AI attempt to jump?</param>
-    /// <param name="wantDash">Should the AI attempt to dash?</param>
-    /// <param name="lookYaw">Desired yaw rotation in degrees this frame.</param>
     public void SetAIInput(float horizontal, float vertical,
                            bool wantSprint, bool wantCrouch,
                            bool wantJump, bool wantDash,
@@ -179,9 +164,6 @@ public class AI_Movement_Controller : MonoBehaviour
         originalColliderHeight = capsuleCollider.height;
         originalColliderCenter = capsuleCollider.center;
         originalMoveSpeed = moveSpeed;
-
-
-        currentState = AIPlayerState.Idle;
         readyToJump = true;
     }
 
@@ -189,19 +171,15 @@ public class AI_Movement_Controller : MonoBehaviour
     {
         float dt = Mathf.Min(Time.deltaTime, maxDeltaTime);
 
-        // 1) Rotate horizontally according to AI yaw
         transform.Rotate(Vector3.up * aiLookYaw);
 
-        // 2) Check ground, fall logic
         ProcessGroundCheck();
         ProcessFallRoll(dt);
-
-        // 3) Movement logic (no direct Input calls—AI sets the variables)
         ProcessJumpInput();
         ProcessCrouchAndGroundPoundInput();
         ProcessDashInput();
         ProcessWallRunCheck(dt);
-        SmoothHeadAndCollider(dt);
+        SmoothCollider(dt);
         UpdateCurrentWalkSpeed();
         UpdatePlayerState();
     }
@@ -216,24 +194,7 @@ public class AI_Movement_Controller : MonoBehaviour
 
         if (isOnRail && currentRail != null)
         {
-            // Rail-riding logic
-            Vector3 railPoint = currentRail.GetClosestPointOnRail(rb.position);
-            railPoint.y += railVerticalOffset;
-
-            Vector3 newPos = rb.position;
-            newPos.x = Mathf.Lerp(rb.position.x, railPoint.x, 0.2f);
-            newPos.z = Mathf.Lerp(rb.position.z, railPoint.z, 0.2f);
-            newPos.y = railPoint.y;
-            rb.MovePosition(newPos);
-
-            Vector3 railDir = currentRail.GetRailDirection();
-            railDir = Vector3.ProjectOnPlane(railDir, Vector3.up).normalized;
-
-            if (Vector3.Dot(transform.forward, railDir) < 0f)
-                railDir = -railDir;
-
-            rb.velocity = railDir * currentRail.railSpeed;
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            HandleRailMovement();
         }
         else if (!isWallRunning && !isSliding)
         {
@@ -262,10 +223,8 @@ public class AI_Movement_Controller : MonoBehaviour
         {
             jumpCount = 0;
             isGroundPounding = false;
-            if (isWallRunning)
-                EndWallRun();
-            if (isOnRail)
-                ExitRail();
+            if (isWallRunning) EndWallRun();
+            if (isOnRail) ExitRail();
         }
     }
 
@@ -311,7 +270,6 @@ public class AI_Movement_Controller : MonoBehaviour
             readyToJump = false;
             Invoke(nameof(ResetJump), jumpCooldown);
         }
-        // Reset the AI jump input so we don't keep spamming
         wantJump = false;
     }
 
@@ -323,7 +281,6 @@ public class AI_Movement_Controller : MonoBehaviour
                 GroundPound();
             else
             {
-                // Possibly do a slide if sprinting
                 if (wantSprint && grounded && !isSliding)
                     Slide();
                 else
@@ -332,13 +289,11 @@ public class AI_Movement_Controller : MonoBehaviour
         }
         else
         {
-            // If sliding, end slide
             if (isSliding)
                 EndSlide();
             else if (isCrouching && CanStand())
                 StopCrouching();
         }
-        // Reset AI crouch input
         wantCrouch = false;
     }
 
@@ -361,7 +316,7 @@ public class AI_Movement_Controller : MonoBehaviour
         }
     }
 
-    private void SmoothHeadAndCollider(float dt)
+    private void SmoothCollider(float dt)
     {
         float targetHeight = isCrouching ? crouchHeight : originalColliderHeight;
         capsuleCollider.height = Mathf.Lerp(capsuleCollider.height, targetHeight, crouchTransitionSpeed * dt);
@@ -410,20 +365,6 @@ public class AI_Movement_Controller : MonoBehaviour
             currentState = (wantSprint && grounded) ? AIPlayerState.Sprinting : AIPlayerState.Walking;
         else
             currentState = AIPlayerState.Idle;
-    }
-
-    private float CurrentRollFovOffset
-    {
-        get
-        {
-            if (isRolling)
-            {
-                float elapsed = Time.time - rollEffectStartTime;
-                float t = Mathf.Clamp01(elapsed / rollDuration);
-                return Mathf.Lerp(targetCameraFovIncrease, 0f, t);
-            }
-            return 0f;
-        }
     }
 
     #endregion
@@ -540,6 +481,26 @@ public class AI_Movement_Controller : MonoBehaviour
         rb.useGravity = true;
     }
 
+    private void HandleRailMovement()
+    {
+        Vector3 railPoint = currentRail.GetClosestPointOnRail(rb.position);
+        railPoint.y += railVerticalOffset;
+
+        Vector3 newPos = rb.position;
+        newPos.x = Mathf.Lerp(rb.position.x, railPoint.x, 0.2f);
+        newPos.z = Mathf.Lerp(rb.position.z, railPoint.z, 0.2f);
+        newPos.y = railPoint.y;
+        rb.MovePosition(newPos);
+
+        Vector3 railDir = currentRail.GetRailDirection();
+        railDir = Vector3.ProjectOnPlane(railDir, Vector3.up).normalized;
+        if (Vector3.Dot(transform.forward, railDir) < 0f)
+            railDir = -railDir;
+
+        rb.velocity = railDir * currentRail.railSpeed;
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+    }
+
     #endregion
 
     #region Wall Run Logic
@@ -547,7 +508,6 @@ public class AI_Movement_Controller : MonoBehaviour
     private void CheckForWallRun()
     {
         RaycastHit hit;
-        // Check left
         if (Physics.Raycast(transform.position, -transform.right, out hit, wallRunRayDistance))
         {
             if (hit.normal.y < 0.2f && hit.collider.CompareTag("WallRun"))
@@ -556,7 +516,6 @@ public class AI_Movement_Controller : MonoBehaviour
                 return;
             }
         }
-        // Check right
         if (Physics.Raycast(transform.position, transform.right, out hit, wallRunRayDistance))
         {
             if (hit.normal.y < 0.2f && hit.collider.CompareTag("WallRun"))
@@ -646,13 +605,11 @@ public class AI_Movement_Controller : MonoBehaviour
         if (isGroundPounding) return;
         isGroundPounding = true;
         rb.AddForce(Vector3.down * groundPoundForce, ForceMode.VelocityChange);
-        Debug.Log($"{gameObject.name}: Ground Pound triggered!");
     }
 
     private void StartRoll()
     {
         if (isRolling) return;
-        float fallDuration = Time.time - fallStartTime;
         isRolling = true;
         currentState = AIPlayerState.Rolling;
         rollEffectStartTime = Time.time;
