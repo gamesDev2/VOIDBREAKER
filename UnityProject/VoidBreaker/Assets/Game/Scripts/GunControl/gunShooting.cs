@@ -11,6 +11,8 @@ public class gunShooting : MonoBehaviour
     [Header("Gun Characteristics")]
     [Tooltip("How many shots the gun fires in a second")]
     public float fireRate = 2.0f;
+    [Tooltip("Effectively makes the gun fire every frame. Ammo consumption is still controlled by fireRate")]
+    public bool beamWeapon = false;
     [Tooltip("The maximum shots the gun can fire before it has to reload")]
     public int ammoCount = 10;
     [Tooltip("How long(in seconds) it takes to reload")]
@@ -26,7 +28,8 @@ public class gunShooting : MonoBehaviour
     [Header("Hit Decal")]
     [Tooltip("Prefab to a decal projector containing a bullet hole")]
     public DecalProjector bulletHole;
-
+    [Tooltip("Prefab to a line renderer that must contain a laserBurnHandle script")]
+    public laserBurnHandle laserBurn;
 
     [Header("Tag")]
     [Tooltip("Anything with this tag should have a \"OnHit\" method")]
@@ -40,6 +43,9 @@ public class gunShooting : MonoBehaviour
     private bool reloading = false;
     private bool firing = false;
 
+    private laserBurnHandle currentBurner = null;
+
+    private RaycastHit hit;
     void Start()
     {
         ammoRemaining = ammoCount;
@@ -51,10 +57,19 @@ public class gunShooting : MonoBehaviour
         timeSinceLastReload += Time.deltaTime;
 
 
-        if (timeSinceLastReload > reloadTime / ammoCount && ammoRemaining < ammoCount && !firing)
+        if (timeSinceLastReload > reloadTime / ammoCount &&
+            ammoRemaining < ammoCount &&
+            !firing &&
+            timeSinceLastShot > 1 / fireRate)
         {
             ammoRemaining++;
             timeSinceLastReload = 0;
+        }
+
+        if (ammoRemaining >= ammoCount)
+        {
+            reloading = false;
+            ammoRemaining = ammoCount;
         }
 
         if (firing)
@@ -65,12 +80,16 @@ public class gunShooting : MonoBehaviour
 
     public void startFire()
     {
-        firing = true;
+        if (!reloading)
+        {
+            firing = true;
+        }
     }
 
     public void stopFire()
     {
         firing = false;
+        currentBurner = null;
     }
 
 
@@ -84,35 +103,52 @@ public class gunShooting : MonoBehaviour
         if (ammoRemaining < 1)
         {
             reloading = true;
-        }
-        else if (ammoRemaining >= ammoCount)
-        {
-            reloading = false;
-            ammoRemaining = ammoCount;
+            stopFire();
         }
 
-        RaycastHit hit;
-        if ((timeSinceLastShot > 1 / fireRate) && !reloading)
+        
+        if (!((beamWeapon || (timeSinceLastShot > 1 / fireRate)) && !reloading))
         {
+            return;
+        }
 
-            if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range))
-            {
-                Instantiate(bulletHole, hit.point, Quaternion.LookRotation(hit.normal), hit.transform);
-                handleHit(ref hit);
-            }
 
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range))
+        {
+            handleHit(ref hit);
+        }
+
+        if (timeSinceLastShot > 1 / fireRate)
+        {
             ammoRemaining--;
             timeSinceLastShot = 0;
         }
 
-
     }
+
+
 
     private void handleHit(ref RaycastHit _hit)
     {
         if(_hit.collider.tag == tagToHit)
         {
             // Do something idk what yet
+        }
+
+
+        if (!beamWeapon)
+        {
+            Instantiate(bulletHole, hit.point, Quaternion.LookRotation(hit.normal), hit.transform);
+            return;
+        }
+
+        if(currentBurner != null)
+        {
+            currentBurner.AddBurnPosition(_hit.point);
+        }
+        else
+        {
+            currentBurner = Instantiate(laserBurn, hit.point, Quaternion.LookRotation(hit.normal), hit.transform);
         }
     }
 }

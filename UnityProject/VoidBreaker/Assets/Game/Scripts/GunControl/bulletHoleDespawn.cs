@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class bulletHoleDespawn : MonoBehaviour
 {
-    public int maxBulletDecals;
+    [Header("Bullet Hole attribs")]
+    [SerializeField]
+    private int maxBulletDecals;
     private static Queue<GameObject> bulletDecals = new Queue<GameObject>();
 
     // When a new bullet decal is added we remove the oldest decal if queue is larger than the max
-    void Start()
+    private void Awake()
     {
         bulletDecals.Enqueue(this.gameObject);
         
