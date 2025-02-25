@@ -35,7 +35,7 @@ public class gunShooting : MonoBehaviour
     [Tooltip("Anything with this tag should have a \"OnHit\" method")]
     public string tagToHit;
 
-    
+
 
     private float timeSinceLastShot = 0;
     private float timeSinceLastReload = 0;
@@ -43,9 +43,12 @@ public class gunShooting : MonoBehaviour
     private bool reloading = false;
     private bool firing = false;
 
+    [SerializeField]
     private laserBurnHandle currentBurner = null;
 
     private RaycastHit hit;
+
+
     void Start()
     {
         ammoRemaining = ammoCount;
@@ -62,7 +65,7 @@ public class gunShooting : MonoBehaviour
             !firing &&
             timeSinceLastShot > 1 / fireRate)
         {
-            ammoRemaining++;
+            ammoRemaining += (int)(timeSinceLastReload / (reloadTime / ammoCount));
             timeSinceLastReload = 0;
         }
 
@@ -83,6 +86,7 @@ public class gunShooting : MonoBehaviour
         if (!reloading)
         {
             firing = true;
+            timeSinceLastShot = 0;
         }
     }
 
@@ -90,6 +94,7 @@ public class gunShooting : MonoBehaviour
     {
         firing = false;
         currentBurner = null;
+        timeSinceLastReload = 0;
     }
 
 
@@ -120,20 +125,23 @@ public class gunShooting : MonoBehaviour
 
         if (timeSinceLastShot > 1 / fireRate)
         {
-            ammoRemaining--;
+            ammoRemaining -= (int)(timeSinceLastShot / (1 / fireRate));
             timeSinceLastShot = 0;
         }
-
     }
 
 
 
     private void handleHit(ref RaycastHit _hit)
     {
+        int objId = hit.collider.gameObject.GetInstanceID();
+
         if(_hit.collider.tag == tagToHit)
         {
             // Do something idk what yet
         }
+
+
 
 
         if (!beamWeapon)
@@ -142,13 +150,14 @@ public class gunShooting : MonoBehaviour
             return;
         }
 
-        if(currentBurner != null)
+        if(currentBurner != null && currentBurner.sameObject(objId, hit.normal))
         {
-            currentBurner.AddBurnPosition(_hit.point);
+            currentBurner.AddBurnPosition(_hit.point + (hit.normal / 10000));
         }
         else
         {
-            currentBurner = Instantiate(laserBurn, hit.point, Quaternion.LookRotation(hit.normal), hit.transform);
+            currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal), hit.transform);
+            currentBurner.setObjNorm(objId, hit.normal);
         }
     }
 }

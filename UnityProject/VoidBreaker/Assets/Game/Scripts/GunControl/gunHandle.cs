@@ -35,7 +35,7 @@ public class gunHandle : MonoBehaviour
         }
     }
 
-    public void updateGunSelection(gunShooting _newGun)
+    public void gunSelection(gunShooting _newGun)
     {
         unequipGun();
         gun = _newGun;

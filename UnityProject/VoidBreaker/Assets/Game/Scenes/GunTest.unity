@@ -789,6 +789,27 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gun
       objectReference: {fileID: 0}
+    - target: {fileID: 6818748381548838839, guid: a9751315fdfecac4f84954434361024a,
+        type: 3}
+      propertyPath: fireRate
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818748381548838839, guid: a9751315fdfecac4f84954434361024a,
+        type: 3}
+      propertyPath: ammoCount
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818748381548838839, guid: a9751315fdfecac4f84954434361024a,
+        type: 3}
+      propertyPath: laserBurn
+      value: 
+      objectReference: {fileID: 6260318849728827482, guid: 0f220f80642a13a4ab0d467917a27535,
+        type: 3}
+    - target: {fileID: 6818748381548838839, guid: a9751315fdfecac4f84954434361024a,
+        type: 3}
+      propertyPath: beamWeapon
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7820913581700470912, guid: a9751315fdfecac4f84954434361024a,
         type: 3}
       propertyPath: m_LocalPosition.x
