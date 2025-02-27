@@ -16,7 +16,7 @@ public class laserBurnHandle : MonoBehaviour
         burnMark.SetPosition(0, burnMark.transform.position);
     }
 
-    public void setObjNorm(int _objID, Vector3 _normal)
+    public void setObjParams(int _objID, Vector3 _normal)
     {
         ourObject = _objID;
         Normal = _normal;

@@ -156,8 +156,8 @@ public class gunShooting : MonoBehaviour
         }
         else
         {
-            currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal), hit.transform);
-            currentBurner.setObjNorm(objId, hit.normal);
+            currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal));
+            currentBurner.setObjParams(objId, hit.normal);
         }
     }
 }
