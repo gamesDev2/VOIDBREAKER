@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 131d8a4f3d61b3a4ba13c83183436ee2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 100
   moveSpeed: 10
   groundDrag: 6
   jumpForce: 5
@@ -115,6 +116,10 @@ MonoBehaviour:
   dashDuration: 0.2
   dashCooldown: 2
   maxSpeed: 10
+  playerHeight: 2
+  whatIsGround:
+    serializedVersion: 2
+    m_Bits: 0
   wallRunLaunchSpeed: 10
   wallRunAcceleration: 5
   maxWallRunSpeed: 20
@@ -127,16 +132,17 @@ MonoBehaviour:
   highFallRollThreshold: 5
   rollDuration: 0.5
   rollForce: 5
+  baseFov: 90
+  maxFovIncrease: 20
+  fovMultiplier: 10
+  maxCameraRollAngle: 20
+  rollMultiplier: 10
   pushForce: 10
   sphereRadiusMultiplier: 1.2
   pushHeightThreshold: 2
   pushCooldown: 1
   groundPoundForce: 20
   maxDeltaTime: 0.016
-  playerHeight: 2
-  whatIsGround:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!114 &8729751293060178360
 MonoBehaviour:
   m_ObjectHideFlags: 0

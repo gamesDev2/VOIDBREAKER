@@ -50,7 +50,7 @@ public class Camera_Controller : MonoBehaviour
     private float _currentShakeIntensity = 0f;
     private Vector3 _shakeOffset = Vector3.zero;
 
-    private PlayerState _currentPlayerState = PlayerState.Idle;
+    private EntityState _currentPlayerState = EntityState.Idle;
     private float _rollFovOffset = 0f;
 
     private float dt;
@@ -122,12 +122,12 @@ public class Camera_Controller : MonoBehaviour
     {
         float targetFOV = defaultFOV;
         float transitionSpeed = fovTransitionSpeed;
-        if (_currentPlayerState == PlayerState.Dashing)
+        if (_currentPlayerState == EntityState.Dashing)
         {
             targetFOV = dashFOV;
             transitionSpeed = dashFOVTransitionSpeed;
         }
-        else if (_currentPlayerState == PlayerState.Sprinting)
+        else if (_currentPlayerState == EntityState.Sprinting)
         {
             targetFOV = sprintFOV;
         }
@@ -149,7 +149,7 @@ public class Camera_Controller : MonoBehaviour
         }
     }
 
-    public void SetPlayerState(PlayerState state)
+    public void SetPlayerState(EntityState state)
     {
         _currentPlayerState = state;
     }
