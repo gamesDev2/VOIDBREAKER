@@ -39,7 +39,7 @@ public class Rail : MonoBehaviour
         // Use GetComponentInParent in case the FPS_Controller is on a parent object.
         if (other.CompareTag("Player"))
         {
-            FPS_Controller controller = other.GetComponentInParent<FPS_Controller>();
+            Player_Controller controller = other.GetComponentInParent<Player_Controller>();
             if (controller != null)
             {
                 controller.EnterRail(this);
@@ -51,7 +51,7 @@ public class Rail : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            FPS_Controller controller = other.GetComponentInParent<FPS_Controller>();
+            Player_Controller controller = other.GetComponentInParent<Player_Controller>();
             if (controller != null)
             {
                 controller.ExitRail();

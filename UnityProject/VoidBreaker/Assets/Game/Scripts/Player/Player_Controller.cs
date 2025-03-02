@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FPS_Controller : EntityMovementController
+public class Player_Controller : Entity
 {
     [Header("FPS Specific Settings")]
     [Tooltip("Assign the player's head transform (child of the player).")]
@@ -80,5 +80,9 @@ public class FPS_Controller : EntityMovementController
                 isCrouching ? crouchHeadLocalPos : standHeadLocalPos,
                 crouchTransitionSpeed * Time.deltaTime);
         }
+    }
+    protected override void Die()
+    {
+        Debug.Log("Player has died!");
     }
 }

@@ -1,35 +1,35 @@
 using UnityEngine;
 
-public class AI_Movement_Controller : EntityMovementController
+public class AI_Movement_Controller : Entity
 {
-    // AI-specific rotation input.
+    [SerializeField] private float rotationSpeed = 360f;
     private float aiLookYaw;
 
     protected override void ProcessInput()
     {
-        // For AI, input is provided externally via SetAIInput.
-        // Apply the AI's desired rotation.
-        transform.Rotate(Vector3.up * aiLookYaw);
+        // Smoothly rotate toward the desired yaw
+        Quaternion currentRot = transform.rotation;
+        Quaternion targetRot = Quaternion.Euler(0f, aiLookYaw, 0f);
+        transform.rotation = Quaternion.RotateTowards(
+            currentRot, targetRot, rotationSpeed * Time.deltaTime);
+        // Movement is handled in Entity.MovePlayer via horizontal/vertical input
     }
 
-    /// <summary>
-    /// Sets the AI movement inputs.
-    /// </summary>
-    /// <param name="horizontal">Horizontal movement value.</param>
-    /// <param name="vertical">Vertical movement value.</param>
-    /// <param name="wantSprint">Sprint flag.</param>
-    /// <param name="wantCrouch">Crouch flag.</param>
-    /// <param name="wantJump">Jump flag.</param>
-    /// <param name="wantDash">Dash flag.</param>
-    /// <param name="lookYaw">Rotation (yaw) value for AI look.</param>
-    public void SetAIInput(float horizontal, float vertical, bool wantSprint, bool wantCrouch, bool wantJump, bool wantDash, float lookYaw)
+    public void SetAIInput(float horizontal, float vertical,
+                           bool sprint, bool crouch, bool jump, bool dash,
+                           float lookYaw)
     {
         horizontalInput = horizontal;
         verticalInput = vertical;
-        this.wantSprint = wantSprint;
-        this.wantCrouch = wantCrouch;
-        this.wantJump = wantJump;
-        this.wantDash = wantDash;
+        wantSprint = sprint;
+        wantCrouch = crouch;
+        wantJump = jump;
+        wantDash = dash;
         aiLookYaw = lookYaw;
+    }
+
+    protected override void Die()
+    {
+        Debug.Log("AI " + gameObject.name + " has died!");
     }
 }

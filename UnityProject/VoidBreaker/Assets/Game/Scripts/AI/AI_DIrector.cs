@@ -1,59 +1,145 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
-public class AIDirectorGoap : MonoBehaviour
+public enum MessageType
 {
-    [Header("Agents Under Director Control")]
-    public List<AI_Agent> agents;
+    Attack,
+    Retreat,
+    Regroup,
+    Alert
+}
 
-    [Header("Player Reference")]
-    public GameObject player;
+public enum PlanType
+{
+    Attack,
+    Flank,
+    Defend,
+    Retreat
+}
 
-    [Header("Director Logic")]
-    public float groupAttackDistance = 15f;
-    public bool forceGroupAttack; // For debug toggling in the Inspector
+
+
+
+public class AIDirector : MonoBehaviour
+{
+    public static AIDirector Instance;
+    public List<GOAPAgent> agents = new List<GOAPAgent>();
+
+    public float planningInterval = 5f;
+    private float nextPlanTime = 0f;
 
     void Awake()
     {
-        // For each agent, build a list of the other agents (allies)
-        for (int i = 0; i < agents.Count; i++)
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
+    public void RegisterAgent(GOAPAgent agent)
+    {
+        if (!agents.Contains(agent))
+            agents.Add(agent);
+    }
+
+    public void UnregisterAgent(GOAPAgent agent)
+    {
+        if (agents.Contains(agent))
+            agents.Remove(agent);
+    }
+
+    public void SendMessage(AIDirectorMessage message)
+    {
+        if (message.receiver != null)
+            message.receiver.ReceiveMessage(message);
+    }
+
+    public void BroadcastMessage(AIDirectorMessage message)
+    {
+        foreach (GOAPAgent agent in agents)
         {
-            List<AI_Agent> allyList = new List<AI_Agent>(agents);
-            allyList.RemoveAt(i); // remove self
-            agents[i].knownAllies = allyList;
+            if (agent != message.sender)
+                agent.ReceiveMessage(message);
+        }
+    }
+
+    // New method: inform only the nearest agent within maxDistance.
+    public void InformNearestAgent(AIDirectorMessage message, float maxDistance)
+    {
+        GOAPAgent nearest = null;
+        float bestDistance = float.MaxValue;
+        foreach (GOAPAgent agent in agents)
+        {
+            if (agent == message.sender)
+                continue;
+            float dist = Vector3.Distance(message.sender.transform.position, agent.transform.position);
+            if (dist < bestDistance && dist <= maxDistance)
+            {
+                bestDistance = dist;
+                nearest = agent;
+            }
+        }
+        if (nearest != null)
+        {
+            nearest.ReceiveMessage(message);
+            Debug.Log("Director: " + message.sender.name + " informed " + nearest.name + " with message: " + message.content);
+        }
+        else
+        {
+            Debug.Log("Director: No nearby agent found to inform.");
+        }
+    }
+
+    public AIPlan GenerateAdvancedPlan()
+    {
+        AIPlan plan;
+        if (agents.Count >= 3)
+        {
+            plan = new AIPlan(PlanType.Attack);
+            foreach (GOAPAgent agent in agents)
+            {
+                List<GOAPAction> actions = new List<GOAPAction>();
+                GOAPAction follow = agent.availableActions.Find(a => a is FollowPlayerAction);
+                GOAPAction attack = agent.availableActions.Find(a => a is AttackAction);
+                if (follow != null && attack != null)
+                {
+                    actions.Add(follow);
+                    actions.Add(attack);
+                }
+                plan.agentPlans.Add(agent, actions);
+            }
+        }
+        else
+        {
+            plan = new AIPlan(PlanType.Attack);
+            foreach (GOAPAgent agent in agents)
+            {
+                List<GOAPAction> actions = new List<GOAPAction>();
+                GOAPAction attack = agent.availableActions.Find(a => a is AttackAction);
+                if (attack != null)
+                    actions.Add(attack);
+                plan.agentPlans.Add(agent, actions);
+            }
+        }
+        return plan;
+    }
+
+    public void DistributeAdvancedPlan(AIPlan plan)
+    {
+        foreach (var kv in plan.agentPlans)
+        {
+            kv.Key.ReceivePlan(plan);
         }
     }
 
     void Update()
     {
-        // If the player is invalid or not tagged as "Player," do nothing
-        if (player == null || !player.CompareTag("Player"))
-            return;
-
-        // Decide the global goal for each agent
-        foreach (var agent in agents)
+        if (Time.time >= nextPlanTime)
         {
-            if (agent == null) continue;
-            agent.player = player.transform;
-
-            float distance = Vector3.Distance(agent.transform.position, player.transform.position);
-
-            // If "forceGroupAttack" is true or player is close, set goal to "coordinatedAttack"
-            // otherwise default to "following"
-            if (forceGroupAttack || distance < groupAttackDistance)
-            {
-                SetAgentGoal(agent, "coordinatedAttack");
-            }
-            else
-            {
-                SetAgentGoal(agent, "following");
-            }
+            AIPlan plan = GenerateAdvancedPlan();
+            DistributeAdvancedPlan(plan);
+            nextPlanTime = Time.time + planningInterval;
         }
-    }
-
-    private void SetAgentGoal(AI_Agent agent, string goalKey)
-    {
-        agent.goal.Clear();
-        agent.goal.Add(goalKey, true);
     }
 }

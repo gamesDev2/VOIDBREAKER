@@ -124,31 +124,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 244ee9353d57d3a47899293ecbb5fa80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
+  MaxHealth: 100
   moveSpeed: 5
-  groundDrag: 20
+  groundDrag: 6
   jumpForce: 20
   jumpCooldown: 0.25
   airMultiplier: 0.5
-  maxJumpCount: 1
+  maxJumpCount: 2
   sprintSpeed: 8
   crouchHeight: 1
   crouchSpeed: 3
   crouchTransitionSpeed: 8
   crouchCameraHeight: 0.5
-  dashForce: 15
+  dashForce: 70
   dashDuration: 0.5
-  dashCooldown: 1
-  maxSpeed: 20
+  dashCooldown: 3
+  maxSpeed: 30
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
-    m_Bits: 1
-  wallRunLaunchSpeed: 10
-  wallRunAcceleration: 20
-  maxWallRunSpeed: 10
+    m_Bits: 129
+  wallRunLaunchSpeed: 200
+  wallRunAcceleration: 5
+  maxWallRunSpeed: 50
   wallRunGravity: 0.2
-  maxWallRunTime: 1
+  maxWallRunTime: 2
   wallRunRayDistance: 1
   slideSpeed: 12
   railVerticalOffset: -1
@@ -156,14 +156,14 @@ MonoBehaviour:
   highFallRollThreshold: 5
   rollDuration: 0.5
   rollForce: 5
-  baseFov: 60
+  baseFov: 90
   maxFovIncrease: 20
   fovMultiplier: 10
   maxCameraRollAngle: 20
   rollMultiplier: 10
-  pushForce: 20
-  sphereRadiusMultiplier: 1
-  pushHeightThreshold: 3
+  pushForce: 10
+  sphereRadiusMultiplier: 1.2
+  pushHeightThreshold: 2
   pushCooldown: 1
   groundPoundForce: 20
   maxDeltaTime: 0.016

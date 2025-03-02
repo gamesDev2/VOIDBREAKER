@@ -7,19 +7,22 @@ public enum EntityState
     Sprinting,
     Crouching,
     Dashing,
+    Falling,
     Jumping,
     WallRunning,
     Sliding,
     RailRiding,
     Rolling
 }
+//we want a interface that takes our existing Health class makes it so the entity can take damage
 
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
-public abstract class EntityMovementController : MonoBehaviour
+public abstract class Entity : MonoBehaviour
 {
     //=== Shared Configuration Fields ===
     [Header("Entity Stats")]
-    public float health = 100f;
+    public float MaxHealth = 100;
+    protected float CurrentHealth = 100;
 
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
@@ -155,7 +158,7 @@ public abstract class EntityMovementController : MonoBehaviour
         float dt = Mathf.Min(Time.deltaTime, maxDeltaTime);
         ProcessGroundCheck();
         ProcessFallRoll(dt);
-        ProcessInput(); // Implemented in derived classes.
+        ProcessInput();
         ProcessJumpInput();
         ProcessCrouchAndGroundPoundInput();
         ProcessDashInput();
@@ -165,7 +168,21 @@ public abstract class EntityMovementController : MonoBehaviour
         UpdatePlayerState();
         UpdateCameraController();
     }
-
+    public void TakeDamage(float damage)
+    {
+        CurrentHealth -= damage;
+        if (CurrentHealth <= 0)
+            Die();
+    }
+    public void Heal(float amount)
+    {
+        CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
+    }
+    public float GetHealth()
+    {
+        return CurrentHealth;
+    }
+    protected abstract void Die();
     protected virtual void FixedUpdate()
     {
         if (isRolling)
