@@ -138,15 +138,18 @@ MonoBehaviour:
   availableActions: []
   stoppingDistance: 0.2
   stuckThreshold: 0.1
-  stuckTime: 2
+  stuckTime: 0.5
   maxStuckAttempts: 3
   visionRayHeight: 0.5
   obstacleAvoidanceDistance: 1
   sideRayAngle: 25
   visionObstacleLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 256
   minAgentSpacing: 1.5
+  agentLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
   maxRaycastDown: 100
   sampleRadius: 2
 --- !u!114 &254316129621930616
@@ -162,8 +165,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxHealth: 100
-  moveSpeed: 10
-  groundDrag: 6
+  moveSpeed: 6
+  groundDrag: 10
   jumpForce: 5
   jumpCooldown: 0.25
   airMultiplier: 0.5
@@ -189,7 +192,7 @@ MonoBehaviour:
   wallRunRayDistance: 1
   slideSpeed: 12
   railVerticalOffset: 1
-  enableHighFallRoll: 1
+  enableHighFallRoll: 0
   highFallRollThreshold: 5
   rollDuration: 0.5
   rollForce: 5
