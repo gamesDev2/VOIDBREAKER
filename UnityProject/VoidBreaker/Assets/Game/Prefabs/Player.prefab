@@ -144,9 +144,9 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 129
-  wallRunLaunchSpeed: 200
-  wallRunAcceleration: 5
-  maxWallRunSpeed: 50
+  wallRunLaunchSpeed: 600
+  wallRunAcceleration: 100
+  maxWallRunSpeed: 200
   wallRunGravity: 0.2
   maxWallRunTime: 2
   wallRunRayDistance: 1

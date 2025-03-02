@@ -6,7 +6,6 @@ public class AttackAction : GOAPAction
     public float attackDamage = 10f;    // how much damage we deal
     public float attackCooldown = 2f;   // time (seconds) between attacks
 
-    private bool attacked = false;
     private float lastAttackTime = -999f;
     private Transform player;
 
@@ -32,40 +31,53 @@ public class AttackAction : GOAPAction
 
         float dist = Vector3.Distance(agentObj.transform.position, player.position);
 
-        // If in attack range, deal damage
+        // Get player's health
+        Player_Controller playerEntity = player.GetComponent<Player_Controller>();
+        if (playerEntity == null) return false;
+
+        // If player's health is already <= 10, no more attacking
+        if (playerEntity.GetHealth() <= 10f)
+        {
+            // Do nothing, but the action will end soon because IsDone() sees health <= 10
+            return true;
+        }
+
+        // Otherwise, if in attack range, deal damage (respecting cooldown)
         if (dist <= attackRange)
         {
-            // Check cooldown
             if (Time.time - lastAttackTime >= attackCooldown)
             {
-                // Call the player's TakeDamage function
-                Player_Controller playerEntity = player.GetComponent<Player_Controller>();
-                if (playerEntity != null && playerEntity.GetHealth() > 10)
-                {
-                    Debug.Log(agentObj.name + " attacks player for " + attackDamage + " damage!");
-                    playerEntity.TakeDamage(attackDamage);
-                }
+                Debug.Log(agentObj.name + " attacks player for " + attackDamage + " damage!");
+                playerEntity.TakeDamage(attackDamage);
 
                 lastAttackTime = Time.time;
-                attacked = true;
             }
         }
         else
         {
-            // Move closer
+            // Move closer if out of range
             goap.MoveTo(player.position);
         }
 
-        return true;
+        return true; // Action is still ongoing until player's health <= 10
     }
 
+    /// <summary>
+    /// The action ends when the player's health is at or below 10.
+    /// </summary>
     public override bool IsDone()
     {
-        return attacked;
+        if (player == null) return true; // No player => can't attack
+        Player_Controller playerEntity = player.GetComponent<Player_Controller>();
+        if (playerEntity == null) return true; // No health script => end
+
+        // Stop attacking once player's health <= 10
+        return (playerEntity.GetHealth() <= 10f);
     }
 
     public override bool RequiresInRange()
     {
+        // We handle range checks inside Perform(), so set this to false
         return false;
     }
 }

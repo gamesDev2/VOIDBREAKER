@@ -18,9 +18,6 @@ public enum PlanType
     Retreat
 }
 
-
-
-
 public class AIDirector : MonoBehaviour
 {
     public static AIDirector Instance;
@@ -28,6 +25,9 @@ public class AIDirector : MonoBehaviour
 
     public float planningInterval = 5f;
     private float nextPlanTime = 0f;
+
+    [Header("Player Health Threshold")]
+    public float healthThreshold = 30f;  // Only give orders if player health < this
 
     void Awake()
     {
@@ -64,7 +64,7 @@ public class AIDirector : MonoBehaviour
         }
     }
 
-    // New method: inform only the nearest agent within maxDistance.
+    // Inform only the nearest agent within maxDistance
     public void InformNearestAgent(AIDirectorMessage message, float maxDistance)
     {
         GOAPAgent nearest = null;
@@ -91,7 +91,8 @@ public class AIDirector : MonoBehaviour
         }
     }
 
-    public AIPlan GenerateAdvancedPlan()
+    // Creates an  plan for all agents
+    public AIPlan GeneratePlan()
     {
         AIPlan plan;
         if (agents.Count >= 3)
@@ -125,7 +126,8 @@ public class AIDirector : MonoBehaviour
         return plan;
     }
 
-    public void DistributeAdvancedPlan(AIPlan plan)
+    // Distribute plan to each agent
+    public void DistributePlan(AIPlan plan)
     {
         foreach (var kv in plan.agentPlans)
         {
@@ -135,10 +137,25 @@ public class AIDirector : MonoBehaviour
 
     void Update()
     {
+        // Only generate a plan if enough time passed
         if (Time.time >= nextPlanTime)
         {
-            AIPlan plan = GenerateAdvancedPlan();
-            DistributeAdvancedPlan(plan);
+            // Check if the player's health is below threshold
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                // We assume the player has an Entity script or something with a GetHealth() method
+                Entity playerEntity = player.GetComponent<Entity>();
+                if (playerEntity != null && playerEntity.GetHealth() < healthThreshold)
+                {
+                    // Player is low on health => issue advanced plan
+                    AIPlan plan = GeneratePlan();
+                    DistributePlan(plan);
+                    Debug.Log("AIDirector: Player health is low, distributing plan.");
+                }
+            }
+
+            // Schedule next check
             nextPlanTime = Time.time + planningInterval;
         }
     }

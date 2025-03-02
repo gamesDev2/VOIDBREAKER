@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+/// <summary>
+/// A GOAPAgent that uses a NavMeshAgent for movement.
+/// </summary>
+[RequireComponent(typeof(NavMeshAgent), typeof(AI_Movement_Controller))]
 public class GOAPAgent : MonoBehaviour
 {
     // ---------------------- GOAP-Related Fields ----------------------
-    public List<GOAPAction> availableActions;      // All GOAP actions on this AI
-    private Queue<GOAPAction> currentActions;      // The current action plan
+    public List<GOAPAction> availableActions;  // All GOAP actions on this AI
+    private Queue<GOAPAction> currentActions;  // The current action plan
     public Dictionary<string, bool> beliefs = new Dictionary<string, bool>();
+
+    // We'll store the old plan in a queue. 
+    // When we revert, we pick the single action with the lowest cost.
+    private Queue<GOAPAction> previousActions = new Queue<GOAPAction>();
 
     // ---------------------- Movement & NavMesh -----------------------
     private AI_Movement_Controller movementController;
@@ -18,9 +26,9 @@ public class GOAPAgent : MonoBehaviour
     [SerializeField] private float stoppingDistance = 1.0f;
 
     // --- Stuck detection ---
-    public float stuckThreshold = 0.1f;  // minimal movement to not be "stuck"
-    public float stuckTime = 2f;         // how many seconds of near-zero movement => stuck
-    public int maxStuckAttempts = 3;     // how many times we attempt recovery
+    public float stuckThreshold = 0.1f;
+    public float stuckTime = 2f;
+    public int maxStuckAttempts = 3;
 
     private float stuckTimer = 0f;
     private Vector3 lastPosition;
@@ -28,33 +36,34 @@ public class GOAPAgent : MonoBehaviour
 
     // ---------------------- Obstacle Avoidance -----------------------
     [Header("Obstacle Avoidance")]
-    public float visionRayHeight = 0.5f;         // cast from near the agent's center
+    public float visionRayHeight = 0.5f;
     public float obstacleAvoidanceDistance = 1.0f;
-    public float sideRayAngle = 25f;             // angle for left/right checks
-    public LayerMask visionObstacleLayers;       // layers for walls/obstacles
+    public float sideRayAngle = 25f;
+    public LayerMask visionObstacleLayers;
 
     // ---------------------- Agent Spacing ----------------------------
     [Header("Agent Spacing")]
-    public float minAgentSpacing = 1.5f; // how far to keep from other AI
-    public LayerMask agentLayerMask;     // layer used by other AI agents (e.g. "AI")
+    public float minAgentSpacing = 1.5f;
+    public LayerMask agentLayerMask;
 
     // ---------------------- Midair Player Handling -------------------
     [Header("Midair Player Handling")]
-    public float maxRaycastDown = 100f;  // how far we raycast down from the player
-    public float sampleRadius = 2f;      // how wide we sample the NavMesh near that point
+    public float maxRaycastDown = 100f;
+    public float sampleRadius = 2f;
 
-    // For re-issuing the last MoveTo if stuck
     private Vector3 lastTargetPos;
     private bool hasTarget = false;
 
-    // ---------------------- Return to Original Post ------------------
-    private Vector3 originalPosition;   // Where the agent started
+    private Vector3 originalPosition;
     private bool isReturningToPost = false;
 
     // ---------------------- Communication ----------------------------
     [Header("Communication")]
-    public float informRange = 10f;     // radius in which we inform nearby agents
-    private bool hasInformedTeammates = false; // to avoid spamming
+    public float informRange = 10f;
+    private bool hasInformedTeammates = false;
+
+    // For tracking line-of-sight changes
+    private bool wasSpottedLastFrame = false;
 
     void Start()
     {
@@ -115,7 +124,7 @@ public class GOAPAgent : MonoBehaviour
                         if (pathCheck.status == NavMeshPathStatus.PathPartial ||
                             pathCheck.status == NavMeshPathStatus.PathInvalid)
                         {
-                            Debug.Log(name + " => path partial to midair player, fallback to patrol or idle");
+                            Debug.Log(name + " => partial path, fallback to patrol or idle");
                             currentActions.Clear();
                         }
                         else
@@ -125,10 +134,11 @@ public class GOAPAgent : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log(name + " => no valid ground under midair player, fallback to patrol or idle");
+                        Debug.Log(name + " => no valid ground, fallback to patrol or idle");
                         currentActions.Clear();
                     }
                 }
+                // Perform the action
                 action.Perform(gameObject);
             }
         }
@@ -136,7 +146,7 @@ public class GOAPAgent : MonoBehaviour
         UpdateBeliefs();
         CheckStuck();
 
-        // Movement: read agent's desiredVelocity, do obstacle/spacing, feed to physics
+        // Movement logic
         Vector3 desiredVel = navAgent.desiredVelocity;
         if (desiredVel.sqrMagnitude < 0.01f)
         {
@@ -145,7 +155,6 @@ public class GOAPAgent : MonoBehaviour
         else
         {
             Vector3 flatVel = new Vector3(desiredVel.x, 0f, desiredVel.z);
-
             Vector3 finalDir = SphereCastAvoidObstacle(flatVel.normalized);
             finalDir = AdjustForAgentSpacing(finalDir);
 
@@ -163,7 +172,6 @@ public class GOAPAgent : MonoBehaviour
     private bool TryGetGroundPosition(Vector3 rawPos, out Vector3 groundPos)
     {
         groundPos = Vector3.zero;
-
         if (Physics.Raycast(rawPos, Vector3.down, out RaycastHit hit, maxRaycastDown))
         {
             if (NavMesh.SamplePosition(hit.point, out NavMeshHit navHit, sampleRadius, NavMesh.AllAreas))
@@ -204,7 +212,6 @@ public class GOAPAgent : MonoBehaviour
         }
         else
         {
-            // both blocked => small sideways offset
             Vector3 sideStep = Vector3.Cross(forwardDir, Vector3.up).normalized;
             if (Random.value < 0.5f) sideStep = -sideStep;
             return (forwardDir + sideStep * 0.5f).normalized;
@@ -274,7 +281,6 @@ public class GOAPAgent : MonoBehaviour
 
             if (stuckAttempts >= maxStuckAttempts)
             {
-                // Could do something more drastic
                 stuckAttempts = 0;
             }
         }
@@ -310,7 +316,6 @@ public class GOAPAgent : MonoBehaviour
     {
         Debug.Log(name + " => ReverseAndRotate for " + reverseTime + "s ±" + angle + " deg.");
 
-        // 1) Reverse
         float t = 0f;
         while (t < reverseTime)
         {
@@ -321,7 +326,6 @@ public class GOAPAgent : MonoBehaviour
             yield return null;
         }
 
-        // 2) Random rotation
         float randomAngle = (Random.value < 0.5f) ? -angle : angle;
         float finalYaw = transform.eulerAngles.y + randomAngle;
         movementController.SetAIInput(0, 0, false, false, false, false, finalYaw);
@@ -380,17 +384,79 @@ public class GOAPAgent : MonoBehaviour
             beliefs["playerInAttackRange"] = inRange;
             beliefs["playerSpotted"] = spottedNow;
 
-            // If we just spotted the player and haven't informed teammates, do so
+            // If we just spotted the player => store old plan
             if (!wasSpotted && spottedNow)
             {
+                StorePreviousActions();
                 InformNearbyAgents();
             }
+
+            // If we had line-of-sight but lost it => revert to the single lowest-cost action
+            if (wasSpotted && !spottedNow)
+            {
+                RestoreLowestCostAction();
+            }
+
+            wasSpottedLastFrame = spottedNow;
         }
         else
         {
             // No player => they're presumably dead/gone
             beliefs["playerSpotted"] = false;
             hasInformedTeammates = false;
+
+            // If we had line-of-sight last frame, revert
+            if (wasSpottedLastFrame)
+                RestoreLowestCostAction();
+
+            wasSpottedLastFrame = false;
+        }
+    }
+
+    /// <summary>
+    /// Saves the current plan as "previous" so we can revert if we lose sight.
+    /// </summary>
+    private void StorePreviousActions()
+    {
+        if (currentActions.Count > 0)
+        {
+            previousActions = new Queue<GOAPAction>(currentActions);
+        }
+        else
+        {
+            previousActions.Clear();
+        }
+    }
+
+    /// <summary>
+    /// Reverts to the single action with the lowest cost from the old plan.
+    /// </summary>
+    private void RestoreLowestCostAction()
+    {
+        if (previousActions.Count > 0)
+        {
+            // Find the single action with the lowest cost
+            GOAPAction bestAction = null;
+            float bestCost = float.MaxValue;
+
+            foreach (GOAPAction a in previousActions)
+            {
+                if (a.cost < bestCost)
+                {
+                    bestCost = a.cost;
+                    bestAction = a;
+                }
+            }
+
+            currentActions.Clear();
+
+            if (bestAction != null)
+            {
+                Debug.Log(name + " => Lost line of sight, picking lowest-cost action: " + bestAction.name + " cost=" + bestCost);
+                currentActions.Enqueue(bestAction);
+            }
+
+            previousActions.Clear();
         }
     }
 
@@ -438,7 +504,6 @@ public class GOAPAgent : MonoBehaviour
             GOAPAgent otherAgent = col.GetComponent<GOAPAgent>();
             if (otherAgent != null)
             {
-                // AIDirectorMessage typically: public AIDirectorMessage(MessageType type, GOAPAgent sender, GOAPAgent receiver, string content)
                 AIDirectorMessage msg = new AIDirectorMessage(
                     MessageType.Alert,
                     this,
