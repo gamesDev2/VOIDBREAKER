@@ -102,7 +102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ebcc54926e6298428cf0a29d94c1c95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cost: 1
+  cost: 2
   target: {fileID: 0}
   inRange: 0
 --- !u!114 &5925317389321465842
@@ -117,7 +117,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc9e469623337ab4987db5d1cb96b263, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cost: 2
+  cost: 3
   target: {fileID: 0}
   inRange: 0
   attackRange: 2
@@ -138,20 +138,23 @@ MonoBehaviour:
   availableActions: []
   stoppingDistance: 0.2
   stuckThreshold: 0.1
-  stuckTime: 0.5
+  stuckTime: 2
   maxStuckAttempts: 3
   visionRayHeight: 0.5
-  obstacleAvoidanceDistance: 1
+  obstacleAvoidanceDistance: 10
   sideRayAngle: 25
   visionObstacleLayers:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 1
   minAgentSpacing: 1.5
   agentLayerMask:
     serializedVersion: 2
     m_Bits: 64
-  maxRaycastDown: 100
+  maxRaycastDown: 200
   sampleRadius: 2
+  hasTarget: 0
+  isReturningToPost: 0
+  informRange: 10
 --- !u!114 &254316129621930616
 MonoBehaviour:
   m_ObjectHideFlags: 0

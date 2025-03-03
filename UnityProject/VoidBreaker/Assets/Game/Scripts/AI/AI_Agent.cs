@@ -4,7 +4,13 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// A GOAPAgent that uses a NavMeshAgent for movement.
+/// A GOAPAgent that:
+/// 1) Uses NavMeshAgent + physics-based AI_Movement_Controller.
+/// 2) Removes local line-of-sight checks; HPC manager calls ExternalSetPlayerSpotted(bool).
+/// 3) Reverts to the single lowest-cost action if it loses line of sight.
+/// 4) Has advanced stuck recovery, midair player handling, obstacle avoidance, etc.
+/// 5) Now predicts the player landing position, tracks the last known ground position,
+///    and initiates a jump when needed.
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent), typeof(AI_Movement_Controller))]
 public class GOAPAgent : MonoBehaviour
@@ -14,7 +20,7 @@ public class GOAPAgent : MonoBehaviour
     private Queue<GOAPAction> currentActions;  // The current action plan
     public Dictionary<string, bool> beliefs = new Dictionary<string, bool>();
 
-    // We'll store the old plan in a queue. 
+    // We'll store the old plan in a queue.
     // When we revert, we pick the single action with the lowest cost.
     private Queue<GOAPAction> previousActions = new Queue<GOAPAction>();
 
@@ -52,10 +58,11 @@ public class GOAPAgent : MonoBehaviour
     public float sampleRadius = 2f;
 
     private Vector3 lastTargetPos;
-    private bool hasTarget = false;
+    [SerializeField] private bool hasTarget = false;
 
+    // Original position for returning to post
     private Vector3 originalPosition;
-    private bool isReturningToPost = false;
+    [SerializeField] private bool isReturningToPost = false;
 
     // ---------------------- Communication ----------------------------
     [Header("Communication")]
@@ -65,11 +72,18 @@ public class GOAPAgent : MonoBehaviour
     // For tracking line-of-sight changes
     private bool wasSpottedLastFrame = false;
 
+    // NEW: Track the last-known ground position of the player
+    public Vector3 lastKnownPlayerGroundPos { get; private set; }
+
+    // NEW: For smoothing movement direction
+    private Vector3 lastMoveDir = Vector3.zero;
+
     void Start()
     {
         movementController = GetComponent<AI_Movement_Controller>();
         navAgent = GetComponent<NavMeshAgent>();
 
+        // Configure NavMeshAgent for physics-based movement
         navAgent.updatePosition = false;
         navAgent.updateRotation = false;
         navAgent.obstacleAvoidanceType = ObstacleAvoidanceType.HighQualityObstacleAvoidance;
@@ -98,6 +112,9 @@ public class GOAPAgent : MonoBehaviour
 
     void Update()
     {
+        // Sync the NavMeshAgent’s internal position first
+        navAgent.nextPosition = transform.position;
+
         // Execute or plan GOAP actions
         if (currentActions.Count == 0)
         {
@@ -114,7 +131,6 @@ public class GOAPAgent : MonoBehaviour
             {
                 if (action.RequiresInRange() && !action.inRange && action.target != null)
                 {
-                    // Attempt to find ground if player is midair
                     Vector3 finalPos;
                     if (TryGetGroundPosition(action.target.transform.position, out finalPos))
                     {
@@ -138,38 +154,160 @@ public class GOAPAgent : MonoBehaviour
                         currentActions.Clear();
                     }
                 }
-                // Perform the action
                 action.Perform(gameObject);
             }
         }
 
-        UpdateBeliefs();
+        // Update last-known player ground position when player is visible
+        bool playerSpotted = false;
+        beliefs.TryGetValue("playerSpotted", out playerSpotted);
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerSpotted && playerObj != null)
+        {
+            Vector3 playerPos = playerObj.transform.position;
+            Vector3 predictedGround;
+            if (TryGetGroundPosition(playerPos, out predictedGround))
+            {
+                lastKnownPlayerGroundPos = predictedGround;
+            }
+            else
+            {
+                lastKnownPlayerGroundPos = playerPos;
+            }
+        }
+
+        // Stuck detection, etc.
         CheckStuck();
 
-        // Movement logic
+        // --- Movement Logic with Jump and Smooth Steering ---
         Vector3 desiredVel = navAgent.desiredVelocity;
         if (desiredVel.sqrMagnitude < 0.01f)
         {
+            // No movement: if jump is needed, check below.
             movementController.SetAIInput(0f, 0f, false, false, false, false, transform.eulerAngles.y);
         }
         else
         {
+            // Remove vertical component from desired velocity.
             Vector3 flatVel = new Vector3(desiredVel.x, 0f, desiredVel.z);
-            Vector3 finalDir = SphereCastAvoidObstacle(flatVel.normalized);
-            finalDir = AdjustForAgentSpacing(finalDir);
+            Vector3 desiredDir = flatVel.normalized;
+            // Smooth steering using last frame’s direction.
+            if (lastMoveDir == Vector3.zero)
+                lastMoveDir = desiredDir;
+            Vector3 blendedDir = Vector3.Lerp(lastMoveDir, desiredDir, 0.1f).normalized;
+            Vector3 avoidanceDir = SphereCastAvoidObstacle(blendedDir);
+            Vector3 finalDir = AdjustForAgentSpacing(avoidanceDir);
+            lastMoveDir = finalDir;
+
+            // --- Jump Logic ---
+            // Use lastTargetPos (set via MoveTo) as the destination.
+            float jumpUpThreshold = 1.5f;    // Trigger jump if target is significantly higher.
+            float jumpDownThreshold = -3.0f; // Trigger jump if target is significantly lower.
+            float horizontalDist = Vector2.Distance(
+                new Vector2(transform.position.x, transform.position.z),
+                new Vector2(lastTargetPos.x, lastTargetPos.z)
+            );
+            float verticalDiff = lastTargetPos.y - transform.position.y;
+            bool jumpFlag = false;
+            if (horizontalDist < 3f && verticalDiff > jumpUpThreshold)
+                jumpFlag = true;
+            if (horizontalDist < 5f && verticalDiff < jumpDownThreshold)
+                jumpFlag = true;
 
             float yaw = Mathf.Atan2(finalDir.x, finalDir.z) * Mathf.Rad2Deg;
-            movementController.SetAIInput(finalDir.x, finalDir.z, false, false, false, false, yaw);
+            movementController.SetAIInput(finalDir.x, finalDir.z, false, false, jumpFlag, false, yaw);
         }
 
+        // Optional second sync:
         navAgent.nextPosition = transform.position;
     }
 
     // ----------------------------------------------------------------
-    // ---------------------- Movement & Steering ----------------------
+    // ---------------------- HPC Approach: ExternalSetPlayerSpotted ----------------------
     // ----------------------------------------------------------------
 
-    private bool TryGetGroundPosition(Vector3 rawPos, out Vector3 groundPos)
+    /// <summary>
+    /// Called by the HPC line-of-sight manager to tell this agent whether it sees the player.
+    /// This replaces any local distance-based spotting logic.
+    /// </summary>
+    public void ExternalSetPlayerSpotted(bool spotted)
+    {
+        bool wasSpotted = beliefs.ContainsKey("playerSpotted") && beliefs["playerSpotted"];
+        beliefs["playerSpotted"] = spotted;
+
+        // If we just spotted the player
+        if (!wasSpotted && spotted)
+        {
+            StorePreviousActions();
+            InformNearbyAgents();
+        }
+        // If we had line-of-sight but lost it
+        else if (wasSpotted && !spotted)
+        {
+            RestoreLowestCostAction();
+        }
+
+        wasSpottedLastFrame = spotted;
+    }
+
+    // ----------------------------------------------------------------
+    // ---------------------- Debug Drawing -----------------------------
+    // ----------------------------------------------------------------
+
+    void OnDrawGizmosSelected()
+    {
+        // Draw the NavMesh path (if any)
+        if (navAgent != null && navAgent.hasPath)
+        {
+            Gizmos.color = Color.cyan;
+            Vector3[] corners = navAgent.path.corners;
+            for (int i = 0; i < corners.Length - 1; i++)
+            {
+                Gizmos.DrawLine(corners[i], corners[i + 1]);
+            }
+            // Mark path corners
+            Gizmos.color = Color.blue;
+            foreach (Vector3 corner in corners)
+            {
+                Gizmos.DrawSphere(corner, 0.1f);
+            }
+        }
+
+        // Draw the current target position
+        if (hasTarget)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(lastTargetPos, 0.2f);
+        }
+
+        // Draw predicted player landing point (if player is in air)
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            Vector3 playerPos = playerObj.transform.position;
+            Vector3 predictedGround;
+            if (TryGetGroundPosition(playerPos, out predictedGround))
+            {
+                // If there is a significant difference, assume player is airborne.
+                if (Mathf.Abs(predictedGround.y - playerPos.y) > 0.5f)
+                {
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawSphere(predictedGround, 0.2f);
+                }
+            }
+        }
+
+        // Draw last known player ground position
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(lastKnownPlayerGroundPos, 0.2f);
+    }
+
+    // ----------------------------------------------------------------
+    // ---------------------- Movement & Steering Helpers -------------
+    // ----------------------------------------------------------------
+
+    // Changed to public so it can be used by other scripts (e.g., FollowPlayerAction)
+    public bool TryGetGroundPosition(Vector3 rawPos, out Vector3 groundPos)
     {
         groundPos = Vector3.zero;
         if (Physics.Raycast(rawPos, Vector3.down, out RaycastHit hit, maxRaycastDown))
@@ -189,33 +327,24 @@ public class GOAPAgent : MonoBehaviour
         float detectionRadius = 0.5f;
         float detectionDist = obstacleAvoidanceDistance;
 
-        bool centerBlocked = Physics.SphereCast(start, detectionRadius, forwardDir, out RaycastHit centerHit, detectionDist, visionObstacleLayers);
-        if (!centerBlocked) return forwardDir;
+        if (Physics.SphereCast(start, detectionRadius, forwardDir, out RaycastHit centerHit, detectionDist, visionObstacleLayers))
+        {
+            // If the detected obstacle is the player, ignore it.
+            if (centerHit.collider != null && centerHit.collider.CompareTag("Player"))
+            {
+                return forwardDir;
+            }
 
-        Vector3 leftDir = Quaternion.Euler(0, -sideRayAngle, 0) * forwardDir;
-        Vector3 rightDir = Quaternion.Euler(0, sideRayAngle, 0) * forwardDir;
+            // Calculate avoidance factor, but clamp its maximum influence.
+            float factor = Mathf.Clamp((detectionDist - centerHit.distance) / detectionDist, 0f, 0.3f);
+            Vector3 hitNormal = centerHit.normal;
+            hitNormal.y = 0; // limit adjustments to horizontal plane
 
-        bool leftBlocked = Physics.SphereCast(start, detectionRadius, leftDir, out _, detectionDist, visionObstacleLayers);
-        bool rightBlocked = Physics.SphereCast(start, detectionRadius, rightDir, out _, detectionDist, visionObstacleLayers);
-
-        if (!leftBlocked && rightBlocked)
-        {
-            return leftDir.normalized;
+            // Blend the forward direction with a reflected vector off the obstacle
+            Vector3 avoidanceDir = Vector3.Lerp(forwardDir, Vector3.Reflect(forwardDir, hitNormal), factor);
+            return avoidanceDir.normalized;
         }
-        else if (!rightBlocked && leftBlocked)
-        {
-            return rightDir.normalized;
-        }
-        else if (!leftBlocked && !rightBlocked)
-        {
-            return leftDir.normalized; // both open, pick left
-        }
-        else
-        {
-            Vector3 sideStep = Vector3.Cross(forwardDir, Vector3.up).normalized;
-            if (Random.value < 0.5f) sideStep = -sideStep;
-            return (forwardDir + sideStep * 0.5f).normalized;
-        }
+        return forwardDir;
     }
 
     private Vector3 AdjustForAgentSpacing(Vector3 moveDir)
@@ -276,7 +405,6 @@ public class GOAPAgent : MonoBehaviour
             stuckAttempts++;
 
             Debug.Log(name + " => Stuck attempt " + stuckAttempts + "/" + maxStuckAttempts);
-
             StartCoroutine(AdvancedStuckRecoveryMultiPhase());
 
             if (stuckAttempts >= maxStuckAttempts)
@@ -367,51 +495,8 @@ public class GOAPAgent : MonoBehaviour
     }
 
     // ----------------------------------------------------------------
-    // ---------------------- Beliefs & Planning -----------------------
+    // ---------------------- Planning & Reverting ---------------------
     // ----------------------------------------------------------------
-
-    private void UpdateBeliefs()
-    {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player)
-        {
-            float dist = Vector3.Distance(transform.position, player.transform.position);
-            bool wasSpotted = beliefs.ContainsKey("playerSpotted") && beliefs["playerSpotted"];
-
-            bool inRange = (dist <= 1.5f);
-            bool spottedNow = (dist < 10f);
-
-            beliefs["playerInAttackRange"] = inRange;
-            beliefs["playerSpotted"] = spottedNow;
-
-            // If we just spotted the player => store old plan
-            if (!wasSpotted && spottedNow)
-            {
-                StorePreviousActions();
-                InformNearbyAgents();
-            }
-
-            // If we had line-of-sight but lost it => revert to the single lowest-cost action
-            if (wasSpotted && !spottedNow)
-            {
-                RestoreLowestCostAction();
-            }
-
-            wasSpottedLastFrame = spottedNow;
-        }
-        else
-        {
-            // No player => they're presumably dead/gone
-            beliefs["playerSpotted"] = false;
-            hasInformedTeammates = false;
-
-            // If we had line-of-sight last frame, revert
-            if (wasSpottedLastFrame)
-                RestoreLowestCostAction();
-
-            wasSpottedLastFrame = false;
-        }
-    }
 
     /// <summary>
     /// Saves the current plan as "previous" so we can revert if we lose sight.
@@ -452,7 +537,8 @@ public class GOAPAgent : MonoBehaviour
 
             if (bestAction != null)
             {
-                Debug.Log(name + " => Lost line of sight, picking lowest-cost action: " + bestAction.name + " cost=" + bestCost);
+                Debug.Log(name + " => Lost line of sight, picking lowest-cost action: "
+                          + bestAction.name + " cost=" + bestCost);
                 currentActions.Enqueue(bestAction);
             }
 
@@ -519,8 +605,9 @@ public class GOAPAgent : MonoBehaviour
 
     public void ReceiveMessage(AIDirectorMessage message)
     {
-        Debug.Log(gameObject.name + " received message: " + message.content + " (type " + message.type + ")");
-        if (message.type == MessageType.Alert)
+        Debug.Log(gameObject.name + " received message: " + message.msgContent
+                  + " (type " + message.msgType + ")");
+        if (message.msgType == MessageType.Alert)
         {
             beliefs["playerSpotted"] = true;
         }
@@ -531,12 +618,18 @@ public class GOAPAgent : MonoBehaviour
         List<GOAPAction> assignedActions;
         if (plan.agentPlans.TryGetValue(this, out assignedActions))
         {
-            Debug.Log(gameObject.name + " received advanced plan: " + plan.planType + ". Overriding current actions...");
+            Debug.Log(gameObject.name + " received advanced plan: "
+                      + plan.planType + ". Overriding current actions...");
             currentActions.Clear();
             foreach (var action in assignedActions)
             {
                 currentActions.Enqueue(action);
             }
         }
+    }
+
+    public Vector3 GetAgentOriginalPosition()
+    {
+        return originalPosition;
     }
 }

@@ -1,7 +1,11 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-
+using Unity.Collections;
+using Unity.Jobs;
+using UnityEngine.Jobs;   // for RaycastCommand
+using System.Collections.Generic;
+/// <summary>
+/// The various message types an AI agent might handle.
+/// </summary>
 public enum MessageType
 {
     Attack,
@@ -10,6 +14,9 @@ public enum MessageType
     Alert
 }
 
+/// <summary>
+/// The various plan types we might generate.
+/// </summary>
 public enum PlanType
 {
     Attack,
@@ -17,146 +24,171 @@ public enum PlanType
     Defend,
     Retreat
 }
-
 public class AIDirector : MonoBehaviour
 {
     public static AIDirector Instance;
+
+    [Header("Agent Management")]
     public List<GOAPAgent> agents = new List<GOAPAgent>();
 
+    [Header("Plan Generation")]
     public float planningInterval = 5f;
     private float nextPlanTime = 0f;
 
-    [Header("Player Health Threshold")]
-    public float healthThreshold = 30f;  // Only give orders if player health < this
+    [Header("HPC Line-of-Sight Settings")]
+    public float maxLoSDistance = 10f;
+    public LayerMask obstacleMask;
+
+    private NativeArray<RaycastCommand> raycastCommands;
+    private NativeArray<RaycastHit> raycastHits;
+
+    private Transform player;
 
     void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
+
+    void Start()
+    {
+        GameObject pObj = GameObject.FindGameObjectWithTag("Player");
+        if (pObj != null)
+            player = pObj.transform;
+
+        if (agents.Count > 0)
+        {
+            AllocateHPCArrays(agents.Count);
+        }
+    }
+
+    void OnDestroy()
+    {
+        DisposeHPCArrays();
+        if (Instance == this) Instance = null;
     }
 
     public void RegisterAgent(GOAPAgent agent)
     {
         if (!agents.Contains(agent))
             agents.Add(agent);
+        ReallocateHPCArraysIfNeeded();
     }
 
     public void UnregisterAgent(GOAPAgent agent)
     {
         if (agents.Contains(agent))
             agents.Remove(agent);
+        ReallocateHPCArraysIfNeeded();
     }
 
-    public void SendMessage(AIDirectorMessage message)
+    private void ReallocateHPCArraysIfNeeded()
     {
-        if (message.receiver != null)
-            message.receiver.ReceiveMessage(message);
-    }
-
-    public void BroadcastMessage(AIDirectorMessage message)
-    {
-        foreach (GOAPAgent agent in agents)
+        if (agents.Count == 0)
         {
-            if (agent != message.sender)
-                agent.ReceiveMessage(message);
-        }
-    }
-
-    // Inform only the nearest agent within maxDistance
-    public void InformNearestAgent(AIDirectorMessage message, float maxDistance)
-    {
-        GOAPAgent nearest = null;
-        float bestDistance = float.MaxValue;
-        foreach (GOAPAgent agent in agents)
-        {
-            if (agent == message.sender)
-                continue;
-            float dist = Vector3.Distance(message.sender.transform.position, agent.transform.position);
-            if (dist < bestDistance && dist <= maxDistance)
-            {
-                bestDistance = dist;
-                nearest = agent;
-            }
-        }
-        if (nearest != null)
-        {
-            nearest.ReceiveMessage(message);
-            Debug.Log("Director: " + message.sender.name + " informed " + nearest.name + " with message: " + message.content);
+            DisposeHPCArrays();
         }
         else
         {
-            Debug.Log("Director: No nearby agent found to inform.");
+            if (!raycastCommands.IsCreated || raycastCommands.Length != agents.Count)
+            {
+                DisposeHPCArrays();
+                AllocateHPCArrays(agents.Count);
+            }
         }
     }
 
-    // Creates an  plan for all agents
-    public AIPlan GeneratePlan()
+    private void AllocateHPCArrays(int count)
     {
-        AIPlan plan;
-        if (agents.Count >= 3)
-        {
-            plan = new AIPlan(PlanType.Attack);
-            foreach (GOAPAgent agent in agents)
-            {
-                List<GOAPAction> actions = new List<GOAPAction>();
-                GOAPAction follow = agent.availableActions.Find(a => a is FollowPlayerAction);
-                GOAPAction attack = agent.availableActions.Find(a => a is AttackAction);
-                if (follow != null && attack != null)
-                {
-                    actions.Add(follow);
-                    actions.Add(attack);
-                }
-                plan.agentPlans.Add(agent, actions);
-            }
-        }
-        else
-        {
-            plan = new AIPlan(PlanType.Attack);
-            foreach (GOAPAgent agent in agents)
-            {
-                List<GOAPAction> actions = new List<GOAPAction>();
-                GOAPAction attack = agent.availableActions.Find(a => a is AttackAction);
-                if (attack != null)
-                    actions.Add(attack);
-                plan.agentPlans.Add(agent, actions);
-            }
-        }
-        return plan;
+        raycastCommands = new NativeArray<RaycastCommand>(count, Allocator.Persistent);
+        raycastHits = new NativeArray<RaycastHit>(count, Allocator.Persistent);
     }
 
-    // Distribute plan to each agent
-    public void DistributePlan(AIPlan plan)
+    private void DisposeHPCArrays()
     {
-        foreach (var kv in plan.agentPlans)
-        {
-            kv.Key.ReceivePlan(plan);
-        }
+        if (raycastCommands.IsCreated) raycastCommands.Dispose();
+        if (raycastHits.IsCreated) raycastHits.Dispose();
     }
 
     void Update()
     {
-        // Only generate a plan if enough time passed
+        DoHPCLineOfSight();
+
         if (Time.time >= nextPlanTime)
         {
-            // Check if the player's health is below threshold
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
+            AIPlan plan = new AIPlan(PlanType.Attack); // example
+            DistributeAdvancedPlan(plan);
+            nextPlanTime = Time.time + planningInterval;
+        }
+    }
+
+    /// <summary>
+    /// HPC line-of-sight check using RaycastCommand.
+    /// 
+    /// 1) Build RaycastCommands for each agent->player
+    /// 2) Schedule HPC job
+    /// 3) On main thread, process hits to check collider & distance
+    /// </summary>
+    private void DoHPCLineOfSight()
+    {
+        if (agents.Count == 0 || !player) return;
+        ReallocateHPCArraysIfNeeded();
+
+        // 1) Build HPC commands
+        for (int i = 0; i < agents.Count; i++)
+        {
+            Vector3 agentPos = agents[i].transform.position;
+            Vector3 dir = (player.position - agentPos);
+            float dist = dir.magnitude;
+            float usedDist = Mathf.Min(dist, maxLoSDistance);
+
+#pragma warning disable CS0618
+            raycastCommands[i] = new RaycastCommand(
+                agentPos,
+                dir.normalized,
+                usedDist,
+                obstacleMask
+            );
+#pragma warning restore CS0618
+        }
+
+        // 2) Schedule HPC
+        JobHandle handle = RaycastCommand.ScheduleBatch(raycastCommands, raycastHits, 64);
+        handle.Complete(); // Wait for HPC job
+
+        // 3) MAIN THREAD: process hits
+        for (int i = 0; i < agents.Count; i++)
+        {
+            bool canSeePlayer = true;
+            RaycastHit hit = raycastHits[i];
+
+            // Check actual distance
+            float realDist = Vector3.Distance(agents[i].transform.position, player.position);
+            if (realDist > maxLoSDistance)
             {
-                // We assume the player has an Entity script or something with a GetHealth() method
-                Entity playerEntity = player.GetComponent<Entity>();
-                if (playerEntity != null && playerEntity.GetHealth() < healthThreshold)
+                canSeePlayer = false;
+            }
+            else
+            {
+                // If HPC ray hits an obstacle that isn't the player => blocked
+                if (hit.collider != null && !hit.collider.CompareTag("Player"))
                 {
-                    // Player is low on health => issue advanced plan
-                    AIPlan plan = GeneratePlan();
-                    DistributePlan(plan);
-                    Debug.Log("AIDirector: Player health is low, distributing plan.");
+                    canSeePlayer = false;
                 }
             }
 
-            // Schedule next check
-            nextPlanTime = Time.time + planningInterval;
+            // Tell the agent
+            agents[i].ExternalSetPlayerSpotted(canSeePlayer);
+        }
+    }
+
+    // ------------------ Plan Generation & Distribution ------------------
+
+    public void DistributeAdvancedPlan(AIPlan plan)
+    {
+        foreach (var kvp in plan.agentPlans)
+        {
+            kvp.Key.ReceivePlan(plan);
         }
     }
 }
