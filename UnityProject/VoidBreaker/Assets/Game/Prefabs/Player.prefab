@@ -639,13 +639,19 @@ PrefabInstance:
     - target: {fileID: 6818748381548838839, guid: a9751315fdfecac4f84954434361024a,
         type: 3}
       propertyPath: range
-      value: 10
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 6818748381548838839, guid: a9751315fdfecac4f84954434361024a,
         type: 3}
       propertyPath: fireRate
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 6818748381548838839, guid: a9751315fdfecac4f84954434361024a,
+        type: 3}
+      propertyPath: impactFX
+      value: 
+      objectReference: {fileID: 2415503920285488988, guid: 8c24391ddb3426c4eb802f36734fc0b9,
+        type: 3}
     - target: {fileID: 6818748381548838839, guid: a9751315fdfecac4f84954434361024a,
         type: 3}
       propertyPath: ammoCount

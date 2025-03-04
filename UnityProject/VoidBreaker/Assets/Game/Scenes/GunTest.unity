@@ -402,23 +402,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7787649262901907679, guid: f93138cca030223478a1b96c5ca95b04,
-        type: 3}
-      propertyPath: range
-      value: 1000
-      objectReference: {fileID: 0}
-    - target: {fileID: 7787649262901907679, guid: f93138cca030223478a1b96c5ca95b04,
-        type: 3}
-      propertyPath: impactFX
-      value: 
-      objectReference: {fileID: 2415503920285488988, guid: 8c24391ddb3426c4eb802f36734fc0b9,
-        type: 3}
-    - target: {fileID: 7787649262901907679, guid: f93138cca030223478a1b96c5ca95b04,
-        type: 3}
-      propertyPath: impactSparks
-      value: 
-      objectReference: {fileID: 7282689840613040439, guid: 8c24391ddb3426c4eb802f36734fc0b9,
-        type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

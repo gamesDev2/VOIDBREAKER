@@ -43,6 +43,12 @@ public class Camera_Controller : MonoBehaviour
     [Tooltip("Maximum deltaTime used for camera updates.")]
     public float maxDeltaTime = 0.033f; // ~33ms (~30 FPS)
 
+    // --- Added for Blade Mode Integration ---
+    [HideInInspector]
+    public bool overrideFOV = false;
+    [HideInInspector]
+    public float targetOverrideFOV;
+
     private Camera _cam;
     private float _xRotation = 0f; // pitch
     private float _headBobTimer = 0f;
@@ -120,18 +126,28 @@ public class Camera_Controller : MonoBehaviour
 
     private void HandleFOVTransition()
     {
-        float targetFOV = defaultFOV;
+        float targetFOV;
         float transitionSpeed = fovTransitionSpeed;
-        if (_currentPlayerState == EntityState.Dashing)
+
+        if (overrideFOV)
         {
-            targetFOV = dashFOV;
-            transitionSpeed = dashFOVTransitionSpeed;
+            targetFOV = targetOverrideFOV;
         }
-        else if (_currentPlayerState == EntityState.Sprinting)
+        else
         {
-            targetFOV = sprintFOV;
+            targetFOV = defaultFOV;
+            if (_currentPlayerState == EntityState.Dashing)
+            {
+                targetFOV = dashFOV;
+                transitionSpeed = dashFOVTransitionSpeed;
+            }
+            else if (_currentPlayerState == EntityState.Sprinting)
+            {
+                targetFOV = sprintFOV;
+            }
+            targetFOV += _rollFovOffset;
         }
-        targetFOV += _rollFovOffset;
+
         _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, targetFOV, dt * transitionSpeed);
     }
 
@@ -159,9 +175,29 @@ public class Camera_Controller : MonoBehaviour
         _rollFovOffset = offset;
     }
 
+    /// <summary>
+    /// Call this to trigger a camera shake with the given intensity.
+    /// </summary>
     public void ShakeCamera(float intensity)
     {
         if (intensity > _currentShakeIntensity)
             _currentShakeIntensity = intensity;
+    }
+
+    /// <summary>
+    /// Enables FOV override with the given value.
+    /// </summary>
+    public void SetOverrideFOV(float newFOV)
+    {
+        overrideFOV = true;
+        targetOverrideFOV = newFOV;
+    }
+
+    /// <summary>
+    /// Clears any FOV override so that normal FOV transitions resume.
+    /// </summary>
+    public void ClearOverrideFOV()
+    {
+        overrideFOV = false;
     }
 }
