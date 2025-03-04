@@ -1,13 +1,5 @@
 {
   "dependencies": {
-    "com.crashkonijn.goap": {
-      "version": "file:com.crashkonijn.goap",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.unity.collections": "1.2.4"
-      }
-    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
@@ -38,16 +30,6 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.collections": {
-      "version": "1.2.4",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.burst": "1.6.6",
-        "com.unity.test-framework": "1.1.31"
-      },
       "url": "https://packages.unity.com"
     },
     "com.unity.editorcoroutines": {

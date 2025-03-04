@@ -1,16 +1,19 @@
 using System.Collections.Generic;
+/// <summary>
+/// A simple message class for the AI Director to pass between agents.
+/// </summary>
 public class AIDirectorMessage
 {
-    public MessageType type;
-    public GOAPAgent sender;
-    public GOAPAgent receiver; // if null, message can be broadcast or directed via custom methods
-    public string content;
+    public MessageType msgType;    // Renamed to avoid "type" ambiguity
+    public GOAPAgent msgSender;    // Renamed to avoid "sender" ambiguity
+    public GOAPAgent msgReceiver;  // Renamed to avoid "receiver" ambiguity
+    public string msgContent;      // Renamed to avoid "content" ambiguity
 
-    public AIDirectorMessage(MessageType type, GOAPAgent sender, GOAPAgent receiver, string content)
+    public AIDirectorMessage(MessageType t, GOAPAgent s, GOAPAgent r, string c)
     {
-        this.type = type;
-        this.sender = sender;
-        this.receiver = receiver;
-        this.content = content;
+        this.msgType = t;
+        this.msgSender = s;
+        this.msgReceiver = r;
+        this.msgContent = c;
     }
 }
