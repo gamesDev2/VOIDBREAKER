@@ -6,14 +6,17 @@ public class laserBurnHandle : MonoBehaviour
 {
     private LineRenderer burnMark;
 
+
     private Vector3 Normal;
     private int ourObject;
+
+    private Light impactLight;
+    public beamImpactFX impactFX;
 
     private void Awake()
     {
         burnMark = GetComponent<LineRenderer>();
-        burnMark.positionCount++;
-        burnMark.SetPosition(0, burnMark.transform.position);
+        impactLight = GetComponent<Light>();
     }
 
     public void setObjParams(int _objID, Vector3 _normal)
@@ -24,13 +27,10 @@ public class laserBurnHandle : MonoBehaviour
 
     public void AddBurnPosition(Vector3 _point)
     {
-        if ((_point - burnMark.GetPosition(burnMark.positionCount - 1)).magnitude < 0.1)
-        {
-            return;
-        }
-
         burnMark.positionCount++;
-        burnMark.SetPosition(burnMark.positionCount-1, _point);  
+        burnMark.SetPosition(burnMark.positionCount-1, _point);
+
+        impactFX.transform.position = _point;
     }
 
     public bool sameObject(int _objId, Vector3 _normal)
@@ -40,4 +40,11 @@ public class laserBurnHandle : MonoBehaviour
         return false;
     }
 
+    public void endBurn()
+    {
+        impactFX.endFX();
+        impactFX = null;
+    }
+
+    
 }

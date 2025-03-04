@@ -25,11 +25,13 @@ public class gunShooting : MonoBehaviour
     [SerializeField]
     private int ammoRemaining;
 
-    [Header("Hit Decal")]
+    [Header("Hit Effects")]
     [Tooltip("Prefab to a decal projector containing a bullet hole")]
     public DecalProjector bulletHole;
     [Tooltip("Prefab to a line renderer that must contain a laserBurnHandle script")]
     public laserBurnHandle laserBurn;
+    [Tooltip("Continuous Impact Particle system goes here.")]
+    public beamImpactFX impactFX;
 
     [Header("Tag")]
     [Tooltip("Anything with this tag should have a \"OnHit\" method")]
@@ -92,6 +94,12 @@ public class gunShooting : MonoBehaviour
 
     public void stopFire()
     {
+        if (currentBurner != null)
+        {
+            currentBurner.endBurn();
+            currentBurner = null;
+        }
+
         firing = false;
         currentBurner = null;
         timeSinceLastReload = 0;
@@ -143,7 +151,6 @@ public class gunShooting : MonoBehaviour
 
 
 
-
         if (!beamWeapon)
         {
             Instantiate(bulletHole, hit.point, Quaternion.LookRotation(hit.normal), hit.transform);
@@ -154,10 +161,18 @@ public class gunShooting : MonoBehaviour
         {
             currentBurner.AddBurnPosition(_hit.point + (hit.normal / 10000));
         }
-        else
+        else if(currentBurner != null)
+        {
+            currentBurner.endBurn();
+            currentBurner = null;
+        }
+
+        if (currentBurner == null)
         {
             currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal));
+            currentBurner.impactFX = Instantiate(impactFX, hit.point + (hit.normal / 10000), Quaternion.LookRotation(hit.normal), currentBurner.transform);
             currentBurner.setObjParams(objId, hit.normal);
+
         }
     }
 }
