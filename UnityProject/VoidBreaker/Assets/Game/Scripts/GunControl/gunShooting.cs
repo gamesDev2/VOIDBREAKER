@@ -10,28 +10,29 @@ public class gunShooting : MonoBehaviour
 
     [Header("Gun Characteristics")]
     [Tooltip("How many shots the gun fires in a second")]
-    public float fireRate = 2.0f;
+    [SerializeField] private float fireRate = 2.0f;
     [Tooltip("Effectively makes the gun fire every frame. Ammo consumption is still controlled by fireRate")]
-    public bool beamWeapon = false;
+    [SerializeField] private bool beamWeapon = false;
     [Tooltip("The maximum shots the gun can fire before it has to reload")]
-    public int ammoCount = 10;
+    [SerializeField] private int ammoCount = 10;
     [Tooltip("How long(in seconds) it takes to reload")]
-    public float reloadTime = 2;
+    [SerializeField] private float reloadTime = 2;
     [Tooltip("How far the gun can hit targets from")]
-    public float range = 100.0f;
-
+    [SerializeField] private float range = 100.0f;
 
     [Header("Remaining Ammunition")]
-    [SerializeField]
-    private int ammoRemaining;
+    [SerializeField] private int ammoRemaining;
 
     [Header("Hit Effects")]
     [Tooltip("Prefab to a decal projector containing a bullet hole")]
-    public DecalProjector bulletHole;
+    [SerializeField] private DecalProjector bulletHole;
     [Tooltip("Prefab to a line renderer that must contain a laserBurnHandle script")]
-    public laserBurnHandle laserBurn;
+    [SerializeField] private laserBurnHandle laserBurn;
     [Tooltip("Continuous Impact Particle system goes here.")]
-    public beamImpactFX impactFX;
+    [SerializeField] private beamImpactFX impactFX;
+
+    [Header("Tracer Effect")]
+    [SerializeField] private beamControl tracerFX;
 
     [Header("Tag")]
     [Tooltip("Anything with this tag should have a \"OnHit\" method")]
@@ -45,7 +46,6 @@ public class gunShooting : MonoBehaviour
     private bool reloading = false;
     private bool firing = false;
 
-    [SerializeField]
     private laserBurnHandle currentBurner = null;
 
     private RaycastHit hit;
@@ -89,6 +89,8 @@ public class gunShooting : MonoBehaviour
         {
             firing = true;
             timeSinceLastShot = 0;
+
+            tracerFX.visible(true);
         }
     }
 
@@ -99,6 +101,8 @@ public class gunShooting : MonoBehaviour
             currentBurner.endBurn();
             currentBurner = null;
         }
+
+        tracerFX.visible(false);
 
         firing = false;
         currentBurner = null;
@@ -129,6 +133,18 @@ public class gunShooting : MonoBehaviour
         if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range))
         {
             handleHit(ref hit);
+            tracerFX.updateDirection(gameObject.transform.position, hit.point);
+        }
+        // TODO: Make this shit not the ugliest piece of shit code you've ever written. Actually that kinda applies to most of this script. GET ON IT ME!!!
+        else if (currentBurner != null)
+        {
+            currentBurner.endBurn();
+            currentBurner = null;
+            tracerFX.updateDirection(gameObject.transform.position, playerCamera.transform.position + (playerCamera.transform.forward * range));
+        }
+        else
+        {
+            tracerFX.updateDirection(gameObject.transform.position, playerCamera.transform.position + (playerCamera.transform.forward * range));
         }
 
         if (timeSinceLastShot > 1 / fireRate)
