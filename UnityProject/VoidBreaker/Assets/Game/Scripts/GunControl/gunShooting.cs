@@ -33,9 +33,7 @@ public class gunShooting : weaponBase
     [Header("Tracer Effect")]
     [SerializeField] private beamControl tracerFX;
 
-    [Header("Tag")]
-    [Tooltip("Anything with this tag should have a \"OnHit\" method")]
-    public string tagToHit;
+
 
 
 
@@ -128,7 +126,7 @@ public class gunShooting : weaponBase
         }
 
 
-        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range))
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, -5, QueryTriggerInteraction.Ignore))
         {
             handleHit(ref hit);
             tracerFX.updateDirection(hit.point);
@@ -184,7 +182,7 @@ public class gunShooting : weaponBase
             currentBurner = null;
         }
 
-        if (currentBurner == null)
+        if (currentBurner == null && !hit.collider.isTrigger)
         {
             currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal));
             currentBurner.impactFX = Instantiate(impactFX, hit.point + (hit.normal / 10000), Quaternion.LookRotation(hit.normal), currentBurner.transform);

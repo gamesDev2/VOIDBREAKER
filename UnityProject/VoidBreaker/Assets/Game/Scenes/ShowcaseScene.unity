@@ -658,7 +658,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 82669412}
-  m_VersionIndex: 682
+  m_VersionIndex: 691
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -3563,6 +3563,7 @@ GameObject:
   - component: {fileID: 701181905}
   - component: {fileID: 701181907}
   - component: {fileID: 701181908}
+  - component: {fileID: 701181909}
   m_Layer: 0
   m_Name: Rail
   m_TagString: Untagged
@@ -3673,6 +3674,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10.796717, y: 17.58516, z: 1.0000001}
   m_Center: {x: -0.0000058392993, y: -4.2925797, z: 0}
+--- !u!64 &701181909
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701181902}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &720682541
 GameObject:
   m_ObjectHideFlags: 0

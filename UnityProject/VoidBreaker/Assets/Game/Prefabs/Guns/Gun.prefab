@@ -184,6 +184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
+  isMeleeWeapon: 0
   damage: 1
   fireRate: 5
   beamWeapon: 1
@@ -199,7 +200,9 @@ MonoBehaviour:
     type: 3}
   tracerFX: {fileID: 4133229751022368471, guid: d33e5e30a6b17d44aa8e508ce46d8fdb,
     type: 3}
-  tagToHit: bob
+  ignoredLayer:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!1001 &5900158267944492838
 PrefabInstance:
   m_ObjectHideFlags: 0
