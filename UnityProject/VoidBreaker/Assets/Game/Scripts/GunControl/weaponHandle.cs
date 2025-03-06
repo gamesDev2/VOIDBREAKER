@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 
-public class gunHandle : MonoBehaviour
+public class weaponHandle : MonoBehaviour
 {
     [Header("Hierachy References")]
     public Camera playerCamera;
-    public gunShooting gun;
+    public weaponBase weapon;
 
     [Header("Input")]
     public KeyCode shootButton = KeyCode.Mouse0;
@@ -15,37 +15,37 @@ public class gunHandle : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (gun != null)
+        if (weapon != null)
         {
-            gun.playerCamera = playerCamera;
+            weapon.playerCamera = playerCamera.transform;
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(shootButton) && gun != null)
+        if(Input.GetKeyDown(shootButton) && weapon != null)
         {
-            gun.startFire();
+            weapon.startAttack();
         }
 
-        if (Input.GetKeyUp(shootButton) && gun != null)
+        if (Input.GetKeyUp(shootButton) && weapon != null)
         {
-            gun.stopFire();
+            weapon.stopAttack();
         }
     }
 
     public void gunSelection(gunShooting _newGun)
     {
         unequipGun();
-        gun = _newGun;
-        gun.playerCamera = playerCamera;
+        weapon = _newGun;
+        weapon.playerCamera = playerCamera.transform;
     }
 
     // Can use this func to unequip all guns completely as well
     public void unequipGun()
     { 
-        gun.playerCamera = null;
-        gun = null;
+        weapon.playerCamera = null;
+        weapon = null;
     }
 }

@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 
-public class gunShooting : MonoBehaviour
+public class gunShooting : weaponBase
 {
-    [Header("Hierachy References")]
-    public Camera playerCamera;
-
     [Header("Gun Characteristics")]
     [Tooltip("How many shots the gun fires in a second")]
     [SerializeField] private float fireRate = 2.0f;
@@ -84,7 +81,7 @@ public class gunShooting : MonoBehaviour
         }
     }
 
-    public void startFire()
+    public override void startAttack()
     {
         if (!reloading)
         {
@@ -93,7 +90,7 @@ public class gunShooting : MonoBehaviour
         }
     }
 
-    public void stopFire()
+    public override void stopAttack()
     {
         if (currentBurner != null)
         {
@@ -119,7 +116,7 @@ public class gunShooting : MonoBehaviour
         if (ammoRemaining < 1)
         {
             reloading = true;
-            stopFire();
+            stopAttack();
         }
 
         
