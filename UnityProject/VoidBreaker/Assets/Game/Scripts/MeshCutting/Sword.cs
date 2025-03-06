@@ -41,7 +41,7 @@ public class Sword : weaponBase
     protected override void Start()
     {
         base.Start();
-        // Mark this weapon as melee so it handles its own input.
+        // This is a melee weapon.
         isMeleeWeapon = true;
 
         if (mainCamera == null)
@@ -55,8 +55,8 @@ public class Sword : weaponBase
 
     protected override void Update()
     {
-        base.Update(); // Calls ProcessInput() if isMeleeWeapon is true.
-        // While attacking, update the sword's rotation to align with the camera.
+        base.Update(); // Now ProcessInput() is not used here.
+        // If the sword is in attack mode, update its rotation.
         if (isAttacking && mainCamera != null)
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, mainCamera.transform.rotation, 0.2f);
@@ -64,48 +64,7 @@ public class Sword : weaponBase
         }
     }
 
-    public override void ProcessInput()
-    {
-        // Use right mouse button to engage/disengage blade mode.
-        if (Input.GetMouseButtonDown(1))
-        {
-            startAttack();
-        }
-        if (Input.GetMouseButtonUp(1))
-        {
-            stopAttack();
-        }
-        // When in attack mode, a left mouse click (Mouse0) triggers one slash.
-        if (isAttacking && Input.GetMouseButtonDown(0) && Time.time >= lastSlashTime + slashCooldown)
-        {
-            lastSlashTime = Time.time;
-            bool didSlice = Slice();
-            if (didSlice)
-            {
-                // Optional: animate the slicing plane's child if available.
-                if (cutPlane.childCount > 0)
-                {
-                    cutPlane.GetChild(0).DOComplete();
-                    cutPlane.GetChild(0)
-                        .DOLocalMoveX(cutPlane.GetChild(0).localPosition.x * -1, 0.05f)
-                        .SetEase(Ease.OutExpo);
-                }
-                // Trigger VFX: reset and send the event.
-                if (slashVFX != null)
-                {
-                    slashVFX.Stop();
-                    slashVFX.Play();
-                }
-                // Restart the particle system.
-                if (slashParticles != null)
-                {
-                    slashParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                    slashParticles.Play();
-                }
-                ShakeCamera();
-            }
-        }
-    }
+    // Remove internal input handling. All input is now handled by the weapon handler.
 
     public override void startAttack()
     {
@@ -129,10 +88,50 @@ public class Sword : weaponBase
         DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 1f, 0.02f);
     }
 
+    /// <summary>
+    /// Rotates the slicing plane based on horizontal mouse movement.
+    /// </summary>
     public void RotatePlane()
     {
         if (cutPlane != null)
             cutPlane.eulerAngles += new Vector3(0, 0, -Input.GetAxis("Mouse X") * 5);
+    }
+
+    /// <summary>
+    /// Performs a single slash.
+    /// </summary>
+    public void Slash()
+    {
+        // Check cooldown.
+        if (Time.time < lastSlashTime + slashCooldown)
+            return;
+        lastSlashTime = Time.time;
+
+        bool didSlice = Slice();
+        if (didSlice)
+        {
+            // Optional: animate the slicing plane's child if available.
+            if (cutPlane.childCount > 0)
+            {
+                cutPlane.GetChild(0).DOComplete();
+                cutPlane.GetChild(0)
+                    .DOLocalMoveX(cutPlane.GetChild(0).localPosition.x * -1, 0.05f)
+                    .SetEase(Ease.OutExpo);
+            }
+            // Trigger slash VFX.
+            if (slashVFX != null)
+            {
+                slashVFX.Stop();
+                slashVFX.Play();
+            }
+            // Restart the particle system.
+            if (slashParticles != null)
+            {
+                slashParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                slashParticles.Play();
+            }
+            ShakeCamera();
+        }
     }
 
     /// <summary>
