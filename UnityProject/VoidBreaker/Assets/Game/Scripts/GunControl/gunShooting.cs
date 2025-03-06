@@ -50,13 +50,13 @@ public class gunShooting : weaponBase
     private RaycastHit hit;
 
 
-    void Start()
+    protected override void Start()
     {
         ammoRemaining = ammoCount;
         tracerFX.visible(false);
     }
 
-    void Update()
+    protected override void Update()
     {
         timeSinceLastShot += Time.deltaTime;
         timeSinceLastReload += Time.deltaTime;

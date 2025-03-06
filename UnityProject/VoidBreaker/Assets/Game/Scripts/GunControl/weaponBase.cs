@@ -7,7 +7,6 @@ public abstract class weaponBase : MonoBehaviour
     [Header("Aim Vector")]
     public Transform playerCamera;
 
-    public virtual void startAttack()
     [Header("Weapon Settings")]
     [Tooltip("Does this weapon handle its own input? (true for melee weapons)")]
     public bool isMeleeWeapon = false;
