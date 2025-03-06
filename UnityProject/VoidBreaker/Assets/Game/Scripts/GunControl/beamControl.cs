@@ -13,7 +13,6 @@ public class beamControl : MonoBehaviour
     void Awake()
     {
         beam = GetComponent<LineRenderer>();
-        Debug.Log(beam);
     }
 
     public void updateDirection(Vector3 _end)
@@ -29,5 +28,9 @@ public class beamControl : MonoBehaviour
     public void visible(bool _toggle)
     {
         gameObject.SetActive(_toggle);
+        if (beam == null)
+        {
+            beam = GetComponent<LineRenderer>();
+        }
     }    
 }

@@ -184,6 +184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
+  damage: 1
   fireRate: 5
   beamWeapon: 1
   ammoCount: 30000
@@ -211,6 +212,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: LaserProjection
+      objectReference: {fileID: 0}
+    - target: {fileID: 2808274964966014146, guid: d33e5e30a6b17d44aa8e508ce46d8fdb,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3843863011168149058, guid: d33e5e30a6b17d44aa8e508ce46d8fdb,
+        type: 3}
+      propertyPath: m_Positions.Array.data[1].x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3843863011168149058, guid: d33e5e30a6b17d44aa8e508ce46d8fdb,
+        type: 3}
+      propertyPath: m_Positions.Array.data[1].y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3843863011168149058, guid: d33e5e30a6b17d44aa8e508ce46d8fdb,
+        type: 3}
+      propertyPath: m_Positions.Array.data[1].z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6722459432953157688, guid: d33e5e30a6b17d44aa8e508ce46d8fdb,
         type: 3}

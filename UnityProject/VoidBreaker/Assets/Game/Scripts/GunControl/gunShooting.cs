@@ -6,6 +6,8 @@ using UnityEngine.Rendering.HighDefinition;
 public class gunShooting : weaponBase
 {
     [Header("Gun Characteristics")]
+    [Tooltip("Damage per ammo consumed")]
+    [SerializeField] private float damage = 1.0f;
     [Tooltip("How many shots the gun fires in a second")]
     [SerializeField] private float fireRate = 2.0f;
     [Tooltip("Effectively makes the gun fire every frame. Ammo consumption is still controlled by fireRate")]
@@ -158,9 +160,10 @@ public class gunShooting : weaponBase
     {
         int objId = hit.collider.gameObject.GetInstanceID();
 
-        if(_hit.collider.tag == tagToHit)
+        Entity entity = _hit.collider.GetComponent<Entity>();
+        if (entity != null)
         {
-            // Do something idk what yet
+            entity.TakeDamage(damage * fireRate * Time.deltaTime);
         }
 
 
