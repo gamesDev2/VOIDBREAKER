@@ -5,14 +5,14 @@ using UnityEngine.Rendering.HighDefinition;
 
 public class weaponHandle : MonoBehaviour
 {
-    [Header("Hierachy References")]
+    [Header("Hierarchy References")]
     public Camera playerCamera;
     public weaponBase weapon;
 
     [Header("Input")]
-    public KeyCode shootButton = KeyCode.Mouse0;
+    public KeyCode Button1 = KeyCode.Mouse0;
+    public KeyCode Button2 = KeyCode.Mouse1;
 
-    // Start is called before the first frame update
     void Start()
     {
         if (weapon != null)
@@ -21,31 +21,36 @@ public class weaponHandle : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(shootButton) && weapon != null)
+        // Only handle external input if the weapon is not melee.
+        if (weapon != null && !weapon.isMeleeWeapon)
         {
-            weapon.startAttack();
-        }
+            if (Input.GetKeyDown(Button1))
+            {
+                weapon.startAttack();
+            }
 
-        if (Input.GetKeyUp(shootButton) && weapon != null)
-        {
-            weapon.stopAttack();
+            if (Input.GetKeyUp(Button1))
+            {
+                weapon.stopAttack();
+            }
         }
     }
 
-    public void gunSelection(weaponBase _newGun)
+    public void gunEquip(weaponBase _newGun)
     {
         unequipGun();
         weapon = _newGun;
         weapon.playerCamera = playerCamera.transform;
     }
 
-    // Can use this func to unequip all guns completely as well
     public void unequipGun()
-    { 
-        weapon.playerCamera = null;
-        weapon = null;
+    {
+        if (weapon != null)
+        {
+            weapon.playerCamera = null;
+            weapon = null;
+        }
     }
 }

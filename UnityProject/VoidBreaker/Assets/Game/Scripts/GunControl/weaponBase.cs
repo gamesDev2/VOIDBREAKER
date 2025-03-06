@@ -8,12 +8,28 @@ public abstract class weaponBase : MonoBehaviour
     public Transform playerCamera;
 
     public virtual void startAttack()
+    [Header("Weapon Settings")]
+    [Tooltip("Does this weapon handle its own input? (true for melee weapons)")]
+    public bool isMeleeWeapon = false;
+
+    // Protected virtual methods so derived classes can override.
+    protected virtual void Start()
     {
-        return;
-    }
-    public virtual void stopAttack()
-    {
-        return;
+        // Base initialization if needed.
     }
 
+    protected virtual void Update()
+    {
+        // If this is a melee weapon, let it handle its own input.
+        if (isMeleeWeapon)
+        {
+            ProcessInput();
+        }
+    }
+
+    // Melee weapons override this to process input.
+    public virtual void ProcessInput() { }
+
+    public virtual void startAttack() { }
+    public virtual void stopAttack() { }
 }
