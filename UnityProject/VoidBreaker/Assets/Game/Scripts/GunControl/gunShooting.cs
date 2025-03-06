@@ -54,6 +54,7 @@ public class gunShooting : MonoBehaviour
     void Start()
     {
         ammoRemaining = ammoCount;
+        tracerFX.visible(false);
     }
 
     void Update()
@@ -89,8 +90,6 @@ public class gunShooting : MonoBehaviour
         {
             firing = true;
             timeSinceLastShot = 0;
-
-            tracerFX.visible(true);
         }
     }
 
@@ -133,18 +132,18 @@ public class gunShooting : MonoBehaviour
         if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range))
         {
             handleHit(ref hit);
-            tracerFX.updateDirection(gameObject.transform.position, hit.point);
+            tracerFX.updateDirection(hit.point);
         }
         // TODO: Make this shit not the ugliest piece of shit code you've ever written. Actually that kinda applies to most of this script. GET ON IT ME!!!
         else if (currentBurner != null)
         {
             currentBurner.endBurn();
             currentBurner = null;
-            tracerFX.updateDirection(gameObject.transform.position, playerCamera.transform.position + (playerCamera.transform.forward * range));
+            tracerFX.updateDirection(playerCamera.transform.position + (playerCamera.transform.forward * range));
         }
         else
         {
-            tracerFX.updateDirection(gameObject.transform.position, playerCamera.transform.position + (playerCamera.transform.forward * range));
+            tracerFX.updateDirection(playerCamera.transform.position + (playerCamera.transform.forward * range));
         }
 
         if (timeSinceLastShot > 1 / fireRate)
@@ -152,6 +151,8 @@ public class gunShooting : MonoBehaviour
             ammoRemaining -= (int)(timeSinceLastShot / (1 / fireRate));
             timeSinceLastShot = 0;
         }
+
+        tracerFX.visible(true);
     }
 
 
