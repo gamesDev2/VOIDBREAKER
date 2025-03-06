@@ -30,6 +30,6 @@ public class AI_Movement_Controller : Entity
 
     protected override void Die()
     {
-        Debug.Log("AI " + gameObject.name + " has died!");
+        Destroy(gameObject);
     }
 }
