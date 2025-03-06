@@ -10,13 +10,11 @@ public class laserBurnHandle : MonoBehaviour
     private Vector3 Normal;
     private int ourObject;
 
-    private Light impactLight;
     public beamImpactFX impactFX;
 
-    private void Awake()
+    void Awake()
     {
         burnMark = GetComponent<LineRenderer>();
-        impactLight = GetComponent<Light>();
     }
 
     public void setObjParams(int _objID, Vector3 _normal)

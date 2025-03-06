@@ -6,29 +6,24 @@ using UnityEngine.Rendering.HighDefinition;
 public class beamControl : MonoBehaviour
 {
     private LineRenderer beam;
-    private Light illumination;
 
     private Vector3 startPoint;
     private Vector3 endPoint;
 
-    private void Awake()
+    void Awake()
     {
         beam = GetComponent<LineRenderer>();
-        illumination = transform.GetChild(0).GetComponent<Light>();
+        Debug.Log(beam);
     }
 
-    public void updateDirection(Vector3 _start, Vector3 _end)
+    public void updateDirection(Vector3 _end)
     {
-        startPoint = _start;
+        startPoint = gameObject.transform.position;
         endPoint = _end;
-        Vector3 AB = _end - _start;
+        Vector3 AB = endPoint - startPoint;
 
         beam.SetPosition(0, startPoint);
         beam.SetPosition(1, endPoint);
-
-        illumination.transform.position = (startPoint + endPoint) / 2;
-        illumination.transform.rotation = Quaternion.LookRotation(AB);
-        illumination.areaSize.Set(0.5f, AB.magnitude);
     }
 
     public void visible(bool _toggle)
