@@ -32,6 +32,6 @@ public static class MeshCuttingSystem
         collider.convex = true;
 
         // Apply a reduced explosion force.
-        rb.AddExplosionForce(50, originalPosition, 5);
+        rb.AddExplosionForce(150, originalPosition, 5);
     }
 }

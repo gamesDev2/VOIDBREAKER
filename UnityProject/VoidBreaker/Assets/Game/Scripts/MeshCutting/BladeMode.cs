@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using DG.Tweening;
 using EzySlice;
+using UnityEngine.VFX;
 
 public class BladeModeScript : MonoBehaviour
 {
@@ -22,7 +23,18 @@ public class BladeModeScript : MonoBehaviour
     [Tooltip("Layer mask for sliceable objects.")]
     public LayerMask layerMask;
 
-    // Optional: parameters for camera shake
+    [Header("Slash Cooldown")]
+    [Tooltip("Time (in seconds) between slashes.")]
+    public float slashCooldown = 0.4f;
+    private float lastSlashTime = -Mathf.Infinity;
+
+    [Header("Slash Effects")]
+    [Tooltip("VFX Graph to trigger when a slash occurs (set not to auto-play).")]
+    public VisualEffect slashVFX;
+    [Tooltip("Particle System to play when a slash occurs.")]
+    public ParticleSystem slashParticles;
+
+    [Header("Optional: Camera Shake Settings")]
     public float shakeStrength = 0.5f;
 
     void Start()
@@ -39,33 +51,45 @@ public class BladeModeScript : MonoBehaviour
 
     void Update()
     {
-        // Right mouse button toggles blade mode
+        // Right mouse button toggles blade mode.
         if (Input.GetMouseButtonDown(1))
-        {
             ToggleBladeMode(true);
-        }
         if (Input.GetMouseButtonUp(1))
-        {
             ToggleBladeMode(false);
-        }
 
         if (bladeMode)
         {
-            // Smoothly align the player's rotation with the camera
+            // Smoothly align the player's rotation with the camera.
             transform.rotation = Quaternion.Lerp(transform.rotation, mainCamera.transform.rotation, 0.2f);
             RotatePlane();
 
-            // Left mouse button triggers the cut
-            if (Input.GetMouseButtonDown(0))
+            // Left mouse button triggers a slash if the cooldown has elapsed.
+            if (Input.GetMouseButtonDown(0) && Time.time >= lastSlashTime + slashCooldown)
             {
-                // Only execute if there is a child available for animation
-                if (cutPlane.childCount > 0)
+                lastSlashTime = Time.time;  // Update last slash time.
+                bool didSlice = Slice();
+                if (didSlice)
                 {
-                    cutPlane.GetChild(0).DOComplete();
-                    cutPlane.GetChild(0).DOLocalMoveX(cutPlane.GetChild(0).localPosition.x * -1, 0.05f).SetEase(Ease.OutExpo);
+                    // Only execute if there is a child available for animation.
+                    if (cutPlane.childCount > 0)
+                    {
+                        cutPlane.GetChild(0).DOComplete();
+                        cutPlane.GetChild(0).DOLocalMoveX(cutPlane.GetChild(0).localPosition.x * -1, 0.05f)
+                            .SetEase(Ease.OutExpo);
+                    }
+                    if (slashVFX != null)
+                    {
+                        slashVFX.Stop();
+                        slashVFX.Play();
+                    }
+                    // Restart the particle system.
+                    if (slashParticles != null)
+                    {
+                        slashParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                        slashParticles.Play();
+                    }
+                    ShakeCamera();
                 }
-                ShakeCamera();
-                Slice();
             }
         }
     }
@@ -79,7 +103,7 @@ public class BladeModeScript : MonoBehaviour
         cutPlane.localEulerAngles = Vector3.zero;
         cutPlane.gameObject.SetActive(state);
 
-        // Use the Camera_Controller to set the override FOV
+        // Use the Camera_Controller to set the override FOV.
         if (cameraController != null)
         {
             if (state)
@@ -88,7 +112,7 @@ public class BladeModeScript : MonoBehaviour
                 cameraController.ClearOverrideFOV();
         }
 
-        // Slow down or resume time
+        // Slow down or resume time.
         float targetTimeScale = state ? 0.2f : 1f;
         DOTween.To(() => Time.timeScale, x => Time.timeScale = x, targetTimeScale, 0.02f);
     }
@@ -103,27 +127,36 @@ public class BladeModeScript : MonoBehaviour
 
     /// <summary>
     /// Slices nearby objects using the MeshCuttingSystem.
-    /// Updated to recenter the cut pieces and apply a reduced explosion force.
+    /// Returns true if at least one object was sliced.
     /// </summary>
-    public void Slice()
+    public bool Slice()
     {
+        bool slicedSomething = false;
         Collider[] hits = Physics.OverlapBox(cutPlane.position, new Vector3(5, 0.1f, 5), cutPlane.rotation, layerMask);
         if (hits.Length <= 0)
-            return;
+            return false;
 
         foreach (Collider col in hits)
         {
             SlicedHull hull = MeshCuttingSystem.SliceObject(col.gameObject, cutPlane.position, cutPlane.up, crossMaterial);
             if (hull != null)
             {
+                slicedSomething = true;
                 GameObject lowerHull = hull.CreateLowerHull(col.gameObject, crossMaterial);
                 GameObject upperHull = hull.CreateUpperHull(col.gameObject, crossMaterial);
-                // Recenter the pieces using the original object's position and apply reduced explosion force
                 MeshCuttingSystem.AddHullComponents(lowerHull, col.transform.position);
                 MeshCuttingSystem.AddHullComponents(upperHull, col.transform.position);
+
+                // Register cut pieces with the manager.
+                if (CutObjectManager.Instance != null)
+                {
+                    CutObjectManager.Instance.RegisterCutObject(lowerHull);
+                    CutObjectManager.Instance.RegisterCutObject(upperHull);
+                }
                 Destroy(col.gameObject);
             }
         }
+        return slicedSomething;
     }
 
     /// <summary>
@@ -132,8 +165,6 @@ public class BladeModeScript : MonoBehaviour
     public void ShakeCamera()
     {
         if (cameraController != null)
-        {
             cameraController.ShakeCamera(shakeStrength);
-        }
     }
 }
