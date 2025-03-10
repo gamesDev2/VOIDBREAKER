@@ -3,15 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-/// <summary>
-/// A GOAPAgent that:
-/// 1) Uses NavMeshAgent + physics-based AI_Movement_Controller.
-/// 2) Removes local line-of-sight checks; HPC manager calls ExternalSetPlayerSpotted(bool).
-/// 3) Reverts to the single lowest-cost action if it loses line of sight.
-/// 4) Has advanced stuck recovery, midair player handling, obstacle avoidance, etc.
-/// 5) Now predicts the player landing position, tracks the last known ground position,
-///    and initiates a jump when needed.
-/// </summary>
 [RequireComponent(typeof(NavMeshAgent), typeof(AI_Movement_Controller))]
 public class GOAPAgent : MonoBehaviour
 {
@@ -75,7 +66,7 @@ public class GOAPAgent : MonoBehaviour
     // NEW: Track the last-known ground position of the player
     public Vector3 lastKnownPlayerGroundPos { get; private set; }
 
-    // NEW: For smoothing movement direction
+    // NEW: For smoothing movement direction (if needed)
     private Vector3 lastMoveDir = Vector3.zero;
 
     void Start()
@@ -179,44 +170,42 @@ public class GOAPAgent : MonoBehaviour
         // Stuck detection, etc.
         CheckStuck();
 
-        // --- Movement Logic with Jump and Smooth Steering ---
-        Vector3 desiredVel = navAgent.desiredVelocity;
-        if (desiredVel.sqrMagnitude < 0.01f)
+        // --- Movement Logic with Jump and Improved Steering ---
+        Vector3 desiredDir = Vector3.zero;
+        if (navAgent.hasPath && navAgent.path.corners.Length > 1)
         {
-            // No movement: if jump is needed, check below.
-            movementController.SetAIInput(0f, 0f, false, false, false, false, transform.eulerAngles.y);
+            // Use the next corner in the nav mesh path as the immediate steering target
+            Vector3 nextCorner = navAgent.path.corners[1];
+            desiredDir = (nextCorner - transform.position).normalized;
         }
         else
         {
-            // Remove vertical component from desired velocity.
-            Vector3 flatVel = new Vector3(desiredVel.x, 0f, desiredVel.z);
-            Vector3 desiredDir = flatVel.normalized;
-            // Smooth steering using last frame’s direction.
-            if (lastMoveDir == Vector3.zero)
-                lastMoveDir = desiredDir;
-            Vector3 blendedDir = Vector3.Lerp(lastMoveDir, desiredDir, 0.1f).normalized;
-            Vector3 avoidanceDir = SphereCastAvoidObstacle(blendedDir);
-            Vector3 finalDir = AdjustForAgentSpacing(avoidanceDir);
-            lastMoveDir = finalDir;
-
-            // --- Jump Logic ---
-            // Use lastTargetPos (set via MoveTo) as the destination.
-            float jumpUpThreshold = 1.5f;    // Trigger jump if target is significantly higher.
-            float jumpDownThreshold = -3.0f; // Trigger jump if target is significantly lower.
-            float horizontalDist = Vector2.Distance(
-                new Vector2(transform.position.x, transform.position.z),
-                new Vector2(lastTargetPos.x, lastTargetPos.z)
-            );
-            float verticalDiff = lastTargetPos.y - transform.position.y;
-            bool jumpFlag = false;
-            if (horizontalDist < 3f && verticalDiff > jumpUpThreshold)
-                jumpFlag = true;
-            if (horizontalDist < 5f && verticalDiff < jumpDownThreshold)
-                jumpFlag = true;
-
-            float yaw = Mathf.Atan2(finalDir.x, finalDir.z) * Mathf.Rad2Deg;
-            movementController.SetAIInput(finalDir.x, finalDir.z, false, false, jumpFlag, false, yaw);
+            // Fallback: use the flat (horizontal) component of desiredVelocity
+            Vector3 flatVel = new Vector3(navAgent.desiredVelocity.x, 0f, navAgent.desiredVelocity.z);
+            desiredDir = flatVel.normalized;
         }
+
+        // Optionally apply obstacle avoidance and spacing adjustments
+        Vector3 avoidanceDir = SphereCastAvoidObstacle(desiredDir);
+        Vector3 finalDir = AdjustForAgentSpacing(avoidanceDir);
+        lastMoveDir = finalDir;
+
+        // --- Jump Logic ---
+        float jumpUpThreshold = 1.5f;    // Trigger jump if target is significantly higher.
+        float jumpDownThreshold = -3.0f; // Trigger jump if target is significantly lower.
+        float horizontalDist = Vector2.Distance(
+            new Vector2(transform.position.x, transform.position.z),
+            new Vector2(lastTargetPos.x, lastTargetPos.z)
+        );
+        float verticalDiff = lastTargetPos.y - transform.position.y;
+        bool jumpFlag = false;
+        if (horizontalDist < 3f && verticalDiff > jumpUpThreshold)
+            jumpFlag = true;
+        if (horizontalDist < 5f && verticalDiff < jumpDownThreshold)
+            jumpFlag = true;
+
+        float yaw = Mathf.Atan2(finalDir.x, finalDir.z) * Mathf.Rad2Deg;
+        movementController.SetAIInput(finalDir.x, finalDir.z, false, false, jumpFlag, false, yaw);
 
         // Optional second sync:
         navAgent.nextPosition = transform.position;
@@ -550,6 +539,7 @@ public class GOAPAgent : MonoBehaviour
     {
         currentActions.Clear();
         GameObject player = GameObject.FindGameObjectWithTag("Player");
+        // If no player, return to original position
         if (!player)
         {
             isReturningToPost = true;
@@ -557,6 +547,18 @@ public class GOAPAgent : MonoBehaviour
             return;
         }
 
+        // If a sound was heard, try to hide in shadows first
+        if (beliefs.ContainsKey("heardSound") && beliefs["heardSound"])
+        {
+            GOAPAction hide = availableActions.Find(a => a is HideInShadowsAction);
+            if (hide != null)
+            {
+                currentActions.Enqueue(hide);
+                return;
+            }
+        }
+
+        // Otherwise, decide between following the player or patrolling
         bool playerSpotted = false;
         beliefs.TryGetValue("playerSpotted", out playerSpotted);
 
@@ -573,6 +575,7 @@ public class GOAPAgent : MonoBehaviour
             if (patrol != null) currentActions.Enqueue(patrol);
         }
     }
+
 
     // ----------------------------------------------------------------
     // ---------------------- Communication ----------------------------

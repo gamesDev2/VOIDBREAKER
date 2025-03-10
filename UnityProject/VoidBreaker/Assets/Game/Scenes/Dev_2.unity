@@ -2585,6 +2585,10 @@ PrefabInstance:
         type: 3}
       insertIndex: 5
       addedObject: {fileID: 593685724}
+    - targetCorrespondingSourceObject: {fileID: 261127723893921020, guid: c5f4618e1f3140f428c464dd9f3a72ce,
+        type: 3}
+      insertIndex: 6
+      addedObject: {fileID: 593685738}
   m_SourcePrefab: {fileID: 100100000, guid: c5f4618e1f3140f428c464dd9f3a72ce, type: 3}
 --- !u!4 &593685722 stripped
 Transform:
@@ -2629,6 +2633,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05e2fa86faca8ae498117426df2aafa6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &593685738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593685723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3144ac3f4e3354478a3d1da8f38487a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cost: 0
+  target: {fileID: 0}
+  inRange: 0
 --- !u!43 &609302604
 Mesh:
   m_ObjectHideFlags: 0
@@ -3695,7 +3714,7 @@ GameObject:
   - component: {fileID: 985356148}
   - component: {fileID: 985356147}
   - component: {fileID: 985356146}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall
   m_TagString: WallRun
   m_Icon: {fileID: 0}
