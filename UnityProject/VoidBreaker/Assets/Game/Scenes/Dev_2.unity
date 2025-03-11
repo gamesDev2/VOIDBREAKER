@@ -423,7 +423,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 36.7, y: -4.3563766, z: -32.17}
-  m_LocalScale: {x: 0.83484817, y: 0.83484817, z: 0.83484817}
+  m_LocalScale: {x: 2.3474262, y: 2.3474262, z: 2.3474262}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2139130528}
@@ -856,18 +856,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 164652546}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &176996703 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8059436266608003292, guid: f93138cca030223478a1b96c5ca95b04,
-    type: 3}
-  m_PrefabInstance: {fileID: 2838439626304821448}
-  m_PrefabAsset: {fileID: 0}
---- !u!20 &176996709 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 6144137203430118025, guid: f93138cca030223478a1b96c5ca95b04,
-    type: 3}
-  m_PrefabInstance: {fileID: 2838439626304821448}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &180624426
 GameObject:
   m_ObjectHideFlags: 0
@@ -5824,37 +5812,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1253498417}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1270714692
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1270714693}
-  m_Layer: 3
-  m_Name: CarryAnchor
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1270714693
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1270714692}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 2.61}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 176996703}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1286482855
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8990,12 +8947,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &2077403021 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8210049194022999932, guid: f93138cca030223478a1b96c5ca95b04,
-    type: 3}
-  m_PrefabInstance: {fileID: 2838439626304821448}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2083428923
 GameObject:
   m_ObjectHideFlags: 0
@@ -9322,7 +9273,7 @@ PrefabInstance:
     - target: {fileID: 5598235499229602360, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 697
+      value: 703
       objectReference: {fileID: 0}
     - target: {fileID: 6151284681584178786, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
@@ -9336,16 +9287,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 8059436266608003292, guid: f93138cca030223478a1b96c5ca95b04,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1270714693}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8210049194022999932, guid: f93138cca030223478a1b96c5ca95b04,
-        type: 3}
-      insertIndex: 5
-      addedObject: {fileID: 5944548242225431746}
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f93138cca030223478a1b96c5ca95b04, type: 3}
 --- !u!4 &5944548242225431740 stripped
 Transform:
@@ -9353,26 +9296,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2838439626304821448}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5944548242225431746
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2077403021}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29d2197a41fc9bb4b99510dceac5864a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interactDistance: 3
-  interactableMask:
-    serializedVersion: 2
-    m_Bits: 1024
-  interactKey: 102
-  playerCamera: {fileID: 176996709}
-  carryAnchor: {fileID: 1270714693}
-  promptText: {fileID: 0}
 --- !u!4 &6476664811962991016 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2522585597571652954, guid: 20d95c021744d044bbd02700fbd4bcee,

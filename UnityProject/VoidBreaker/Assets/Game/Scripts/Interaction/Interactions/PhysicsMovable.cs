@@ -52,8 +52,8 @@ public class PhysicsMovable : BaseInteractable
         IsBeingCarried = false;
         carryParent = null;
         rb.useGravity = true;
-        rb.velocity = Vector3.zero;
-    }
+/*        rb.velocity = Vector3.zero;
+*/    }
 
     public override string GetInteractionPrompt()
     {
