@@ -80,6 +80,19 @@ public class Player_Controller : Entity
                 isCrouching ? crouchHeadLocalPos : standHeadLocalPos,
                 crouchTransitionSpeed * Time.deltaTime);
         }
+
+        //based on the player's current state and velocity, update the speedline opacity
+        if (playerCamera != null)
+        {
+            Camera_Controller camCtrl = playerCamera.GetComponent<Camera_Controller>();
+            if (camCtrl != null && rb != null)
+            {
+
+                float speed = new Vector2(rb.velocity.x, rb.velocity.z).magnitude;
+                float speedNormalized = Mathf.Clamp01((speed / maxSpeed) * 3f);
+                camCtrl.setSpeedlineOpacity(speedNormalized);
+            }
+        }
     }
     protected override void Die()
     {

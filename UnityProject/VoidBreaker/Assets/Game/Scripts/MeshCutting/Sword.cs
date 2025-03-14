@@ -73,6 +73,7 @@ public class Sword : weaponBase
             cutPlane.gameObject.SetActive(true);
         if (cameraController != null)
             cameraController.SetOverrideFOV(zoomFOV);
+            cameraController.SetVolumeIntensity(1f);
         // Slow down time for dramatic effect.
         DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 0.2f, 0.02f);
     }
@@ -84,6 +85,8 @@ public class Sword : weaponBase
             cutPlane.gameObject.SetActive(false);
         if (cameraController != null)
             cameraController.ClearOverrideFOV();
+            cameraController.SetVolumeIntensity(0.0f);
+
         // Resume normal time.
         DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 1f, 0.02f);
     }

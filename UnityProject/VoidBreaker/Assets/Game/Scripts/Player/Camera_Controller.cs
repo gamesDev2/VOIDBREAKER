@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Rendering;
+using DG.Tweening;
 
 [RequireComponent(typeof(Camera))]
 public class Camera_Controller : MonoBehaviour
@@ -43,6 +45,19 @@ public class Camera_Controller : MonoBehaviour
     [Tooltip("Maximum deltaTime used for camera updates.")]
     public float maxDeltaTime = 0.033f; // ~33ms (~30 FPS)
 
+
+    [Header("Post-Processing Effects")]
+    [Tooltip("Enable post-processing effects.")]
+    public bool enablePostProcessing = true;
+    public GameObject postProcessingVolume;
+    private float volumeIntensity = 0f;
+
+    [Header("Speed Lines")]
+    [Tooltip("Enable speed lines.")]
+    public bool enableSpeedLines = true;
+
+    public Material speedLinesMaterial;
+
     // --- Added for Blade Mode Integration ---
     [HideInInspector]
     public bool overrideFOV = false;
@@ -72,6 +87,7 @@ public class Camera_Controller : MonoBehaviour
         }
         _cam.fieldOfView = defaultFOV;
         _originalLocalPos = transform.localPosition;
+        SetPostProcessing(enablePostProcessing);
     }
 
     private void LateUpdate()
@@ -82,8 +98,20 @@ public class Camera_Controller : MonoBehaviour
         HandleHeadBob();
         HandleFOVTransition();
         HandleCameraShake();
+        HandlePostProcess();
     }
 
+
+
+    // Usage example
+    public void setSpeedlineOpacity(float opacity)
+    {
+        if (speedLinesMaterial != null)
+        {
+            float mappedOpacity = Mathf.Lerp(0f, 0.4f, Mathf.Clamp01(opacity));
+            speedLinesMaterial.SetFloat("_Line_Density", mappedOpacity);
+        }
+    }
     private void HandleMouseLook()
     {
         float mouseY = Input.GetAxis("Mouse Y") * verticalSensitivity * dt;
@@ -100,6 +128,35 @@ public class Camera_Controller : MonoBehaviour
             currentZ -= 360f;
         float newZ = Mathf.LerpAngle(currentZ, targetZRoll, dt * tiltSpeed);
         transform.localRotation = Quaternion.Euler(_xRotation, 0f, newZ);
+    }
+    private void HandlePostProcess()
+    {
+        if (enablePostProcessing)
+        {
+            if (postProcessingVolume != null)
+            {
+                postProcessingVolume.SetActive(true);
+                Volume volume = postProcessingVolume.GetComponent<Volume>();
+                volume.weight = Mathf.Clamp(Mathf.Lerp(volume.weight, volumeIntensity, dt * 10f), 0f, 1f);
+            }
+        }
+        else
+        {
+            if (postProcessingVolume != null)
+            {
+                postProcessingVolume.SetActive(false);
+            }
+        }
+    }
+
+    public void SetVolumeIntensity(float intensity)
+    {
+        volumeIntensity = intensity;
+    }
+
+    public void SetPostProcessing(bool enabled)
+    {
+        enablePostProcessing = enabled;
     }
 
     private void HandleHeadBob()
