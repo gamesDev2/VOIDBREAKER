@@ -66,6 +66,7 @@ public class Camera_Controller : MonoBehaviour
 
     private Camera _cam;
     private float _xRotation = 0f; // pitch
+    private float _yRotation = 0f; // yaw
     private float _headBobTimer = 0f;
     private Vector3 _originalLocalPos;
     private float _currentShakeIntensity = 0f;
@@ -127,7 +128,7 @@ public class Camera_Controller : MonoBehaviour
         if (currentZ > 180f)
             currentZ -= 360f;
         float newZ = Mathf.LerpAngle(currentZ, targetZRoll, dt * tiltSpeed);
-        transform.localRotation = Quaternion.Euler(_xRotation, 0f, newZ);
+        transform.localRotation = Quaternion.Euler(_xRotation, _yRotation, newZ);
     }
     private void HandlePostProcess()
     {
@@ -257,4 +258,11 @@ public class Camera_Controller : MonoBehaviour
     {
         overrideFOV = false;
     }
+
+
+    public void setXrot(float x)
+    {
+        _yRotation = x;
+    }
+
 }
