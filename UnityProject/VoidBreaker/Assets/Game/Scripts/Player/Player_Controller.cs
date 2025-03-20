@@ -43,7 +43,7 @@ public class Player_Controller : Entity
     protected override void ProcessInput()
     {
         // Mouse look (horizontal rotation)
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime * timeFlow;
         //transform.Rotate(Vector3.up * mouseX);
         deltaRotX(mouseX);
 
@@ -97,6 +97,7 @@ public class Player_Controller : Entity
                 float speedNormalized = Mathf.Clamp01((speed / maxSpeed) * 3f);
                 camCtrl.setSpeedlineOpacity(speedNormalized);
                 camCtrl.setXrot(getRotX());
+                camCtrl.timeFlow = timeFlow;
             }
         }
     }

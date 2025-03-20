@@ -27,12 +27,12 @@ public class phaseShift : MonoBehaviour
             if (phaseShiftActive)
             {
                 Time.timeScale = timeSlow;
-                //player.timeMultiplier = 1.0f / timeSlow;
+                player.timeFlow = 1.0f / timeSlow;
             }
             else
             {
                 Time.timeScale = 1.0f;
-                //player.timeMultiplier = 1.0f;
+                player.timeFlow = 1.0f;
             }
         }
     }

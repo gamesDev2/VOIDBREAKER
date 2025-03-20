@@ -77,6 +77,8 @@ public class Camera_Controller : MonoBehaviour
 
     private float dt;
 
+    private float timeMultiplier = 1.0f;
+
     private void Awake()
     {
         _cam = GetComponent<Camera>();
@@ -93,7 +95,7 @@ public class Camera_Controller : MonoBehaviour
 
     private void LateUpdate()
     {
-        dt = Mathf.Min(Time.deltaTime, maxDeltaTime);
+        dt = Mathf.Min(Time.deltaTime * timeMultiplier, maxDeltaTime * timeMultiplier);
         HandleMouseLook();
         HandleCameraTilt();
         HandleHeadBob();
@@ -263,6 +265,11 @@ public class Camera_Controller : MonoBehaviour
     public void setXrot(float x)
     {
         _yRotation = x;
+    }
+    public float timeFlow
+    {
+        get { return timeMultiplier; }
+        set { timeMultiplier = value; }
     }
 
 }

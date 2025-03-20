@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum EntityState
@@ -143,6 +144,9 @@ public abstract class Entity : MonoBehaviour
 
     // Rotation variables
     private float desiredXRotation = 0f;
+
+    // Temporal Control
+    private float timeMultiplier = 1.0f;
 
     protected virtual void Awake()
     {
@@ -339,17 +343,19 @@ public abstract class Entity : MonoBehaviour
     protected virtual void UpdateCurrentWalkSpeed()
     {
         if (isOnRail && currentRail != null)
-            currentWalkSpeed = currentRail.railSpeed;
+            currentWalkSpeed = currentRail.railSpeed * timeMultiplier;
         else if (isDashing)
-            currentWalkSpeed = maxSpeed;
+            currentWalkSpeed = maxSpeed * timeMultiplier;
         else if (isSliding)
-            currentWalkSpeed = slideSpeed;
+            currentWalkSpeed = slideSpeed * timeMultiplier;
         else if (isCrouching)
-            currentWalkSpeed = crouchSpeed;
+            currentWalkSpeed = crouchSpeed * timeMultiplier;
         else if (InputSprint() && grounded)
-            currentWalkSpeed = sprintSpeed;
+            currentWalkSpeed = sprintSpeed * timeMultiplier;
+        else if (currentState == EntityState.Idle)
+            currentWalkSpeed = Mathf.Lerp(currentWalkSpeed, 0.0f, Time.deltaTime * timeMultiplier);
         else
-            currentWalkSpeed = moveSpeed;
+            currentWalkSpeed = moveSpeed * timeMultiplier;
     }
 
     protected virtual bool InputSprint() { return wantSprint; }
@@ -390,9 +396,9 @@ public abstract class Entity : MonoBehaviour
     {
         Vector3 moveDir = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
         if (grounded)
-            rb.AddForce(moveDir * currentWalkSpeed * 10f, ForceMode.Force);
+            rb.AddForce(moveDir * currentWalkSpeed * 10f * timeMultiplier, ForceMode.Force);
         else
-            rb.AddForce(moveDir * currentWalkSpeed * 10f * airMultiplier, ForceMode.Force);
+            rb.AddForce(moveDir * currentWalkSpeed * 10f * airMultiplier * timeMultiplier, ForceMode.Force);
         SpeedControl();
     }
 
@@ -446,9 +452,9 @@ public abstract class Entity : MonoBehaviour
         Vector3 dashDir = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
         if (dashDir == Vector3.zero)
             dashDir = transform.forward;
-        rb.AddForce(dashDir * dashForce, ForceMode.Impulse);
-        Invoke(nameof(EndDash), dashDuration);
-        Invoke(nameof(ResetDash), dashCooldown);
+        rb.AddForce(dashDir * dashForce * timeMultiplier, ForceMode.Impulse);
+        Invoke(nameof(EndDash), dashDuration / timeMultiplier);
+        Invoke(nameof(ResetDash), dashCooldown / timeMultiplier);
     }
 
     protected virtual void EndDash()
@@ -654,4 +660,12 @@ public abstract class Entity : MonoBehaviour
     {
         return desiredXRotation;
     }
+
+    public float timeFlow
+    {
+        get { return timeMultiplier; }
+        set 
+        {timeMultiplier = value;}
+    }
+
 }
