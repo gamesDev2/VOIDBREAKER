@@ -141,6 +141,9 @@ public abstract class Entity : MonoBehaviour
     // Push cooldown
     protected float lastPushTime = 0f;
 
+    // Rotation variables
+    private float desiredXRotation = 0f;
+
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -205,6 +208,7 @@ public abstract class Entity : MonoBehaviour
         if (isWallRunning)
             WallRunMovement();
         CheckForNonWallRunnableCollision();
+        rb.MoveRotation(Quaternion.Euler(Vector3.up * desiredXRotation));
     }
 
     //--- Abstract Input Handling ---
@@ -639,5 +643,15 @@ public abstract class Entity : MonoBehaviour
     protected virtual void EndRoll()
     {
         isRolling = false;
+    }
+
+    protected void deltaRotX(float delta)
+    {
+        desiredXRotation += delta;
+    }
+
+    protected float getRotX()
+    {
+        return desiredXRotation;
     }
 }
