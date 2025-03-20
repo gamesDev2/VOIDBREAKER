@@ -486,7 +486,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 700
+  m_VersionIndex: 706
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -541,6 +541,55 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1320198090732529913}
   m_Mesh: {fileID: 0}
+--- !u!1 &1990091583138285281
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7643663345840015882}
+  - component: {fileID: 5029876598274012299}
+  m_Layer: 0
+  m_Name: PostProcess
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7643663345840015882
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1990091583138285281}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4653753572723734581}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5029876598274012299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1990091583138285281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsGlobal: 1
+  priority: 2
+  blendDistance: 0
+  weight: 0
+  sharedProfile: {fileID: 11400000, guid: e8b7b6f2e33d0904cb83f9bcb755dc96, type: 2}
 --- !u!1 &3671823126969283640
 GameObject:
   m_ObjectHideFlags: 0
@@ -1959,10 +2008,10 @@ GameObject:
   - component: {fileID: 3415300904598862635}
   - component: {fileID: 6541539369735096838}
   - component: {fileID: 8258985107108627561}
-  - component: {fileID: 8150360141886769730}
   - component: {fileID: 4922832665888419349}
   - component: {fileID: 2047119243237254670}
   - component: {fileID: 4992906279597937716}
+  - component: {fileID: 1815512390014020975}
   m_Layer: 3
   m_Name: Player_Camera
   m_TagString: MainCamera
@@ -2047,19 +2096,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6983718207657426468}
   m_Enabled: 1
---- !u!114 &8150360141886769730
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6983718207657426468}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b065f04a15a72b84bab5e44c8acc8042, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: f6a4f606e013e9841a706f3d8cbc168c, type: 2}
 --- !u!114 &4922832665888419349
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2216,9 +2252,9 @@ MonoBehaviour:
   shakeDecaySpeed: 5
   maxDeltaTime: 0.016
   enablePostProcessing: 1
-  postProcessingVolume: {fileID: 0}
+  postProcessingVolume: {fileID: 1990091583138285281}
   enableSpeedLines: 1
-  speedLinesMaterial: {fileID: 0}
+  speedLinesMaterial: {fileID: 2100000, guid: 638efa37333b568409d2cad199f655cf, type: 2}
   overrideFOV: 0
   targetOverrideFOV: 0
 --- !u!114 &4992906279597937716
@@ -2347,6 +2383,45 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+--- !u!114 &1815512390014020975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6983718207657426468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26d6499a6bd256e47b859377446493a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsGlobal: 0
+  fadeRadius: 0
+  priority: 1
+  customPasses:
+  - rid: 8682328127111168000
+  injectionPoint: 1
+  m_TargetCamera: {fileID: 6541539369735096838}
+  useTargetCamera: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 8682328127111168000
+      type: {class: FullScreenCustomPass, ns: UnityEngine.Rendering.HighDefinition,
+        asm: Unity.RenderPipelines.HighDefinition.Runtime}
+      data:
+        m_Name: Custom Pass
+        enabled: 1
+        targetColorBuffer: 0
+        targetDepthBuffer: 0
+        clearFlags: 0
+        passFoldout: 0
+        m_Version: 0
+        fullscreenPassMaterial: {fileID: 2100000, guid: 638efa37333b568409d2cad199f655cf,
+          type: 2}
+        materialPassIndex: 0
+        materialPassName: Custom Pass 0
+        fetchColorBuffer: 0
 --- !u!1 &8210049194022999932
 GameObject:
   m_ObjectHideFlags: 0
@@ -2378,6 +2453,7 @@ Transform:
   m_Children:
   - {fileID: 272024754268388652}
   - {fileID: 3415300904598862635}
+  - {fileID: 7643663345840015882}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &950327782135658592
