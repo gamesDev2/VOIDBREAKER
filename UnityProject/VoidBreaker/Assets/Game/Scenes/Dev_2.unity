@@ -24,7 +24,7 @@ RenderSettings:
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 4
+  m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
@@ -685,7 +685,7 @@ GameObject:
   - component: {fileID: 88009309}
   - component: {fileID: 88009314}
   - component: {fileID: 88009313}
-  - component: {fileID: 88009312}
+  - component: {fileID: 88009315}
   - component: {fileID: 88009311}
   - component: {fileID: 88009310}
   m_Layer: 10
@@ -758,21 +758,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &88009312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 88009308}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a4e1072089e8a74f8d22f4dda6eb390, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interactionPrompt: Press F to interact
-  holdDistance: 2
-  moveSpeed: 10
 --- !u!23 &88009313
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -823,6 +808,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 88009308}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &88009315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88009308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13c5f1648b8a91c40acdf27465e27cbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionPrompt: Press F to interact
+  cooldownTime: 1
 --- !u!1 &126777370
 GameObject:
   m_ObjectHideFlags: 0
@@ -2619,57 +2618,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 442523423}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &457438774 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6983718207657426468, guid: f93138cca030223478a1b96c5ca95b04,
-    type: 3}
-  m_PrefabInstance: {fileID: 2838439626304821448}
-  m_PrefabAsset: {fileID: 0}
---- !u!20 &457438776 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 6541539369735096838, guid: f93138cca030223478a1b96c5ca95b04,
-    type: 3}
-  m_PrefabInstance: {fileID: 2838439626304821448}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &457438781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 457438774}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26d6499a6bd256e47b859377446493a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IsGlobal: 0
-  fadeRadius: 0
-  priority: 1
-  customPasses:
-  - rid: 8682328127111168000
-  injectionPoint: 1
-  m_TargetCamera: {fileID: 457438776}
-  useTargetCamera: 1
-  references:
-    version: 2
-    RefIds:
-    - rid: 8682328127111168000
-      type: {class: FullScreenCustomPass, ns: UnityEngine.Rendering.HighDefinition,
-        asm: Unity.RenderPipelines.HighDefinition.Runtime}
-      data:
-        m_Name: Custom Pass
-        enabled: 1
-        targetColorBuffer: 0
-        targetDepthBuffer: 0
-        clearFlags: 0
-        passFoldout: 0
-        m_Version: 0
-        fullscreenPassMaterial: {fileID: 2100000, guid: 638efa37333b568409d2cad199f655cf,
-          type: 2}
-        materialPassIndex: 0
-        materialPassName: Custom Pass 0
-        fetchColorBuffer: 0
 --- !u!1 &514477231
 GameObject:
   m_ObjectHideFlags: 0
@@ -10192,7 +10140,7 @@ PrefabInstance:
     - target: {fileID: 7802382232808753436, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 706
+      value: 709
       objectReference: {fileID: 0}
     - target: {fileID: 8210049194022999932, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
@@ -10202,11 +10150,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6983718207657426468, guid: f93138cca030223478a1b96c5ca95b04,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 457438781}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f93138cca030223478a1b96c5ca95b04, type: 3}
 --- !u!4 &5944548242225431740 stripped
 Transform:
