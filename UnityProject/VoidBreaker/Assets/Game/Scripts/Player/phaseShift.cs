@@ -11,6 +11,7 @@ public class phaseShift : MonoBehaviour
 
     private bool phaseShiftActive = false;
     private Entity player;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,9 +29,17 @@ public class phaseShift : MonoBehaviour
             {
                 Time.timeScale = timeSlow;
                 player.timeFlow = 1.0f / timeSlow;
+                if (Game_Manager.Instance != null)
+                {
+                    Game_Manager.Instance.on_mesh_trail.Invoke(true);
+                }
             }
             else
             {
+                if (Game_Manager.Instance != null)
+                {
+                    Game_Manager.Instance.on_mesh_trail.Invoke(false);
+                }
                 Time.timeScale = 1.0f;
                 player.timeFlow = 1.0f;
             }
