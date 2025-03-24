@@ -52,7 +52,6 @@ public class MeshTrail : MonoBehaviour
             Game_Manager.Instance.on_mesh_trail.AddListener(ToggleMeshTrail);
         }
 
-        ToggleMeshTrail(true);
     }
 
 

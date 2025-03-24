@@ -486,7 +486,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 712
+  m_VersionIndex: 802
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2013,7 +2013,7 @@ MonoBehaviour:
   Tags:
   - AI
   - PhysicsObjects
-  spawnInterval: 0.1
+  spawnInterval: 0.04
   fadeDuration: 0.5
   colorGradient:
     serializedVersion: 2
@@ -2046,7 +2046,7 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   trailMaterial: {fileID: 2100000, guid: f128ada05c543cd4d93416a1e90e24bb, type: 2}
-  colorTimeIncrement: 0.1
+  colorTimeIncrement: 0.01
 --- !u!1 &6983718207657426468
 GameObject:
   m_ObjectHideFlags: 0
@@ -2564,6 +2564,11 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 6541539369735096838}
+    - target: {fileID: 3750845292773365554, guid: e45120c5acec42e4a96baa8876fe1fca,
+        type: 3}
+      propertyPath: playerHandle
+      value: 
+      objectReference: {fileID: 2622436924740678069}
     - target: {fileID: 5469662512605744509, guid: e45120c5acec42e4a96baa8876fe1fca,
         type: 3}
       propertyPath: m_Name
