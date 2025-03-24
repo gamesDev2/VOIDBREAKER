@@ -33,7 +33,9 @@ public class gunShooting : weaponBase
     [Header("Tracer Effect")]
     [SerializeField] private beamControl tracerFX;
 
-
+    [Header("Layer Mask")]
+    [SerializeField] private LayerMask Mask;
+    private LayerMask PlayerMask;
 
 
 
@@ -52,6 +54,9 @@ public class gunShooting : weaponBase
     {
         ammoRemaining = ammoCount;
         tracerFX.visible(false);
+
+        Mask = LayerMask.GetMask("TransparentFX", "UI", "Cuttable", "Interactable");
+        PlayerMask = LayerMask.GetMask("Physics_Objects");
     }
 
     protected override void Update()
@@ -126,12 +131,11 @@ public class gunShooting : weaponBase
         }
 
 
-        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, -5, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, ~PlayerMask, QueryTriggerInteraction.Ignore))
         {
             handleHit(ref hit);
             tracerFX.updateDirection(hit.point);
         }
-        // TODO: Make this shit not the ugliest piece of shit code you've ever written. Actually that kinda applies to most of this script. GET ON IT ME!!!
         else if (currentBurner != null)
         {
             currentBurner.endBurn();
@@ -174,7 +178,7 @@ public class gunShooting : weaponBase
 
         if(currentBurner != null && currentBurner.sameObject(objId, hit.normal))
         {
-            currentBurner.AddBurnPosition(hit.transform.position - (_hit.point + (hit.normal / 10000)));
+            currentBurner.AddBurnPosition((_hit.point + (hit.normal / 10000)));
         }
         else if(currentBurner != null)
         {
@@ -184,10 +188,14 @@ public class gunShooting : weaponBase
 
         if (currentBurner == null && !hit.collider.isTrigger)
         {
-            currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal), hit.transform);
+            currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal));
             currentBurner.impactFX = Instantiate(impactFX, hit.point + (hit.normal / 10000), Quaternion.LookRotation(hit.normal), currentBurner.transform);
             currentBurner.setObjParams(objId, hit.normal);
 
+            if ((Mask & (1 << hit.collider.gameObject.layer)) != 0)
+            {
+                currentBurner.GetComponent<LineRenderer>().enabled = false;
+            }
         }
     }
 }
