@@ -124,6 +124,8 @@ public abstract class Entity : MonoBehaviour
     protected EntityState currentState = EntityState.Idle;
     public EntityState CurrentState { get { return currentState; } }
 
+    protected float currentJumpSpeed;
+
     // Wall run variables
     protected float wallRunTimer = 0f;
     protected Vector3 currentWallNormal;
@@ -213,6 +215,7 @@ public abstract class Entity : MonoBehaviour
             WallRunMovement();
         CheckForNonWallRunnableCollision();
         rb.MoveRotation(Quaternion.Euler(Vector3.up * desiredXRotation));
+        rb.AddForce(Physics.gravity * ((timeMultiplier - 1.0f) * 10.0f), ForceMode.Acceleration);
     }
 
     //--- Abstract Input Handling ---
@@ -263,7 +266,7 @@ public abstract class Entity : MonoBehaviour
             if (isWallRunning)
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-                rb.AddForce((Vector3.up + currentWallNormal) * jumpForce, ForceMode.Impulse);
+                rb.AddForce((Vector3.up + currentWallNormal) * jumpForce * timeMultiplier, ForceMode.Impulse);
                 EndWallRun();
                 jumpCount = 1;
             }
@@ -273,7 +276,7 @@ public abstract class Entity : MonoBehaviour
                 jumpCount++;
             }
             readyToJump = false;
-            Invoke(nameof(ResetJump), jumpCooldown);
+            Invoke(nameof(ResetJump), jumpCooldown * (1.0f / timeMultiplier));
         }
         ResetInputJump();
     }
@@ -415,7 +418,7 @@ public abstract class Entity : MonoBehaviour
     protected virtual void Jump()
     {
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        rb.AddForce(Vector3.up * jumpForce * timeMultiplier, ForceMode.Impulse);
     }
 
     protected virtual void ResetJump()
@@ -577,13 +580,13 @@ public abstract class Entity : MonoBehaviour
     protected virtual void WallRunMovement()
     {
         float gravityMultiplier = Mathf.Lerp(0f, 1f, wallRunTimer / maxWallRunTime);
-        rb.AddForce(Vector3.up * Physics.gravity.y * wallRunGravity * gravityMultiplier, ForceMode.Acceleration);
+        rb.AddForce(Vector3.up * Physics.gravity.y * wallRunGravity * gravityMultiplier * (10.0f * (timeMultiplier - 1.0f)), ForceMode.Acceleration);
         Vector3 wallTangent = Vector3.Cross(currentWallNormal, Vector3.up).normalized;
         if (Vector3.Dot(wallTangent, transform.forward) < 0)
             wallTangent = -wallTangent;
         Vector3 currentTangentVel = Vector3.Project(rb.velocity, wallTangent);
         if (currentTangentVel.magnitude < maxWallRunSpeed)
-            rb.AddForce(wallTangent * wallRunAcceleration, ForceMode.Acceleration);
+            rb.AddForce(wallTangent * wallRunAcceleration * timeMultiplier, ForceMode.Acceleration);
     }
 
     //--- Other Utilities ---
@@ -665,7 +668,10 @@ public abstract class Entity : MonoBehaviour
     {
         get { return timeMultiplier; }
         set 
-        {timeMultiplier = value;}
+        {
+            rb.velocity *= 1 / timeMultiplier;
+            timeMultiplier = value;
+        }
     }
 
 }

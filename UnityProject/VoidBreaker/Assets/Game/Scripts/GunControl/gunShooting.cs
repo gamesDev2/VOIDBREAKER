@@ -174,7 +174,7 @@ public class gunShooting : weaponBase
 
         if(currentBurner != null && currentBurner.sameObject(objId, hit.normal))
         {
-            currentBurner.AddBurnPosition(_hit.point + (hit.normal / 10000));
+            currentBurner.AddBurnPosition(hit.transform.position - (_hit.point + (hit.normal / 10000)));
         }
         else if(currentBurner != null)
         {
@@ -184,7 +184,7 @@ public class gunShooting : weaponBase
 
         if (currentBurner == null && !hit.collider.isTrigger)
         {
-            currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal));
+            currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal), hit.transform);
             currentBurner.impactFX = Instantiate(impactFX, hit.point + (hit.normal / 10000), Quaternion.LookRotation(hit.normal), currentBurner.transform);
             currentBurner.setObjParams(objId, hit.normal);
 
