@@ -16,6 +16,9 @@ public class Sword : weaponBase
     public Camera mainCamera; // Assign in inspector or use Camera.main
     private Camera_Controller cameraController;
 
+    [Header("Player controller")]
+    [SerializeField] private Entity playerHandle;
+
     [Header("Cutting Settings")]
     [Tooltip("Transform used as the slicing plane.")]
     public Transform cutPlane;
@@ -75,7 +78,7 @@ public class Sword : weaponBase
             cameraController.SetOverrideFOV(zoomFOV);
             cameraController.SetVolumeIntensity(1f);
         // Slow down time for dramatic effect.
-        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 0.2f, 0.02f);
+        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, (1.0f / playerHandle.timeFlow) * 0.2f, 0.02f);
     }
 
     public override void stopAttack()
@@ -88,7 +91,7 @@ public class Sword : weaponBase
             cameraController.SetVolumeIntensity(0.0f);
 
         // Resume normal time.
-        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 1f, 0.02f);
+        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, (1.0f / playerHandle.timeFlow) * 1f, 0.02f);
     }
 
     /// <summary>
