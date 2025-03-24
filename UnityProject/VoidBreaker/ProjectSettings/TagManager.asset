@@ -6,6 +6,7 @@ TagManager:
   tags:
   - WallRun
   - AI
+  - PhysicsObjects
   layers:
   - Default
   - TransparentFX

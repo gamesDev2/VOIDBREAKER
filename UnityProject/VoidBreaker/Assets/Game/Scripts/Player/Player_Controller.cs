@@ -34,10 +34,10 @@ public class Player_Controller : Entity
         }
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
         camCtrl = playerCamera.GetComponent<Camera_Controller>();
-        // Do not set playerCamera.fieldOfView here;
-        // let the Camera_Controller handle it.
+
+        Game_Manager.Instance.player = gameObject; // Store the reference to the player.
+
     }
 
     protected override void ProcessInput()
