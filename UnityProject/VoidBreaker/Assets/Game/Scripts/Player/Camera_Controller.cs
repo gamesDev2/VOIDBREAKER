@@ -96,7 +96,6 @@ public class Camera_Controller : MonoBehaviour
     private void LateUpdate()
     {
         dt = Mathf.Min(Time.deltaTime * timeMultiplier, maxDeltaTime * timeMultiplier);
-        HandleMouseLook();
         HandleCameraTilt();
         HandleHeadBob();
         HandleFOVTransition();
@@ -114,12 +113,6 @@ public class Camera_Controller : MonoBehaviour
             float mappedOpacity = Mathf.Lerp(0f, 0.4f, Mathf.Clamp01(opacity));
             speedLinesMaterial.SetFloat("_Line_Density", mappedOpacity);
         }
-    }
-    private void HandleMouseLook()
-    {
-        float mouseY = Input.GetAxis("Mouse Y") * verticalSensitivity * dt;
-        _xRotation -= mouseY;
-        _xRotation = Mathf.Clamp(_xRotation, -verticalClampAngle, verticalClampAngle);
     }
 
     private void HandleCameraTilt()
@@ -266,6 +259,23 @@ public class Camera_Controller : MonoBehaviour
     {
         _yRotation = x;
     }
+
+    public float xRot
+    {
+        get { return _yRotation; }
+        set { _yRotation = value; }
+    }
+
+    public float yRot
+    {
+        get { return _xRotation; }
+        set
+        {   
+            _xRotation = value;
+            _xRotation = Mathf.Clamp(_xRotation, -verticalClampAngle, verticalClampAngle);
+        }
+    }
+
     public float timeFlow
     {
         get { return timeMultiplier; }

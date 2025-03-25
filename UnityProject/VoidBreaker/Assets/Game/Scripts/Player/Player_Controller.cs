@@ -9,6 +9,7 @@ public class Player_Controller : Entity
     public Camera playerCamera;
     [Tooltip("Mouse sensitivity for camera look.")]
     public float mouseSensitivity = 100f;
+    public float verticleSensitivity = 300f;
 
     [Header("Input Keys")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -43,9 +44,10 @@ public class Player_Controller : Entity
     protected override void ProcessInput()
     {
         // Mouse look (horizontal rotation)
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime * timeFlow;
+        
+        
         //transform.Rotate(Vector3.up * mouseX);
-        deltaRotX(mouseX);
+        
 
         // Movement input
         horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -96,7 +98,16 @@ public class Player_Controller : Entity
                 float speed = new Vector2(rb.velocity.x, rb.velocity.z).magnitude;
                 float speedNormalized = Mathf.Clamp01((speed / maxSpeed) * 3f);
                 camCtrl.setSpeedlineOpacity(speedNormalized);
-                camCtrl.setXrot(getRotX());
+                
+
+                float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime * timeFlow;
+                float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime * timeFlow;
+
+                deltaRotX(mouseX);
+
+                camCtrl.yRot -= mouseY;
+                camCtrl.xRot += mouseX;
+
                 camCtrl.timeFlow = timeFlow;
             }
         }
