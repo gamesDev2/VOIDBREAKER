@@ -28,6 +28,7 @@ public class phaseShift : MonoBehaviour
             if (phaseShiftActive)
             {
                 Time.timeScale = timeSlow;
+                Time.fixedDeltaTime = 0.02f * Time.timeScale;
                 player.timeFlow = 1.0f / timeSlow;
                 if (Game_Manager.Instance != null)
                 {
@@ -41,6 +42,7 @@ public class phaseShift : MonoBehaviour
                     Game_Manager.Instance.on_mesh_trail.Invoke(false);
                 }
                 Time.timeScale = 1.0f;
+                Time.fixedDeltaTime = 0.02f * Time.timeScale;
                 player.timeFlow = 1.0f;
             }
         }

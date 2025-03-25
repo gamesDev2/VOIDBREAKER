@@ -82,6 +82,14 @@ public class gunShooting : weaponBase
 
         if (firing)
         {
+            ShootFx();
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (firing)
+        {
             Shoot();
         }
     }
@@ -92,6 +100,7 @@ public class gunShooting : weaponBase
         {
             firing = true;
             timeSinceLastShot = 0;
+            tracerFX.visible(true);
         }
     }
 
@@ -134,17 +143,11 @@ public class gunShooting : weaponBase
         if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, ~PlayerMask, QueryTriggerInteraction.Ignore))
         {
             handleHit(ref hit);
-            tracerFX.updateDirection(hit.point);
         }
         else if (currentBurner != null)
         {
             currentBurner.endBurn();
-            currentBurner = null;
-            tracerFX.updateDirection(playerCamera.transform.position + (playerCamera.transform.forward * range));
-        }
-        else
-        {
-            tracerFX.updateDirection(playerCamera.transform.position + (playerCamera.transform.forward * range));
+            currentBurner = null;   
         }
 
         if (timeSinceLastShot > 1 / fireRate)
@@ -152,11 +155,36 @@ public class gunShooting : weaponBase
             ammoRemaining -= (int)(timeSinceLastShot / (1 / fireRate));
             timeSinceLastShot = 0;
         }
-
-        tracerFX.visible(true);
+        
     }
 
+    private void ShootFx()
+    {
+        if (playerCamera == null)
+        {
+            return;
+        }
 
+        if (ammoRemaining < 1)
+        {
+            reloading = true;
+            stopAttack();
+        }
+
+        if (!((beamWeapon || (timeSinceLastShot > 1 / fireRate)) && !reloading))
+        {
+            return;
+        }
+
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, ~PlayerMask, QueryTriggerInteraction.Ignore))
+        {
+            tracerFX.updateDirection(hit.point);
+        }
+        else
+        {
+            tracerFX.updateDirection(playerCamera.transform.position + (playerCamera.transform.forward * range));
+        }
+    }
 
     private void handleHit(ref RaycastHit _hit)
     {
