@@ -6,7 +6,7 @@ public class ResourceBar : MonoBehaviour
 {
     public GameObject segmentPrefab;
     public int maxValue = 100;
-    public float segmentSpacing = 5f;
+    //public float segmentSpacing = 5f;
     public int currentValue = 100;
 
     public float curveRadius = 100f;
@@ -65,18 +65,6 @@ public class ResourceBar : MonoBehaviour
             rect.anchoredPosition = new Vector2(x, y);
             rect.localRotation = Quaternion.Euler(0, 0, angle-90); // Rotate to follow arc
         }
-        
-
-        /*segments = new GameObject[maxValue];
-        float startX = -(maxValue / 2f) * segmentSpacing;
-
-        for (int i = 0; i < maxValue; i++)
-        {
-            GameObject segment = Instantiate(segmentPrefab, transform);
-            segments[i] = segment;
-            RectTransform rect = segment.GetComponent<RectTransform>();
-            rect.anchoredPosition = new Vector2(startX + (i * segmentSpacing), 0);
-        }*/
     }
 
     public void UpdateBar(int currentValue)
