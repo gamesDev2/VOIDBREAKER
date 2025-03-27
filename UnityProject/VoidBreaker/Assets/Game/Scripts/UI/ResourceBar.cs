@@ -6,8 +6,12 @@ public class ResourceBar : MonoBehaviour
 {
     public GameObject segmentPrefab;
     public int maxValue = 100;
-    public float segmentSpacing = 5f;
+    //public float segmentSpacing = 5f;
     public int currentValue = 100;
+
+    public float curveRadius = 100f;
+    public float curveAngle = 180f;
+    public bool isUpsideDown = false;
 
     private GameObject[] segments;
 
@@ -34,14 +38,32 @@ public class ResourceBar : MonoBehaviour
     private void GenerateSegments()
     {
         segments = new GameObject[maxValue];
-        float startX = -(maxValue / 2f) * segmentSpacing;
+        float angleStep = curveAngle / (maxValue - 1);
 
-        for (int i = 0; i < maxValue; i++)
+        for (int i=0; i <maxValue; i++) 
         {
             GameObject segment = Instantiate(segmentPrefab, transform);
             segments[i] = segment;
+
             RectTransform rect = segment.GetComponent<RectTransform>();
-            rect.anchoredPosition = new Vector2(startX + (i * segmentSpacing), 0);
+
+            // Calculate angle per segment
+            float angle = (-curveAngle / 2f + angleStep * i)-90f;
+
+            float x = Mathf.Cos(angle * Mathf.Deg2Rad) * curveRadius;
+            float y = Mathf.Sin(angle * Mathf.Deg2Rad) * curveRadius;
+
+            if (!isUpsideDown)
+            {
+                y = -y;
+                angle = 180f-angle; // Flip angle depending on bar type
+            }
+
+            // Convert angle to position
+            
+
+            rect.anchoredPosition = new Vector2(x, y);
+            rect.localRotation = Quaternion.Euler(0, 0, angle-90); // Rotate to follow arc
         }
     }
 
