@@ -5,12 +5,15 @@ using UnityEngine;
 
 public class GravityVolume : MonoBehaviour
 {
-    private List<Rigidbody> mBodies = new List<Rigidbody>();
+    private Dictionary<Rigidbody, ParticleSystem> mBodies = new Dictionary<Rigidbody, ParticleSystem>();
 
-    [Header("How much and in what direction the volume should push objects in.")]
+    [Tooltip("How much and in what direction the volume should push objects in.")]
     [SerializeField] private Vector3 Acceleration = Vector3.zero;
 
     [SerializeField] private bool cancelEngineGravity = true;
+
+    [Tooltip("The particle system that will spawn on objects within the gravity volume")]
+    [SerializeField] private ParticleSystem particleFX;
 
     // Update is called once per frame
     void FixedUpdate()
@@ -21,15 +24,16 @@ public class GravityVolume : MonoBehaviour
             accel -= Physics.gravity;
         }
 
-        for (int i = 0; i < mBodies.Count; i++) 
+        foreach (Rigidbody body in mBodies.Keys) 
         {
-            if (mBodies[i] != null)
+            if (body != null)
             {
-                mBodies[i].AddForce(accel, ForceMode.Acceleration);
+                body.AddForce(accel, ForceMode.Acceleration);
+                mBodies[body].transform.position = body.transform.position - (mBodies[body].transform.forward * 2);
             }
             else
             {
-                mBodies.Remove(mBodies[i]);
+                mBodies.Remove(body);
             }
         }
     }
@@ -39,7 +43,8 @@ public class GravityVolume : MonoBehaviour
         Rigidbody otherBody = other.gameObject.GetComponent<Rigidbody>();
         if (otherBody != null)
         {
-            mBodies.Add(otherBody);
+            mBodies.Add(otherBody, Instantiate(particleFX));
+            mBodies[otherBody].transform.rotation = Quaternion.LookRotation(Acceleration + (Vector3.up * 0.0001f));
         }
     }
 
@@ -48,6 +53,8 @@ public class GravityVolume : MonoBehaviour
         Rigidbody otherBody = other.gameObject.GetComponent<Rigidbody>();
         if (otherBody != null)
         {
+            mBodies[otherBody].Stop();
+            Destroy(mBodies[otherBody].gameObject, 1);
             mBodies.Remove(otherBody);
         }
     }
