@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GravityVolume : MonoBehaviour
@@ -24,7 +25,7 @@ public class GravityVolume : MonoBehaviour
             accel -= Physics.gravity;
         }
 
-        foreach (Rigidbody body in mBodies.Keys) 
+        foreach (Rigidbody body in mBodies.Keys.ToArray()) 
         {
             if (body != null)
             {
@@ -33,6 +34,8 @@ public class GravityVolume : MonoBehaviour
             }
             else
             {
+                mBodies[body].Stop();
+                Destroy(mBodies[body].gameObject, 1);
                 mBodies.Remove(body);
             }
         }

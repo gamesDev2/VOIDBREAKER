@@ -7945,7 +7945,7 @@ PrefabInstance:
     - target: {fileID: 2829114881205999791, guid: d2e9420c18a7fdf4d861dcdd0c709a42,
         type: 3}
       propertyPath: Acceleration.y
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2829114881205999791, guid: d2e9420c18a7fdf4d861dcdd0c709a42,
         type: 3}
