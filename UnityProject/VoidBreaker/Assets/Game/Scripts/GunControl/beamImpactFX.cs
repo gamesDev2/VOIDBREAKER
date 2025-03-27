@@ -47,4 +47,10 @@ public class beamImpactFX : MonoBehaviour
 
         Destroy(gameObject);
     }
+
+    public float decay
+    {
+        get { return decayRate; }
+    }
+
 }

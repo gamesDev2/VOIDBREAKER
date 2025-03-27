@@ -41,7 +41,13 @@ public class laserBurnHandle : MonoBehaviour
     public void endBurn()
     {
         impactFX.endFX();
+        if (!burnMark.enabled)
+        {
+            transform.DetachChildren();
+            Destroy(gameObject);
+        }
         impactFX = null;
+        
     }
 
     

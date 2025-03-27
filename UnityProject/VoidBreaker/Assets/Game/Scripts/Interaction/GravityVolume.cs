@@ -30,7 +30,7 @@ public class GravityVolume : MonoBehaviour
             if (body != null)
             {
                 body.AddForce(accel, ForceMode.Acceleration);
-                mBodies[body].transform.position = body.transform.position - (mBodies[body].transform.forward * 2);
+                mBodies[body].transform.position = body.worldCenterOfMass - (mBodies[body].transform.forward * 2);
             }
             else
             {
