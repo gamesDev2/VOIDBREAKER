@@ -37,6 +37,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _RemoveSegments: 1
     - _Rotation: 180
     m_Colors:
     - _Color: {r: 0, g: 0.9869609, b: 1, a: 1}

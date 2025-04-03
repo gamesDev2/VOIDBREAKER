@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: RadialBar
-  m_Shader: {fileID: -6465566751694194690, guid: 414feab0eb2fe7b4480fbdf47a2fb277,
+  m_Shader: {fileID: -6465566751694194690, guid: 754db91c7cf454b4a937cbe5f4a0a40b,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -29,6 +29,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 62805400f686ae7428ad9af45124376b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -59,8 +63,14 @@ Material:
     - _EnableBlendModePreserveSpecularLighting: 0
     - _EnableFogOnTransparent: 1
     - _ExcludeFromTUAndAA: 0
+    - _LineWidth: 0.06
     - _OpaqueCullMode: 2
+    - _Radius: 0.3
+    - _RemoveSegments: 1
     - _RenderQueueType: 1
+    - _Rotation: 0
+    - _SegmentCount: 1
+    - _SegmentSpacing: 0.03
     - _SrcBlend: 1
     - _StencilRef: 0
     - _StencilRefDepth: 1
@@ -83,6 +93,7 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
+    - _Color: {r: 1, g: 0.009601211, b: 0, a: 1}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
