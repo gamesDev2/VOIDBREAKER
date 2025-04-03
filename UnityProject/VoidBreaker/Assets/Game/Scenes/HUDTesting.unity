@@ -398,8 +398,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 798820517}
-  - {fileID: 869615616}
-  - {fileID: 778172423}
   - {fileID: 443242720}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -428,16 +426,16 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 778172422}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -332.61478}
-  m_LocalScale: {x: 143.20834, y: 143.20834, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 120, y: 120, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 744539640}
+  m_Father: {fileID: 798820517}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 97, y: 180}
-  m_SizeDelta: {x: -993, y: 352.20166}
+  m_AnchoredPosition: {x: -352.84784, y: -229.33618}
+  m_SizeDelta: {x: -1975, y: -370.79834}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!212 &778172424
 SpriteRenderer:
@@ -526,6 +524,8 @@ RectTransform:
   - {fileID: 1173547720}
   - {fileID: 1801649328}
   - {fileID: 468158544}
+  - {fileID: 869615616}
+  - {fileID: 778172423}
   m_Father: {fileID: 744539640}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -806,16 +806,16 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 869615615}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -332.61478}
-  m_LocalScale: {x: 143.20834, y: 143.20834, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 120, y: 120, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 744539640}
+  m_Father: {fileID: 798820517}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 97, y: 180.00002}
-  m_SizeDelta: {x: -993, y: 352.20166}
+  m_AnchoredPosition: {x: -352.84784, y: -207.33618}
+  m_SizeDelta: {x: -1975, y: -370.79834}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!212 &869615617
 SpriteRenderer:
@@ -857,7 +857,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 62805400f686ae7428ad9af45124376b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

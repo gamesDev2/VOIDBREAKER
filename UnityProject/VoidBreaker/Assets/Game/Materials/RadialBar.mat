@@ -207,7 +207,7 @@ Material:
     - _Ior: 1.5
     - _IridescenceMask: 1
     - _IridescenceThickness: 1
-    - _LineWidth: 0.02
+    - _LineWidth: 0.046
     - _LinkDetailsWithBase: 1
     - _MaterialID: 1
     - _Metallic: 0
@@ -232,7 +232,7 @@ Material:
     - _RenderQueueType: 4
     - _Rotation: 0
     - _SegmentCount: 2
-    - _SegmentSpacing: -0.04
+    - _SegmentSpacing: 0
     - _Smoothness: 0.5
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
