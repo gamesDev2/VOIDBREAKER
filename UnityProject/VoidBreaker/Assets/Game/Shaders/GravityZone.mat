@@ -78,7 +78,7 @@ Material:
     - _Opacity: 0
     - _OpaqueCullMode: 2
     - _RenderQueueType: 4
-    - _Speed: 0.87
+    - _Speed: -0.87
     - _SrcBlend: 1
     - _StencilRef: 0
     - _StencilRefDepth: 1
@@ -89,6 +89,7 @@ Material:
     - _StencilWriteMaskDistortionVec: 4
     - _StencilWriteMaskMV: 43
     - _SurfaceType: 1
+    - _TileSize: 10
     - _TransparentBackfaceEnable: 0
     - _TransparentCullMode: 2
     - _TransparentDepthPostpassEnable: 0

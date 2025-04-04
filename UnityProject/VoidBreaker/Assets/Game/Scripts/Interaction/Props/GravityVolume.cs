@@ -27,6 +27,12 @@ public class GravityVolume : MonoBehaviour
 
         foreach (Rigidbody body in mBodies.Keys.ToArray()) 
         {
+            Entity entity = body.gameObject.GetComponent<Entity>();
+            if (entity != null)
+            {
+                body.AddForce(-Physics.gravity * ((entity.timeFlow - 1.0f) * 10.0f), ForceMode.Acceleration);
+            }
+
             if (body != null)
             {
                 body.AddForce(accel, ForceMode.Acceleration);
