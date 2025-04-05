@@ -27,16 +27,14 @@ public class GravityVolume : MonoBehaviour
 
         foreach (Rigidbody body in mBodies.Keys.ToArray()) 
         {
-            Entity entity = body.gameObject.GetComponent<Entity>();
-            if (entity != null)
-            {
-                body.AddForce(-Physics.gravity * ((entity.timeFlow - 1.0f) * 10.0f), ForceMode.Acceleration);
-            }
+            Entity entity = null;
 
             if (body != null)
             {
                 body.AddForce(accel, ForceMode.Acceleration);
                 mBodies[body].transform.position = body.worldCenterOfMass - (mBodies[body].transform.forward * 2);
+
+                entity = body.gameObject.GetComponent<Entity>();
             }
             else
             {
@@ -44,6 +42,12 @@ public class GravityVolume : MonoBehaviour
                 Destroy(mBodies[body].gameObject, 1);
                 mBodies.Remove(body);
             }
+
+            if (entity != null)
+            {
+                body.AddForce(-Physics.gravity * ((entity.timeFlow - 1.0f) * 10.0f), ForceMode.Acceleration);
+            }
+
         }
     }
 
