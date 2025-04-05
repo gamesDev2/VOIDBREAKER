@@ -13,7 +13,6 @@ Material:
   m_Parent: {fileID: 2100000, guid: 4f9b05fffb5a3f64baafad705519021a, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _ENABLE_FOG_ON_TRANSPARENT
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - _DISABLE_SSR_TRANSPARENT
