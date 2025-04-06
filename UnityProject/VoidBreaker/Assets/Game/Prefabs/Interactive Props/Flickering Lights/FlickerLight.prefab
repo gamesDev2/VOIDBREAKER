@@ -453,7 +453,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 20
+      scalar: 5
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -948,9 +948,9 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 6
     enabled: 1
-    type: 8
-    angle: 6.21
-    length: 2
+    type: 4
+    angle: 10
+    length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
@@ -5130,3 +5130,5 @@ MonoBehaviour:
   maxFlickerDuration: 1
   minFlickerDuration: 0.1
   sparkProbability: 0.5
+  sparkEmmissionCount: 5
+  sparkLength: 0.5

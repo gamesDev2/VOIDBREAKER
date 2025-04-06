@@ -5,11 +5,18 @@ using UnityEngine;
 public class LightTrigger : MonoBehaviour
 {
     [SerializeField] private FlickerLight[] Lights;
-
     [SerializeField] private float SequenceDuration;
+    [SerializeField] private bool TriggerOnce = true;
+
+    private bool HasTriggered = false;
 
     private void OnTriggerEnter(Collider other)
     {
+        if(TriggerOnce && HasTriggered)
+        {
+            return;
+        }
+
         if (other.tag == "Player")
         {
             for (int i = 0; i < Lights.Length; i++) 
@@ -17,6 +24,7 @@ public class LightTrigger : MonoBehaviour
                 Lights[i].startFlicker();
 
             }
+            HasTriggered = true;
             Invoke("StopSequence", SequenceDuration);
         }
     }
@@ -27,5 +35,10 @@ public class LightTrigger : MonoBehaviour
         {
             Lights[i].stopFlicker();
         }
+    }
+
+    public void resetTrigger()
+    {
+        HasTriggered = false;
     }
 }
