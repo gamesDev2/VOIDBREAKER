@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 6601359763633352847}
   - component: {fileID: 8456549094283103070}
   - component: {fileID: 2683922279931485380}
-  - component: {fileID: 4138785578771798499}
+  - component: {fileID: 3369618216704210359}
+  - component: {fileID: 9023088670520482567}
   m_Layer: 0
   m_Name: FlickerLight
   m_TagString: Untagged
@@ -453,7 +454,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 20
+      scalar: 5
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -948,9 +949,9 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 6
     enabled: 1
-    type: 8
-    angle: 6.21
-    length: 2
+    type: 4
+    angle: 10
+    length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
@@ -5115,7 +5116,7 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &4138785578771798499
+--- !u!114 &3369618216704210359
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5124,9 +5125,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 4309639935609549583}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3f2ef0814e9bf942bdf858e50cfd7bf, type: 3}
+  m_Script: {fileID: 11500000, guid: dd458cb3ef1fa104cbebb5784fd0d182, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxFlickerDuration: 1
   minFlickerDuration: 0.1
-  sparkProbability: 0.5
+  sparkProbability: 1
+  sparkLength: 0.5
+  sparkEmmissionCount: 1
+  EmmissionRate: 0.1
+--- !u!114 &9023088670520482567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4309639935609549583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd458cb3ef1fa104cbebb5784fd0d182, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxFlickerDuration: 1
+  minFlickerDuration: 0.1
+  sparkProbability: 1
+  sparkLength: 0.5
+  sparkEmmissionCount: 1
+  EmmissionRate: 0.1

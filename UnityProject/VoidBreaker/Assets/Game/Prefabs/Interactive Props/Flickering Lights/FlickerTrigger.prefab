@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2173373752718222215}
   - component: {fileID: 6735006504994066565}
-  - component: {fileID: 296658019936204029}
+  - component: {fileID: 8324017653941451264}
   m_Layer: 0
   m_Name: FlickerTrigger
   m_TagString: Untagged
@@ -54,7 +54,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &296658019936204029
+--- !u!114 &8324017653941451264
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -63,6 +63,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1326346843586967652}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab948800e12e2514ea37fca3309796f1, type: 3}
+  m_Script: {fileID: 11500000, guid: ca39d68c473545a4992d5f623fe0a3e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Lights: []
+  SequenceDuration: 0
+  TriggerOnce: 1
