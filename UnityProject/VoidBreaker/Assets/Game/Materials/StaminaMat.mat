@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RadialBar Variant
+  m_Name: StaminaMat
   m_Shader: {fileID: -6465566751694194690, guid: 754db91c7cf454b4a937cbe5f4a0a40b,
     type: 3}
   m_Parent: {fileID: 2100000, guid: 4f9b05fffb5a3f64baafad705519021a, type: 2}
@@ -36,12 +36,13 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _RemoveSegments: 1
+    - _RemoveSegments: 0.5
     - _Rotation: 180
+    - _SegmentCount: 1
     m_Colors:
     - _Color: {r: 0, g: 0.9869609, b: 1, a: 1}
   m_BuildTextureStacks: []
---- !u!114 &7729406491404252962
+--- !u!114 &165036578045511966
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

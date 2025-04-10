@@ -23,7 +23,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RadialBar
+  m_Name: HealthMat
   m_Shader: {fileID: -6465566751694194690, guid: 754db91c7cf454b4a937cbe5f4a0a40b,
     type: 3}
   m_Parent: {fileID: 0}
@@ -227,10 +227,10 @@ Material:
     - _ReceivesSSR: 1
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
-    - _RemoveSegments: 1
+    - _RemoveSegments: 0.5
     - _RenderQueueType: 4
     - _Rotation: 0
-    - _SegmentCount: 2
+    - _SegmentCount: 1
     - _SegmentSpacing: 0
     - _Smoothness: 0.5
     - _SmoothnessRemapMax: 1

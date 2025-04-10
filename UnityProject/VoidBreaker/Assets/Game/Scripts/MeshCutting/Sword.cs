@@ -65,12 +65,25 @@ public class Sword : weaponBase
             transform.rotation = Quaternion.Lerp(transform.rotation, mainCamera.transform.rotation, 0.2f);
             RotatePlane();
         }
+        // If the sword is not in attack mode, reset its rotation.
+        else
+        {
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, 0, 0), 0.2f);
+        }
+        //check if we are in attack mode and the player is not,if so disable the attack mode
+        if (isAttacking && playerHandle != null && !playerHandle.specialModeActive && playerHandle.GetEnergy() > 0.0f)
+        {
+            stopAttack();
+        }
     }
 
     // Remove internal input handling. All input is now handled by the weapon handler.
 
     public override void startAttack()
     {
+        // Check if the player has enough energy to attack.
+        if (playerHandle != null && playerHandle.GetEnergy() <= 0.0f)
+            return;
         isAttacking = true;
         if (cutPlane != null)
             cutPlane.gameObject.SetActive(true);
@@ -83,6 +96,7 @@ public class Sword : weaponBase
 
     public override void stopAttack()
     {
+
         isAttacking = false;
         if (cutPlane != null)
             cutPlane.gameObject.SetActive(false);

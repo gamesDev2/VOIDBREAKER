@@ -25,6 +25,8 @@ public class Player_Controller : Entity
     private Vector3 crouchHeadLocalPos;
     private Camera_Controller camCtrl;
 
+    //stats
+
     protected override void Awake()
     {
         base.Awake();
@@ -115,5 +117,24 @@ public class Player_Controller : Entity
     protected override void Die()
     {
         Debug.Log("Player has died!");
+    }
+
+    // Called whenever this player's health changes
+    protected override void OnHealthChanged(float newVal)
+    {
+        // The base class does nothing, but here for the Player we do:
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.Instance.on_health_changed.Invoke(newVal);
+        }
+    }
+
+    // Called whenever this player's energy changes
+    protected override void OnEnergyChanged(float newVal)
+    {
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.Instance.on_energy_changed.Invoke(newVal);
+        }
     }
 }

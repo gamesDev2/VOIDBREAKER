@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -24,6 +25,8 @@ public abstract class Entity : MonoBehaviour
     [Header("Entity Stats")]
     public float MaxHealth = 100;
     protected float CurrentHealth = 100;
+    public float MaxEnergy = 100;
+    protected float CurrentEnergy = 100;
 
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
@@ -35,6 +38,7 @@ public abstract class Entity : MonoBehaviour
 
     [Header("Sprinting Settings")]
     public float sprintSpeed = 8f;
+    public float sprintEnergyDrain = 5f; // Energy drain per second while sprinting
 
     [Header("Crouch Settings")]
     public float crouchHeight = 1f;
@@ -47,6 +51,7 @@ public abstract class Entity : MonoBehaviour
     public float dashDuration = 0.2f;
     public float dashCooldown = 2f;
     public float maxSpeed = 10f;
+    public float dashEnergyCost = 20f; // Energy cost for dashing
 
     [Header("Ground Check")]
     public float playerHeight = 2f;
@@ -59,6 +64,7 @@ public abstract class Entity : MonoBehaviour
     public float wallRunGravity = 0.3f;
     public float maxWallRunTime = 2f;
     public float wallRunRayDistance = 1.0f;
+    public float wallRunEnergyDrain = 7f;
 
     [Header("Slide Settings")]
     public float slideSpeed = 12f;
@@ -150,6 +156,13 @@ public abstract class Entity : MonoBehaviour
     // Temporal Control
     private float timeMultiplier = 1.0f;
 
+    //energy related variables
+    public bool specialModeActive = false;
+    public float specialModeEnergyDrain = 10f;
+    private float timeSinceUsingEnergy = 0f;
+    public float energyRegenRate = 10f;
+    private float energyRegenDelay = 2f;  // Must wait 2 seconds of no usage to regen
+
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -160,6 +173,8 @@ public abstract class Entity : MonoBehaviour
         originalColliderHeight = capsuleCollider.height;
         originalColliderCenter = capsuleCollider.center;
         originalMoveSpeed = moveSpeed;
+        CurrentHealth = MaxHealth;
+        CurrentEnergy = MaxEnergy;
     }
 
     protected virtual void Update()
@@ -176,7 +191,88 @@ public abstract class Entity : MonoBehaviour
         UpdateCurrentWalkSpeed();
         UpdatePlayerState();
         UpdateCameraController();
+        HandleEnergy(dt);
     }
+    protected virtual void HandleEnergy(float dt)
+    {
+        bool usedEnergyThisFrame = false;
+
+        // Sprinting – continuous drain
+        if (currentState == EntityState.Sprinting)
+        {
+            if (CurrentEnergy > 0f)
+            {
+                usedEnergyThisFrame = true;
+                float drain = sprintEnergyDrain * dt;
+                CurrentEnergy = Mathf.Max(CurrentEnergy - drain, 0f);
+                // If we run out mid-sprint, forcibly stop sprint
+                if (CurrentEnergy <= 0f)
+                    wantSprint = false;
+            }
+            else
+            {
+                // If energy is 0, we can’t sprint
+                wantSprint = false;
+            }
+        }
+
+        // Wallrunning – continuous drain
+        if (currentState == EntityState.WallRunning)
+        {
+            if (CurrentEnergy > 0f)
+            {
+                usedEnergyThisFrame = true;
+                float drain = wallRunEnergyDrain * dt;
+                CurrentEnergy = Mathf.Max(CurrentEnergy - drain, 0f);
+                if (CurrentEnergy <= 0f)
+                {
+                    // Force end wallrun if energy is gone
+                    EndWallRun();
+                }
+            }
+        }
+
+        // 3) Blade Mode (or Phase Shift) – if isBladeModeActive
+        if (specialModeActive)
+        {
+            if (CurrentEnergy > 0f)
+            {
+                usedEnergyThisFrame = true;
+                float drain = specialModeEnergyDrain * dt;
+                CurrentEnergy = Mathf.Max(CurrentEnergy - drain, 0f);
+                // If you want to forcibly exit blade mode at 0:
+                if (CurrentEnergy <= 0f)
+                {
+                    specialModeActive = false;
+                }
+            }
+            else
+            {
+                // No energy => forcibly stop
+                specialModeActive = false;
+            }
+        }
+
+        // 4) Dashing – one-time cost is handled in Dash()
+        // If we used energy anywhere above, reset the regeneration timer:
+        if (usedEnergyThisFrame)
+        {
+            timeSinceUsingEnergy = 0f;
+        }
+        else
+        {
+            // We didn’t do anything that used energy
+            timeSinceUsingEnergy += dt;
+            // Regenerate if 2s have passed since last usage
+            if (timeSinceUsingEnergy >= energyRegenDelay && CurrentEnergy < MaxEnergy)
+            {
+                CurrentEnergy = Mathf.Min(CurrentEnergy + energyRegenRate * dt, MaxEnergy);
+            }
+        }
+        OnEnergyChanged(CurrentEnergy);
+    }
+
+
     public void TakeDamage(float damage)
     {
         CurrentHealth -= damage;
@@ -187,11 +283,11 @@ public abstract class Entity : MonoBehaviour
     {
         CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
     }
-    public float GetHealth()
-    {
-        return CurrentHealth;
-    }
+    public float GetHealth() { return CurrentHealth; }
+    public float GetEnergy() { return CurrentEnergy; }
     protected abstract void Die();
+    protected virtual void OnHealthChanged(float newHealth) { }
+    protected virtual void OnEnergyChanged(float newEnergy) { }
     protected virtual void FixedUpdate()
     {
         if (isRolling)
@@ -451,15 +547,29 @@ public abstract class Entity : MonoBehaviour
 
     protected virtual void Dash()
     {
+        // Check if we have enough energy to dash:
+        if (CurrentEnergy < dashEnergyCost)
+        {
+            // Not enough energy => cannot dash
+            return;
+        }
+
+        // Subtract dash cost
+        CurrentEnergy = Mathf.Max(CurrentEnergy - dashEnergyCost, 0f);
+
+        // Continue with your normal dash logic:
         isDashing = true;
         Vector3 dashDir = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
         if (dashDir == Vector3.zero)
             dashDir = transform.forward;
-        rb.AddForce(dashDir * dashForce * timeMultiplier, ForceMode.Impulse);
-        Invoke(nameof(EndDash), dashDuration / timeMultiplier);
-        Invoke(nameof(ResetDash), dashCooldown / timeMultiplier);
-    }
+        rb.AddForce(dashDir * dashForce, ForceMode.Impulse);
 
+        Invoke(nameof(EndDash), dashDuration);
+        Invoke(nameof(ResetDash), dashCooldown);
+
+        // Because we used energy, reset timer:
+        timeSinceUsingEnergy = 0f;
+    }
     protected virtual void EndDash()
     {
         isDashing = false;
