@@ -41,7 +41,7 @@ public class gunShooting : weaponBase
 
     private float timeSinceLastShot = 0;
     private float timeSinceLastReload = 0;
-    
+
     private bool reloading = false;
     private bool firing = false;
 
@@ -133,7 +133,7 @@ public class gunShooting : weaponBase
             stopAttack();
         }
 
-        
+
         if (!((beamWeapon || (timeSinceLastShot > 1 / fireRate)) && !reloading))
         {
             return;
@@ -147,7 +147,7 @@ public class gunShooting : weaponBase
         else if (currentBurner != null)
         {
             currentBurner.endBurn();
-            currentBurner = null;   
+            currentBurner = null;
         }
 
         if (timeSinceLastShot > 1 / fireRate)
@@ -155,7 +155,7 @@ public class gunShooting : weaponBase
             ammoRemaining -= (int)(timeSinceLastShot / (1 / fireRate));
             timeSinceLastShot = 0;
         }
-        
+
     }
 
     private void ShootFx()
@@ -204,11 +204,11 @@ public class gunShooting : weaponBase
             return;
         }
 
-        if(currentBurner != null && currentBurner.sameObject(objId, hit.normal))
+        if (currentBurner != null && currentBurner.sameObject(objId, hit.normal))
         {
             currentBurner.AddBurnPosition((_hit.point + (hit.normal / 10000)));
         }
-        else if(currentBurner != null)
+        else if (currentBurner != null)
         {
             currentBurner.endBurn();
             currentBurner = null;
@@ -225,5 +225,15 @@ public class gunShooting : weaponBase
                 currentBurner.GetComponent<LineRenderer>().enabled = false;
             }
         }
+    }
+
+    public int maxAmmo
+    {
+        get { return ammoCount; }
+    }
+
+    public int remainingAmmo
+    {
+        get { return ammoRemaining; }
     }
 }
