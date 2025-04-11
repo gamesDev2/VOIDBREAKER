@@ -139,7 +139,7 @@ public class HUDController : MonoBehaviour
             bar.DOColor(BarBackgroundColor, 0.5f).SetEase(Ease.OutCubic);
             yield return new WaitForSeconds(0.5f);
         }
-        bar.color = BarBackgroundColor;
+        bar.DOColor(BarBackgroundColor, 0.5f).SetEase(Ease.OutCubic);
         onExit?.Invoke();
     }
 }

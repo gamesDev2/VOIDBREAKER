@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -12,56 +11,46 @@ public class PlayerInteraction : MonoBehaviour
 
     [Header("References")]
     public Camera playerCamera;
-    public Transform carryAnchor;
-    public Text promptText;
+    public Transform carryAnchor; // in case you are carrying objects
 
-    // Track if we're carrying an object
     private PhysicsMovable carriedObject;
     private IInteractable currentInteractable;
 
     void Update()
     {
+        // Ensure playerCamera reference is valid.
         if (playerCamera == null)
             playerCamera = Camera.main;
 
-        // 1) If we are currently carrying something,
-        //    show "Press F to drop", and drop on F press
+        // If an object is being carried, show "Press F to drop" in the HUD.
         if (carriedObject != null)
         {
-            // Optional: show prompt
-            if (promptText != null)
-            {
-                promptText.gameObject.SetActive(true);
-                promptText.text = "Press F to drop";
-            }
+            if (Game_Manager.Instance != null)
+                Game_Manager.Instance.on_interact.Invoke(true, "Press F to drop");
 
             if (Input.GetKeyDown(interactKey))
             {
                 carriedObject.Drop();
-                carriedObject = null; // Clear reference
+                carriedObject = null;
             }
-
             return;
         }
 
-        // 2) If not carrying anything, do the normal raycast
+        // Check for any interactable in front of the player.
         CheckForInteractable();
 
-        // 3) Show prompt if we see something
+        // If an interactable is found, notify the HUD to display its prompt.
         if (currentInteractable != null)
         {
-            if (promptText != null)
-            {
-                promptText.gameObject.SetActive(true);
-                promptText.text = currentInteractable.GetInteractionPrompt();
-            }
+            if (Game_Manager.Instance != null)
+                Game_Manager.Instance.on_interact.Invoke(true, currentInteractable.GetInteractionPrompt());
 
-            // 4) Press F to interact (pick up, open door, etc.)
+            // When the interact key is pressed, trigger the interaction.
             if (Input.GetKeyDown(interactKey))
             {
                 currentInteractable.Interact(gameObject);
 
-                // If it's a PhysicsMovable, store a reference so we know we're carrying it
+                // If the interactable is a movable object that can be carried, save the reference.
                 if (currentInteractable is PhysicsMovable movable)
                 {
                     if (movable.IsBeingCarried)
@@ -71,9 +60,9 @@ public class PlayerInteraction : MonoBehaviour
         }
         else
         {
-            // Hide prompt if nothing is hit
-            if (promptText != null)
-                promptText.gameObject.SetActive(false);
+            // No interactable present: ensure the HUD hides the interact prompt.
+            if (Game_Manager.Instance != null)
+                Game_Manager.Instance.on_interact.Invoke(false, "");
         }
     }
 
@@ -88,10 +77,8 @@ public class PlayerInteraction : MonoBehaviour
         {
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
             if (interactable == null)
-            {
-                // Maybe the script is on a parent
                 interactable = hit.collider.GetComponentInParent<IInteractable>();
-            }
+
             currentInteractable = interactable;
         }
     }

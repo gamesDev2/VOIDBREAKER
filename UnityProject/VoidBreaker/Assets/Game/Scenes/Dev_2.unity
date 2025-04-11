@@ -8995,6 +8995,11 @@ PrefabInstance:
       propertyPath: energyRegenRate
       value: 40
       objectReference: {fileID: 0}
+    - target: {fileID: 2622436924740678069, guid: f93138cca030223478a1b96c5ca95b04,
+        type: 3}
+      propertyPath: energyRegenDelay
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4124615556920946514, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: playerHandle
@@ -9068,7 +9073,7 @@ PrefabInstance:
     - target: {fileID: 7802382232808753436, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 850
+      value: 853
       objectReference: {fileID: 0}
     - target: {fileID: 8210049194022999932, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
@@ -9189,6 +9194,16 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1245564014}
+    - target: {fileID: 1054648276200573455, guid: 8bd011824b03ae14286d74971a6b6f5a,
+        type: 3}
+      propertyPath: m_PixelPerfect
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3503538379714673982, guid: 8bd011824b03ae14286d74971a6b6f5a,
+        type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5674819562141883667, guid: 8bd011824b03ae14286d74971a6b6f5a,
         type: 3}
       propertyPath: m_LocalPosition.x
