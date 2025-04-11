@@ -6,19 +6,16 @@ using DG.Tweening;
 public class phaseShift : MonoBehaviour
 {
     public KeyCode toggleShift = KeyCode.F;
-
     public float timeSlow = 0.1f;
 
     private bool phaseShiftActive = false;
     private Entity player;
 
-    // Start is called before the first frame update
     void Start()
     {
         player = GetComponent<Entity>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(toggleShift))
@@ -27,9 +24,7 @@ public class phaseShift : MonoBehaviour
 
             if (phaseShiftActive)
             {
-                Time.timeScale = timeSlow;
-                Time.fixedDeltaTime = 0.02f * Time.timeScale;
-                player.timeFlow = 1.0f / timeSlow;
+                SetPhaseShiftActive(true);
                 if (Game_Manager.Instance != null)
                 {
                     Game_Manager.Instance.on_mesh_trail.Invoke(true);
@@ -37,14 +32,38 @@ public class phaseShift : MonoBehaviour
             }
             else
             {
+                SetPhaseShiftActive(false);
                 if (Game_Manager.Instance != null)
                 {
                     Game_Manager.Instance.on_mesh_trail.Invoke(false);
                 }
-                Time.timeScale = 1.0f;
-                Time.fixedDeltaTime = 0.02f * Time.timeScale;
-                player.timeFlow = 1.0f;
             }
         }
+
+        if (player != null && player.GetEnergy() <= 0.0f)
+        {
+            SetPhaseShiftActive(false);
+            if (Game_Manager.Instance != null)
+            {
+                Game_Manager.Instance.on_mesh_trail.Invoke(false);
+            }
+        }
+    }
+
+    private void SetPhaseShiftActive(bool active)
+    {
+        if (active)
+        {
+            Time.timeScale = timeSlow;
+            player.timeFlow = 1.0f / timeSlow;
+        }
+        else
+        {
+            Time.timeScale = 1.0f;
+            player.timeFlow = 1.0f;
+        }
+
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        player.SetSpecialModeActive(active);
     }
 }

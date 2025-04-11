@@ -59,23 +59,24 @@ public class Sword : weaponBase
     protected override void Update()
     {
         base.Update(); // Now ProcessInput() is not used here.
-        // If the sword is in attack mode, update its rotation.
+
         if (isAttacking && mainCamera != null)
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, mainCamera.transform.rotation, 0.2f);
             RotatePlane();
         }
-        // If the sword is not in attack mode, reset its rotation.
         else
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, 0, 0), 0.2f);
         }
-        //check if we are in attack mode and the player is not,if so disable the attack mode
-        if (isAttacking && playerHandle != null && !playerHandle.specialModeActive && playerHandle.GetEnergy() > 0.0f)
+
+        // Stop attack if energy is depleted.
+        if (isAttacking && playerHandle != null && playerHandle.GetEnergy() <= 0.0f)
         {
             stopAttack();
         }
     }
+
 
     // Remove internal input handling. All input is now handled by the weapon handler.
 
@@ -84,6 +85,7 @@ public class Sword : weaponBase
         // Check if the player has enough energy to attack.
         if (playerHandle != null && playerHandle.GetEnergy() <= 0.0f)
             return;
+        playerHandle.SetSpecialModeActive(true); // Set special mode active
         isAttacking = true;
         if (cutPlane != null)
             cutPlane.gameObject.SetActive(true);
@@ -98,6 +100,7 @@ public class Sword : weaponBase
     {
 
         isAttacking = false;
+        playerHandle.SetSpecialModeActive(false); // Clear special mode
         if (cutPlane != null)
             cutPlane.gameObject.SetActive(false);
         if (cameraController != null)

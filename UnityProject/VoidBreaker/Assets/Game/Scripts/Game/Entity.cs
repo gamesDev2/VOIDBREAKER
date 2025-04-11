@@ -38,7 +38,6 @@ public abstract class Entity : MonoBehaviour
 
     [Header("Sprinting Settings")]
     public float sprintSpeed = 8f;
-    public float sprintEnergyDrain = 5f; // Energy drain per second while sprinting
 
     [Header("Crouch Settings")]
     public float crouchHeight = 1f;
@@ -51,7 +50,6 @@ public abstract class Entity : MonoBehaviour
     public float dashDuration = 0.2f;
     public float dashCooldown = 2f;
     public float maxSpeed = 10f;
-    public float dashEnergyCost = 20f; // Energy cost for dashing
 
     [Header("Ground Check")]
     public float playerHeight = 2f;
@@ -64,7 +62,6 @@ public abstract class Entity : MonoBehaviour
     public float wallRunGravity = 0.3f;
     public float maxWallRunTime = 2f;
     public float wallRunRayDistance = 1.0f;
-    public float wallRunEnergyDrain = 7f;
 
     [Header("Slide Settings")]
     public float slideSpeed = 12f;
@@ -157,11 +154,15 @@ public abstract class Entity : MonoBehaviour
     private float timeMultiplier = 1.0f;
 
     //energy related variables
-    public bool specialModeActive = false;
-    public float specialModeEnergyDrain = 10f;
+    [Header("Energy Settings")]
+    private bool specialModeActive = false;
+    public float specialModeEnergyDrain = 20f;
     private float timeSinceUsingEnergy = 0f;
-    public float energyRegenRate = 10f;
-    private float energyRegenDelay = 2f;  // Must wait 2 seconds of no usage to regen
+    public float energyRegenRate = 40f; // Energy regen per second(the higher the value, the faster it regenerates)
+    public float energyRegenDelay = 4f;  // Must wait given seconds of no usage to regen
+    public float wallRunEnergyDrain = 7f;
+    public float sprintEnergyDrain = 5f; // Energy drain per second while sprinting
+    public float dashEnergyCost = 20f; // Energy cost for dashing
 
     protected virtual void Awake()
     {
@@ -232,15 +233,16 @@ public abstract class Entity : MonoBehaviour
             }
         }
 
-        // 3) Blade Mode (or Phase Shift) – if isBladeModeActive
+        // Special Mode – continuous drain
         if (specialModeActive)
         {
             if (CurrentEnergy > 0f)
             {
                 usedEnergyThisFrame = true;
-                float drain = specialModeEnergyDrain * dt;
+                // Use Time.unscaledDeltaTime so that the drain is not affected by timeScale.
+                float drain = specialModeEnergyDrain * Time.unscaledDeltaTime;
                 CurrentEnergy = Mathf.Max(CurrentEnergy - drain, 0f);
-                // If you want to forcibly exit blade mode at 0:
+                // If energy has run out, force exit from blade mode.
                 if (CurrentEnergy <= 0f)
                 {
                     specialModeActive = false;
@@ -248,13 +250,11 @@ public abstract class Entity : MonoBehaviour
             }
             else
             {
-                // No energy => forcibly stop
                 specialModeActive = false;
             }
         }
 
-        // 4) Dashing – one-time cost is handled in Dash()
-        // If we used energy anywhere above, reset the regeneration timer:
+
         if (usedEnergyThisFrame)
         {
             timeSinceUsingEnergy = 0f;
@@ -288,6 +288,16 @@ public abstract class Entity : MonoBehaviour
     protected abstract void Die();
     protected virtual void OnHealthChanged(float newHealth) { }
     protected virtual void OnEnergyChanged(float newEnergy) { }
+
+    public bool SetSpecialModeActive(bool active)
+    {
+        specialModeActive = active;
+        return specialModeActive;
+    }
+    public bool IsSpecialModeActive()
+    {
+        return specialModeActive;
+    }
     protected virtual void FixedUpdate()
     {
         if (isRolling)
