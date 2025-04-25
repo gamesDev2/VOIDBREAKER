@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using TMPro;
@@ -14,72 +14,120 @@ public class HUDController : MonoBehaviour
     public Image energyBackgroundImage;
     public TextMeshProUGUI interact_text;
     public Image InteractWindow;
-    public Color BarBackgroundColor = Color.gray;
-    public Color FlashBackgroundColor = Color.red;
+
+    [Header("Keypad UI Elements")]
+    [Tooltip("The overall keypad panel (show/hide).")]
+    public Image KeypadWindow;
+    [Tooltip("Background behind the code‐input field (this flashes).")]
+    public Image CodeInputBackground;
+    [Tooltip("Text element that shows the digits the player has typed.")]
+    public TextMeshProUGUI keypadInputText;
+    [Tooltip("Buttons 0–9 in order (index 0 ⇒ digit “0”).")]
+    public Button[] keypadButtons;
+    public Button keypadDeleteButton;
+    public Button keypadSubmitButton;
+    public Color CodeWindowCorrectColor = Color.green;
+    public Color CodeWindowIncorrectColor = Color.red;
 
     [Header("HUD Sway Settings")]
     [Tooltip("The RectTransform of the main HUD container.")]
     public RectTransform mainContainer;
-    [Tooltip("Multiplier for how much the HUD sways in response to the player's horizontal velocity.")]
+    [Tooltip("Multiplier for how much the HUD sways in response to the player's velocity.")]
     public float swayIntensity = 5f;
     [Tooltip("Smoothing factor for the HUD sway movement.")]
     public float swaySmoothing = 3f;
 
-    // Internal state for sway offset.
+    // Internal state for sway
     private Vector2 currentSwayOffset = Vector2.zero;
 
+    // Internal state for flashing bars
     private float healthBarTargetValue = 100f;
     private float energyBarTargetValue = 100f;
     private bool isHealthFlashing = false;
     private bool isEnergyFlashing = false;
+    public Color BarBackgroundColor = Color.gray;
+    public Color FlashBackgroundColor = Color.red;
+
+    // Keypad state
+    private string _currentInput = "";
+    private Color _defaultCodeWindowColor;
 
     void Start()
     {
-        if (healthBarImage == null || energyBarImage == null || interact_text == null)
+        // ——— HUD setup ———
+        if (healthBarImage == null || energyBarImage == null ||
+            healthBackgroundImage == null || energyBackgroundImage == null ||
+            interact_text == null || InteractWindow == null)
         {
-            Debug.LogError("HUDController: Missing references in the inspector.");
+            Debug.LogError("HUDController: Missing HUD references.");
             return;
         }
+
         if (Game_Manager.Instance != null)
         {
             Game_Manager.Instance.on_health_changed.AddListener(UpdateHealthBar);
             Game_Manager.Instance.on_energy_changed.AddListener(UpdateEnergyBar);
             Game_Manager.Instance.on_interact.AddListener(UpdateInteractText);
-            InteractWindow.gameObject.SetActive(false);
         }
+        InteractWindow.gameObject.SetActive(false);
+
+        // ——— Keypad setup ———
+        if (KeypadWindow == null || CodeInputBackground == null ||
+            keypadInputText == null || keypadButtons == null ||
+            keypadButtons.Length == 0 ||
+            keypadDeleteButton == null || keypadSubmitButton == null)
+        {
+            Debug.LogError("HUDController: Missing keypad references.");
+            return;
+        }
+
+        // Cache default code‐window color
+        _defaultCodeWindowColor = CodeInputBackground.color;
+
+        // Hide keypad at start
+        KeypadWindow.gameObject.SetActive(false);
+
+        // Listen for show/hide keypad events
+        Game_Manager.Instance.on_keypad_shown.AddListener(OnKeypadShown);
+
+        // Wire up digit buttons
+        for (int i = 0; i < keypadButtons.Length; i++)
+        {
+            int digit = i;  // capture in closure
+            keypadButtons[i].onClick.AddListener(() => OnDigitPressed(digit));
+        }
+        keypadDeleteButton.onClick.AddListener(OnDeletePressed);
+        keypadSubmitButton.onClick.AddListener(OnSubmitPressed);
     }
 
     void Update()
     {
-        // Handle HUD sway logic each frame.
         UpdateSway();
     }
 
     private void UpdateSway()
     {
-        // Ensure we have a reference to the player and a main container to move.
-        if (Game_Manager.Instance != null && Game_Manager.Instance.player != null && mainContainer != null)
+        if (Game_Manager.Instance?.player != null && mainContainer != null)
         {
-            Rigidbody playerRb = Game_Manager.Instance.player.GetComponent<Rigidbody>();
-            if (playerRb != null)
+            Rigidbody rb = Game_Manager.Instance.player.GetComponent<Rigidbody>();
+            if (rb != null)
             {
-                // Use the player's horizontal velocity (x and z) as the basis for sway,apply it to the main container using the dotween library.
-                Vector3 velocity = playerRb.velocity;
-                Vector2 desiredOffset = new Vector2(velocity.x, velocity.z) * swayIntensity;
-                currentSwayOffset = Vector2.Lerp(currentSwayOffset, desiredOffset, Time.deltaTime * swaySmoothing);
-                // Apply the sway offset to the main container.
+                Vector3 vel = rb.velocity;
+                Vector2 desired = new Vector2(vel.x, vel.z) * swayIntensity;
+                currentSwayOffset = Vector2.Lerp(currentSwayOffset, desired, Time.deltaTime * swaySmoothing);
                 mainContainer.DOAnchorPos(currentSwayOffset, 0.1f).SetEase(Ease.Linear);
             }
         }
     }
 
-    // Update the health bar fill and start/stop flashing as needed.
+    // ——— Health & Energy Bars ———
+
     public void UpdateHealthBar(float value)
     {
         healthBarTargetValue = value;
-        healthBarImage.DOFillAmount(healthBarTargetValue / 100f, 0.5f).SetEase(Ease.OutCubic);
+        healthBarImage.DOFillAmount(value / 100f, 0.5f).SetEase(Ease.OutCubic);
 
-        if (healthBarTargetValue < 50f && !isHealthFlashing)
+        if (value < 50f && !isHealthFlashing)
         {
             isHealthFlashing = true;
             StartCoroutine(FlashBarCoroutine(
@@ -87,20 +135,19 @@ public class HUDController : MonoBehaviour
                 () => healthBarTargetValue < 50f,
                 () => isHealthFlashing = false));
         }
-        else if (healthBarTargetValue >= 50f)
+        else if (value >= 50f)
         {
             isHealthFlashing = false;
             healthBackgroundImage.color = BarBackgroundColor;
         }
     }
 
-    // Update the energy bar fill and start/stop flashing as needed.
     public void UpdateEnergyBar(float value)
     {
         energyBarTargetValue = value;
-        energyBarImage.DOFillAmount(energyBarTargetValue / 100f, 0.5f).SetEase(Ease.OutCubic);
+        energyBarImage.DOFillAmount(value / 100f, 0.5f).SetEase(Ease.OutCubic);
 
-        if (energyBarTargetValue < 50f && !isEnergyFlashing)
+        if (value < 50f && !isEnergyFlashing)
         {
             isEnergyFlashing = true;
             StartCoroutine(FlashBarCoroutine(
@@ -108,28 +155,13 @@ public class HUDController : MonoBehaviour
                 () => energyBarTargetValue < 50f,
                 () => isEnergyFlashing = false));
         }
-        else if (energyBarTargetValue >= 50f)
+        else if (value >= 50f)
         {
             isEnergyFlashing = false;
             energyBackgroundImage.color = BarBackgroundColor;
         }
     }
 
-    // Update the interaction text.
-    public void UpdateInteractText(bool show, string text)
-    {
-        if (interact_text != null)
-        {
-            InteractWindow.gameObject.SetActive(show);
-            interact_text.text = text;
-        }
-        else
-        {
-            Debug.LogError("HUDController: Missing references in the inspector.");
-        }
-    }
-
-    // A generic coroutine that flashes a given Image between a flash color and the default background color.
     private IEnumerator FlashBarCoroutine(Image bar, Func<bool> condition, Action onExit)
     {
         while (condition())
@@ -141,5 +173,78 @@ public class HUDController : MonoBehaviour
         }
         bar.DOColor(BarBackgroundColor, 0.5f).SetEase(Ease.OutCubic);
         onExit?.Invoke();
+    }
+
+    // ——— Interaction Prompt ———
+
+    public void UpdateInteractText(bool show, string text)
+    {
+        InteractWindow.gameObject.SetActive(show);
+        interact_text.text = text;
+    }
+
+    // ——— Keypad Handlers ———
+
+    private void OnKeypadShown(bool show)
+    {
+        KeypadWindow.gameObject.SetActive(show);
+        Game_Manager.SetCursorLocked(!show);
+
+        // Reset input & code‐window color
+        _currentInput = "";
+        keypadInputText.text = "";
+        CodeInputBackground.color = _defaultCodeWindowColor;
+    }
+
+    private void OnDigitPressed(int digit)
+    {
+        if (_currentInput.Length < 10)
+        {
+            _currentInput += digit.ToString();
+            keypadInputText.text = _currentInput;
+        }
+    }
+
+    private void OnDeletePressed()
+    {
+        if (_currentInput.Length > 0)
+        {
+            _currentInput = _currentInput.Substring(0, _currentInput.Length - 1);
+            keypadInputText.text = _currentInput;
+        }
+    }
+
+    private void OnSubmitPressed()
+    {
+        var gm = Game_Manager.Instance;
+        var console = gm?.activeConsole;
+        if (console == null) return;
+
+        bool correct = console.ValidateCode(_currentInput);
+        if (correct)
+        {
+            // Flash code‐window green, then hide keypad
+            PulseCodeWindow(CodeWindowCorrectColor);
+            DOVirtual.DelayedCall(1f, () =>
+            {
+                gm.on_keypad_shown.Invoke(false);
+                gm.activeConsole = null;
+            });
+        }
+        else
+        {
+            // Flash code‐window red, clear input
+            PulseCodeWindow(CodeWindowIncorrectColor);
+            _currentInput = "";
+            keypadInputText.text = "";
+        }
+    }
+
+    private void PulseCodeWindow(Color target)
+    {
+        CodeInputBackground
+            .DOColor(target, 0.15f)
+            .SetLoops(4, LoopType.Yoyo)
+            .SetEase(Ease.InOutSine);
     }
 }

@@ -95,6 +95,11 @@ public class Camera_Controller : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (Game_Manager.IsCursorLocked() == false)
+        {
+            // If the cursor is not locked, we dont want to do anything else.
+            return;
+        }
         dt = Mathf.Min(Time.deltaTime * timeMultiplier, maxDeltaTime * timeMultiplier);
         HandleCameraTilt();
         HandleHeadBob();
