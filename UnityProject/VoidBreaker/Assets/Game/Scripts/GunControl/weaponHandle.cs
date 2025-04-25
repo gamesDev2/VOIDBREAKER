@@ -43,6 +43,11 @@ public class weaponHandle : MonoBehaviour
 
     void Update()
     {
+        if (Game_Manager.IsCursorLocked() == false)
+        {
+            // If the cursor is not locked, we dont want to do anything else.
+            return;
+        }
         // Weapon swapping: Use number keys to equip a weapon.
         // Pressing "1" equips the first weapon, "2" the second, etc.
         for (int i = 0; i < weapons.Count; i++)

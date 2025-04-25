@@ -35,11 +35,13 @@ public class Player_Controller : Entity
             standHeadLocalPos = head.localPosition;
             crouchHeadLocalPos = new Vector3(standHeadLocalPos.x, standHeadLocalPos.y - crouchCameraHeight, standHeadLocalPos.z);
         }
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.Instance.player = gameObject; // Store the reference to the player.
+            Game_Manager.SetCursorLocked(true); // Lock the cursor.
+        }
         camCtrl = playerCamera.GetComponent<Camera_Controller>();
 
-        Game_Manager.Instance.player = gameObject; // Store the reference to the player.
 
     }
 
@@ -48,7 +50,7 @@ public class Player_Controller : Entity
         // Mouse look (horizontal rotation)
         
         
-        //transform.Rotate(Vector3.up * mouseX);
+
         
 
         // Movement input
@@ -81,6 +83,11 @@ public class Player_Controller : Entity
 
     private void LateUpdate()
     {
+        if (Game_Manager.IsCursorLocked() == false)
+        {
+            // If the cursor is not locked, we dont want to do anything else.
+            return;
+        }
         // Smoothly adjust the head (and therefore camera) position for crouch.
         if (head != null)
         {
