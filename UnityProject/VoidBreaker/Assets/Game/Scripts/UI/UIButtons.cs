@@ -1,18 +1,52 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIButtons : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public TMP_Text text;
+    public Image icon;
+
+    public Color normalColor = Color.white;
+    public Color hoverColor = Color.black;
+
+    // Add sound variables here
+
+    public void MouseHover()
     {
-        
+        text.color = hoverColor;
+
+        if (icon != null)
+        {
+            icon.color = hoverColor;
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void MouseExit()
     {
-        
+        text.color = normalColor;
+
+        if (icon != null)
+        {
+            icon.color = normalColor;
+        }
+    }
+
+    public void MousePressed()
+    {
+
+    }
+
+    public void MouseReleased()
+    {
+        text.color = normalColor;
+
+        if (icon != null)
+        {
+            icon.color = normalColor;
+        }
+        //Sound??
     }
 }
