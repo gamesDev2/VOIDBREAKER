@@ -45,7 +45,7 @@ Material:
     m_Floats:
     - _Center_mask_edge: 0.06
     - _Center_mask_size: 0.41
-    - _Line_Density: 0
+    - _Line_Density: 0.2772
     - _Line_Falloff: 2.2
     - _Line_count: 20
     - _Sped: 1.18

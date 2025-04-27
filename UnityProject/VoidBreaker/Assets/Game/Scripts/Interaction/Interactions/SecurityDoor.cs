@@ -14,17 +14,18 @@ public class SecurityDoor : MonoBehaviour
     [SerializeField, Tooltip("How long it takes for the door to open/close.")] private float transitionSpeed = 2.0f;
 
     
-
+    private bool doorMoving = false;
     private float doorPosition = 0f;
 
     void Start()
     {
         Assert.IsNotNull(OpenPosition);
         Assert.IsNotNull(ClosedPosition);
+        Game_Manager.Instance.on_door_console_update.AddListener(OnConsoleUpdate);
     }
 
     // Update is called once per frame
-    void Update()
+    void OnConsoleUpdate()
     {
         bool open = isActivated();
 
@@ -37,15 +38,28 @@ public class SecurityDoor : MonoBehaviour
             transitionSpeed = -math.abs(transitionSpeed);
         }
 
-        DoorTransition();
+        if (!doorMoving)
+        {
+            StartCoroutine(DoorTransition());
+        }
 
     }
 
-    private void DoorTransition()
+    private IEnumerator DoorTransition()
     {
-        doorPosition += Time.deltaTime * transitionSpeed;
-        doorPosition = math.clamp(doorPosition, 0f, 1f);
-        transform.position = Vector3.Lerp(ClosedPosition.position, OpenPosition.position, doorPosition);
+        doorMoving = true;
+
+        do
+        {
+            doorPosition += Time.deltaTime * transitionSpeed;
+            doorPosition = math.clamp(doorPosition, 0f, 1f);
+            transform.position = Vector3.Lerp(ClosedPosition.position, OpenPosition.position, doorPosition);
+
+            yield return null;
+        }
+        while (doorPosition != 1f || doorPosition != 0);
+
+        doorMoving = false;
     }
 
 

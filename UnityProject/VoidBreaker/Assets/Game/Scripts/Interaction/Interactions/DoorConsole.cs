@@ -35,6 +35,7 @@ public class DoorConsole : BaseInteractable
         bool ok = entered == securityCode;
         Debug.Log($"[Console:{name}] ValidateCode(“{entered}”) → {ok}");
         if (ok) mActivated = true;
+        Game_Manager.Instance.on_door_console_update.Invoke();
         return ok;
     }
 

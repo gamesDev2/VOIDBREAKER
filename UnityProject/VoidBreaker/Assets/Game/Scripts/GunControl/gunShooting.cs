@@ -34,7 +34,6 @@ public class gunShooting : weaponBase
     [SerializeField] private beamControl tracerFX;
 
     [Header("Layer Mask")]
-    [SerializeField] private LayerMask Mask;
     private LayerMask PlayerMask;
 
 
@@ -54,9 +53,7 @@ public class gunShooting : weaponBase
     {
         ammoRemaining = ammoCount;
         tracerFX.visible(false);
-
-        Mask = LayerMask.GetMask("TransparentFX", "UI", "Cuttable", "Interactable");
-        PlayerMask = LayerMask.GetMask("Physics_Objects");
+        PlayerMask = -1;
     }
 
     protected override void Update()
@@ -140,9 +137,9 @@ public class gunShooting : weaponBase
         }
 
 
-        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, ~PlayerMask, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, PlayerMask, QueryTriggerInteraction.Ignore))
         {
-            handleHit(ref hit);
+            handleHit();
         }
         else if (currentBurner != null)
         {
@@ -186,17 +183,17 @@ public class gunShooting : weaponBase
         }
     }
 
-    private void handleHit(ref RaycastHit _hit)
+    private void handleHit()
     {
         int objId = hit.collider.gameObject.GetInstanceID();
 
-        Entity entity = _hit.collider.GetComponent<Entity>();
+        Vector3 localNormal = hit.collider.transform.InverseTransformVector(hit.normal);
+
+        Entity entity = hit.collider.GetComponent<Entity>();
         if (entity != null)
         {
             entity.TakeDamage(damage * fireRate * Time.deltaTime);
         }
-
-
 
         if (!beamWeapon)
         {
@@ -204,9 +201,9 @@ public class gunShooting : weaponBase
             return;
         }
 
-        if (currentBurner != null && currentBurner.sameObject(objId, hit.normal))
+        if (currentBurner != null && currentBurner.sameObject(objId, localNormal))
         {
-            currentBurner.AddBurnPosition((_hit.point + (hit.normal / 10000)));
+            currentBurner.AddBurnPosition((hit.point - currentBurner.transform.position) + (hit.normal / 1000));
         }
         else if (currentBurner != null)
         {
@@ -216,14 +213,9 @@ public class gunShooting : weaponBase
 
         if (currentBurner == null && !hit.collider.isTrigger)
         {
-            currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 10000), Quaternion.LookRotation(-hit.normal));
-            currentBurner.impactFX = Instantiate(impactFX, hit.point + (hit.normal / 10000), Quaternion.LookRotation(hit.normal), currentBurner.transform);
-            currentBurner.setObjParams(objId, hit.normal);
-
-            if ((Mask & (1 << hit.collider.gameObject.layer)) != 0)
-            {
-                currentBurner.GetComponent<LineRenderer>().enabled = false;
-            }
+            currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 1000), Quaternion.LookRotation(localNormal));
+            currentBurner.impactFX = Instantiate(impactFX, hit.point + (hit.normal / 1000), Quaternion.LookRotation(-localNormal), currentBurner.transform);
+            currentBurner.setObjParams(objId, localNormal, hit.normal, hit.collider.gameObject.transform);
         }
     }
 

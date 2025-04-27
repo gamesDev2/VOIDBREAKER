@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1267949039033842733}
   - component: {fileID: 808305569224947537}
   - component: {fileID: 6260318849728827482}
+  - component: {fileID: 2446839450744903311}
   m_Layer: 0
   m_Name: BeamBurn
   m_TagString: Untagged
@@ -132,7 +133,7 @@ LineRenderer:
     shadowBias: 0.5
     generateLightingData: 0
   m_MaskInteraction: 0
-  m_UseWorldSpace: 1
+  m_UseWorldSpace: 0
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
 --- !u!114 &6260318849728827482
@@ -149,3 +150,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   impactFX: {fileID: 2415503920285488988, guid: 8c24391ddb3426c4eb802f36734fc0b9,
     type: 3}
+--- !u!1773428102 &2446839450744903311
+ParentConstraint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3596424266311226037}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Weight: 1
+  m_TranslationAtRest: {x: 0, y: 0, z: 0}
+  m_RotationAtRest: {x: 0, y: 0, z: 0}
+  m_TranslationOffsets: []
+  m_RotationOffsets: []
+  m_AffectTranslationX: 1
+  m_AffectTranslationY: 1
+  m_AffectTranslationZ: 1
+  m_AffectRotationX: 1
+  m_AffectRotationY: 1
+  m_AffectRotationZ: 1
+  m_Active: 0
+  m_IsLocked: 0
+  m_Sources: []
