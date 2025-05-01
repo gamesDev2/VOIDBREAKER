@@ -1225,7 +1225,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3196876382899985280
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3282,7 +3282,8 @@ MonoBehaviour:
   energyBackgroundImage: {fileID: 7067794468494308587}
   interact_text: {fileID: 4467133420369092446}
   InteractWindow: {fileID: 872805179054714952}
-  KeypadWindow: {fileID: 8688579295803322674}
+  KeypadWindow: {fileID: 5638908100599932313}
+  CodeInputBackground: {fileID: 8688579295803322674}
   keypadInputText: {fileID: 3639670369591589724}
   keypadButtons:
   - {fileID: 1133325267503709977}

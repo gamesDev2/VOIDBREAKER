@@ -179,6 +179,7 @@ public class HUDController : MonoBehaviour
 
     public void UpdateInteractText(bool show, string text)
     {
+        if (KeypadWindow.gameObject.activeSelf) return; // Don't show interact text if keypad is open
         InteractWindow.gameObject.SetActive(show);
         interact_text.text = text;
     }

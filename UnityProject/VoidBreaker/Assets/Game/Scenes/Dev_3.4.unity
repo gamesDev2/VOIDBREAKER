@@ -21020,6 +21020,17 @@ MonoBehaviour:
   cost: 0
   target: {fileID: 0}
   inRange: 0
+  hardFOV: 60
+  softFOV: 120
+  detectionRadius: 25
+  coverSearchRadius: 12
+  coverSampleSpacing: 1.5
+  maxCoverSamples: 32
+  coverObstacles:
+    serializedVersion: 2
+    m_Bits: 0
+  minFreezeTime: 1.5
+  maxFreezeTime: 3.5
 --- !u!1 &640004441
 GameObject:
   m_ObjectHideFlags: 0
@@ -54439,6 +54450,11 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 257
+  playerLowHealthPct: 0.35
+  playerLowEnergyPct: 0.25
+  meleeDistance: 4
+  engageDistance: 15
+  stalkDistance: 22
 --- !u!1 &2147301174
 GameObject:
   m_ObjectHideFlags: 0
@@ -54498,17 +54514,17 @@ PrefabInstance:
     - target: {fileID: 4653753572723734581, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -821.54474
+      value: 567.35
       objectReference: {fileID: 0}
     - target: {fileID: 4653753572723734581, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -560.45
+      value: 169.7
       objectReference: {fileID: 0}
     - target: {fileID: 4653753572723734581, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -42.61
+      value: -216.1
       objectReference: {fileID: 0}
     - target: {fileID: 4653753572723734581, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}

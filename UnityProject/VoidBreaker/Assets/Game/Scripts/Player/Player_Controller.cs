@@ -47,23 +47,27 @@ public class Player_Controller : Entity
 
     protected override void ProcessInput()
     {
-        // Mouse look (horizontal rotation)
-        
-        
+        if (Game_Manager.IsCursorLocked() == false)
+        {
+            // If the cursor is not locked, we dont want to do anything else.
+            //set the kinematic rigidbody to false
+            rb.isKinematic = true;
+        }
+        else
+        {
+            rb.isKinematic = false;
+            // Movement input
+            horizontalInput = Input.GetAxisRaw("Horizontal");
+            verticalInput = Input.GetAxisRaw("Vertical");
 
-        
-
-        // Movement input
-        horizontalInput = Input.GetAxisRaw("Horizontal");
-        verticalInput = Input.GetAxisRaw("Vertical");
-
-        // Action keys
-        wantSprint = Input.GetKey(sprintKey);
-        wantCrouch = Input.GetKey(crouchKey);
-        if (Input.GetKeyDown(jumpKey))
-            wantJump = true;
-        if (Input.GetKeyDown(dashKey) && !isDashing)
-            wantDash = true;
+            // Action keys
+            wantSprint = Input.GetKey(sprintKey);
+            wantCrouch = Input.GetKey(crouchKey);
+            if (Input.GetKeyDown(jumpKey))
+                wantJump = true;
+            if (Input.GetKeyDown(dashKey) && !isDashing)
+                wantDash = true;
+        }
     }
 
     // Let the Camera_Controller manage FOV transitions.
