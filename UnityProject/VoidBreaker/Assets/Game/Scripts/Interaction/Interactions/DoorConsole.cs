@@ -45,5 +45,6 @@ public class DoorConsole : BaseInteractable
     public void ResetDoorControl()
     {
         mActivated = false;
+        Game_Manager.Instance.on_door_console_update.Invoke();
     }
 }
