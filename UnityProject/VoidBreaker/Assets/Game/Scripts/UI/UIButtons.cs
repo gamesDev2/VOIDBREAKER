@@ -36,7 +36,12 @@ public class UIButtons : MonoBehaviour
 
     public void MousePressed()
     {
+        text.color = hoverColor;
 
+        if (icon != null)
+        {
+            icon.color = hoverColor;
+        }
     }
 
     public void MouseReleased()

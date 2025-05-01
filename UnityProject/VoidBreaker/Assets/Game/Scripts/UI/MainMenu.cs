@@ -6,6 +6,22 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+    public GameObject mainMenuPanel;
+    public SettingsUI settingsUI;
+
+    private void Start()
+    {
+        ShowMainMenu();
+    }
+
+    public void ShowMainMenu()
+    {
+        if (mainMenuPanel == null)
+        {
+            mainMenuPanel.SetActive(true);
+        }
+    }
+
     public void StartGame()
     {
         SceneManager.LoadScene(1);
@@ -18,7 +34,8 @@ public class MainMenu : MonoBehaviour
 
     public void Settings()
     {
-
+        mainMenuPanel.SetActive(false);
+        settingsUI.ShowSettings(mainMenuPanel);
     }
 
     public void Quit()
@@ -26,5 +43,6 @@ public class MainMenu : MonoBehaviour
         Application.Quit();
     }
 
+    
     
 }
