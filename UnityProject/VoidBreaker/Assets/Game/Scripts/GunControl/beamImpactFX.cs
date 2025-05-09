@@ -17,7 +17,7 @@ public class beamImpactFX : MonoBehaviour
         smokeParticle = transform.GetChild(0).GetComponent<ParticleSystem>();
         impactLight = transform.GetChild(1).GetComponent<Light>();
     }
-    
+
     public void endFX()
     {
         StartCoroutine(fadeFX());

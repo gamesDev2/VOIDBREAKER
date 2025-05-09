@@ -1915,6 +1915,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxHealth: 100
+  MaxEnergy: 100
   moveSpeed: 5
   groundDrag: 6
   jumpForce: 20
@@ -1957,9 +1958,16 @@ MonoBehaviour:
   pushCooldown: 1
   groundPoundForce: 20
   maxDeltaTime: 0.016
+  specialModeEnergyDrain: 20
+  energyRegenRate: 40
+  energyRegenDelay: 4
+  wallRunEnergyDrain: 7
+  sprintEnergyDrain: 0
+  dashEnergyCost: 20
   head: {fileID: 655446615900241466}
   playerCamera: {fileID: 6541539369735096838}
   mouseSensitivity: 300
+  verticleSensitivity: 300
   jumpKey: 32
   crouchKey: 99
   dashKey: 101
@@ -1983,7 +1991,6 @@ MonoBehaviour:
   interactKey: 102
   playerCamera: {fileID: 6541539369735096838}
   carryAnchor: {fileID: 4449436393516375558}
-  promptText: {fileID: 0}
 --- !u!114 &1946523992259012993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2799,6 +2806,11 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7258034190268662116, guid: a9751315fdfecac4f84954434361024a,
+        type: 3}
+      propertyPath: m_UseWorldSpace
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7893387328025088535, guid: a9751315fdfecac4f84954434361024a,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -2873,6 +2885,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Gun
+      objectReference: {fileID: 0}
+    - target: {fileID: 8582011084012102628, guid: a9751315fdfecac4f84954434361024a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8615958310640893929, guid: a9751315fdfecac4f84954434361024a,
         type: 3}

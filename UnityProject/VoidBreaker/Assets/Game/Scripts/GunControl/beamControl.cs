@@ -19,7 +19,6 @@ public class beamControl : MonoBehaviour
     {
         startPoint = gameObject.transform.position;
         endPoint = _end;
-        Vector3 AB = endPoint - startPoint;
 
         beam.SetPosition(0, startPoint);
         beam.SetPosition(1, endPoint);

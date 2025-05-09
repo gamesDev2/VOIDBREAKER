@@ -23,8 +23,6 @@ public class gunShooting : weaponBase
     [SerializeField] private int ammoRemaining;
 
     [Header("Hit Effects")]
-    [Tooltip("Prefab to a decal projector containing a bullet hole")]
-    [SerializeField] private DecalProjector bulletHole;
     [Tooltip("Prefab to a line renderer that must contain a laserBurnHandle script")]
     [SerializeField] private laserBurnHandle laserBurn;
     [Tooltip("Continuous Impact Particle system goes here.")]
@@ -47,6 +45,7 @@ public class gunShooting : weaponBase
     private laserBurnHandle currentBurner = null;
 
     private RaycastHit hit;
+    private bool hitting;
 
 
     protected override void Start()
@@ -137,7 +136,7 @@ public class gunShooting : weaponBase
         }
 
 
-        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, PlayerMask, QueryTriggerInteraction.Ignore))
+        if (hitting)
         {
             handleHit();
         }
@@ -152,7 +151,6 @@ public class gunShooting : weaponBase
             ammoRemaining -= (int)(timeSinceLastShot / (1 / fireRate));
             timeSinceLastShot = 0;
         }
-
     }
 
     private void ShootFx()
@@ -173,13 +171,15 @@ public class gunShooting : weaponBase
             return;
         }
 
-        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, ~PlayerMask, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, range, PlayerMask, QueryTriggerInteraction.Ignore))
         {
             tracerFX.updateDirection(hit.point);
+            hitting = true;
         }
         else
         {
             tracerFX.updateDirection(playerCamera.transform.position + (playerCamera.transform.forward * range));
+            hitting = false;
         }
     }
 
@@ -195,12 +195,6 @@ public class gunShooting : weaponBase
             entity.TakeDamage(damage * fireRate * Time.deltaTime);
         }
 
-        if (!beamWeapon)
-        {
-            Instantiate(bulletHole, hit.point, Quaternion.LookRotation(hit.normal), hit.transform);
-            return;
-        }
-
         if (currentBurner != null && currentBurner.sameObject(objId, localNormal))
         {
             currentBurner.AddBurnPosition((hit.point - currentBurner.transform.position) + (hit.normal / 1000));
@@ -214,7 +208,7 @@ public class gunShooting : weaponBase
         if (currentBurner == null && !hit.collider.isTrigger)
         {
             currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 1000), Quaternion.LookRotation(localNormal));
-            currentBurner.impactFX = Instantiate(impactFX, hit.point + (hit.normal / 1000), Quaternion.LookRotation(-localNormal), currentBurner.transform);
+            currentBurner.impactFX = Instantiate(impactFX, (hit.point + currentBurner.transform.position) + (hit.normal / 1000), Quaternion.LookRotation(-localNormal), currentBurner.transform);
             currentBurner.setObjParams(objId, localNormal, hit.normal, hit.collider.gameObject.transform);
         }
     }

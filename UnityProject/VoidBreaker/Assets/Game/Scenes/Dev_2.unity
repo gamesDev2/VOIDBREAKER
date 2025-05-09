@@ -9163,7 +9163,7 @@ PrefabInstance:
     - target: {fileID: 2622436924740678069, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: specialModeEnergyDrain
-      value: 40
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4124615556920946514, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
@@ -9238,7 +9238,7 @@ PrefabInstance:
     - target: {fileID: 7802382232808753436, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 856
+      value: 874
       objectReference: {fileID: 0}
     - target: {fileID: 8210049194022999932, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
