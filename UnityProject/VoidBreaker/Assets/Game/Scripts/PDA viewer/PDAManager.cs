@@ -3,13 +3,24 @@ using UnityEngine;
 
 public class PDAManager : MonoBehaviour
 {
-    public static PDAManager instance;
+    public static PDAManager Instance { get; private set; }
 
     public static PDAData[] pdaEntries;
     [SerializeField] private static string path = "Assets/Game/PDALogs/PDA.json";
 
     void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         StreamReader sr = new StreamReader(path);
 
         string json = sr.ReadToEnd();

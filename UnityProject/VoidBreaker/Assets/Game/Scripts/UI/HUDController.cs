@@ -29,6 +29,13 @@ public class HUDController : MonoBehaviour
     public Color CodeWindowCorrectColor = Color.green;
     public Color CodeWindowIncorrectColor = Color.red;
 
+
+    [Header("PDA UI Elements")]
+    [Tooltip("The viewing panel to be shown/hidden")]
+    public Image pdaWindow;
+    public TextMeshProUGUI pdaTitle;
+    public TextMeshProUGUI pdaEntry;
+
     [Header("HUD Sway Settings")]
     [Tooltip("The RectTransform of the main HUD container.")]
     public RectTransform mainContainer;
@@ -68,6 +75,7 @@ public class HUDController : MonoBehaviour
             Game_Manager.Instance.on_health_changed.AddListener(UpdateHealthBar);
             Game_Manager.Instance.on_energy_changed.AddListener(UpdateEnergyBar);
             Game_Manager.Instance.on_interact.AddListener(UpdateInteractText);
+            Game_Manager.Instance.on_view_pda_entry.AddListener(OnViewPDALog);
         }
         InteractWindow.gameObject.SetActive(false);
 
@@ -247,5 +255,16 @@ public class HUDController : MonoBehaviour
             .DOColor(target, 0.15f)
             .SetLoops(4, LoopType.Yoyo)
             .SetEase(Ease.InOutSine);
+    }
+
+
+    // ——— PDA Handlers ———
+
+    private void OnViewPDALog(string Title, string Entry)
+    {
+        pdaWindow.gameObject.SetActive(true);
+        pdaTitle.text = Title;
+        pdaEntry.text = Entry;
+        Game_Manager.SetCursorLocked(false);
     }
 }

@@ -24,6 +24,7 @@ public class Game_Manager : MonoBehaviour
     public UnityEvent<bool> on_game_paused = new UnityEvent<bool>();
     public UnityEvent<bool> on_game_started = new UnityEvent<bool>();
     public UnityEvent on_door_console_update = new UnityEvent();
+    public UnityEvent<string, string> on_view_pda_entry = new UnityEvent<string, string>();
 
     // The console currently requesting a code
     [HideInInspector] public DoorConsole activeConsole;
