@@ -6,7 +6,9 @@ public class PDAManager : MonoBehaviour
     public static PDAManager Instance { get; private set; }
 
     public static PDAData[] pdaEntries;
-    [SerializeField] private static string path = "Assets/Game/PDALogs/PDA.json";
+    [SerializeField] private static string path = "PDALogs/PDA";
+
+    [SerializeField] private static TextAsset pdaDB;
 
     void Awake()
     {
@@ -21,10 +23,9 @@ public class PDAManager : MonoBehaviour
             return;
         }
 
-        StreamReader sr = new StreamReader(path);
+        pdaDB = Resources.Load(path) as TextAsset;
 
-        string json = sr.ReadToEnd();
-        sr.Close();
+        string json = pdaDB.ToString();
 
         ParsePDAJSON(json);
     }

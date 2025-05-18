@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Game/Scenes/MainMenu.unity
     guid: ebbd8db92005d5a4a970a709142a40d4
-  - enabled: 1
+  - enabled: 0
     path: Assets/Game/Scenes/Dev_2.unity
     guid: 719f433286ab92e48841f82215b65f27
   - enabled: 0
@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Game/Scenes/GunTest.unity
     guid: 8c85fe4e3206da648aae66bc00796e33
+  - enabled: 1
+    path: Assets/Game/Scenes/PDATest.unity
+    guid: f133cc94d4575c4458bc3569800f62d9
   m_configObjects: {}
