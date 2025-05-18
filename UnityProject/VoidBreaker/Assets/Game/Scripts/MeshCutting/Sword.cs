@@ -93,7 +93,9 @@ public class Sword : weaponBase
             cameraController.SetOverrideFOV(zoomFOV);
             cameraController.SetVolumeIntensity(1f);
         // Slow down time for dramatic effect.
-        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, (1.0f / playerHandle.timeFlow) * 0.2f, 0.02f);
+        //DOTween.To(() => Time.timeScale, x => Time.timeScale = x, (1.0f / playerHandle.timeFlow) * 0.2f, 0.02f);
+        Time.timeScale = (1.0f / playerHandle.timeFlow) * 0.2f;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
 
     public override void stopAttack()
@@ -108,7 +110,9 @@ public class Sword : weaponBase
             cameraController.SetVolumeIntensity(0.0f);
 
         // Resume normal time.
-        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, (1.0f / playerHandle.timeFlow) * 1f, 0.02f);
+        //DOTween.To(() => Time.timeScale, x => Time.timeScale = x, (1.0f / playerHandle.timeFlow) * 1f, 0.02f);
+        Time.timeScale = (1.0f / playerHandle.timeFlow) * 1f;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
 
     /// <summary>

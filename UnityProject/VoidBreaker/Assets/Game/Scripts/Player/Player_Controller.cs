@@ -103,7 +103,7 @@ public class Player_Controller : Entity
         //based on the player's current state and velocity, update the speedline opacity
         if (playerCamera != null)
         {
-            playerCamera.transform.position = transform.position + head.localPosition;
+            //playerCamera.transform.localPosition = transform.localPosition + head.localPosition;
 
             if (camCtrl != null && rb != null)
             {
@@ -113,13 +113,13 @@ public class Player_Controller : Entity
                 camCtrl.setSpeedlineOpacity(speedNormalized);
                 
 
-                float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime * timeFlow;
-                float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime * timeFlow;
+                float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * timeFlow;
+                float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * timeFlow;
 
                 deltaRotX(mouseX);
 
                 camCtrl.yRot -= mouseY;
-                camCtrl.xRot += mouseX;
+                //camCtrl.xRot += mouseX;
 
                 camCtrl.timeFlow = timeFlow;
             }

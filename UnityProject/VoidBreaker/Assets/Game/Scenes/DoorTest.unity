@@ -308,7 +308,7 @@ PrefabInstance:
     - target: {fileID: 8161171422221447463, guid: d8fceafcdd2fd6e4bb1afea6e5b74936,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.91
+      value: 0.394
       objectReference: {fileID: 0}
     - target: {fileID: 8161171422221447463, guid: d8fceafcdd2fd6e4bb1afea6e5b74936,
         type: 3}
@@ -968,7 +968,7 @@ Light:
   m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 2
-  m_AreaSize: {x: 1, y: 1}
+  m_AreaSize: {x: 0.5, y: 0.5}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 1

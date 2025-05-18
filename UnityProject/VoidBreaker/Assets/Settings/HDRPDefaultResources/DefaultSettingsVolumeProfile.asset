@@ -509,7 +509,7 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 0.5
   directLightingStrength:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   radius:
     m_OverrideState: 1
