@@ -7,8 +7,10 @@ public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenuPanel;
     public SettingsUI settingsUI;
+    public bool settingsActive = false;
 
     private bool isPaused = false;
+    
 
     private void Start()
     {
@@ -24,7 +26,7 @@ public class PauseMenu : MonoBehaviour
             {
                 PauseGame();
             }
-            else
+            else if (pauseMenuPanel.activeSelf)
             {
                 ResumeGame();
             }
@@ -36,6 +38,7 @@ public class PauseMenu : MonoBehaviour
         isPaused = true;
         Time.timeScale = 0.0f;
         pauseMenuPanel.SetActive(true);
+        Game_Manager.Instance.UnlockCursor();
     }
 
     public void ResumeGame()
@@ -43,10 +46,12 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1.0f;
         pauseMenuPanel.SetActive(false);
+        Game_Manager.Instance.LockCursor();
     }
 
     public void Settings()
     {
+        settingsActive = true;
         settingsUI.ShowSettings(pauseMenuPanel);
     }
 

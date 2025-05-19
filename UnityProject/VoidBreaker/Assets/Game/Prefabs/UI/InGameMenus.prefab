@@ -52,6 +52,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pauseMenuPanel: {fileID: 7618837373803649754}
   settingsUI: {fileID: 7354560136780928193}
+  settingsActive: 0
 --- !u!1 &2667763170884289425
 GameObject:
   m_ObjectHideFlags: 0
@@ -1195,7 +1196,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 993, y: 559}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6612314425363134151
 CanvasRenderer:
@@ -1386,7 +1387,7 @@ PrefabInstance:
     - target: {fileID: 1281939540862312788, guid: 4013d89745c87d44da96594a62cb9986,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2768840193943411763, guid: 4013d89745c87d44da96594a62cb9986,
         type: 3}
@@ -1401,22 +1402,22 @@ PrefabInstance:
     - target: {fileID: 2768840193943411763, guid: 4013d89745c87d44da96594a62cb9986,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2768840193943411763, guid: 4013d89745c87d44da96594a62cb9986,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2768840193943411763, guid: 4013d89745c87d44da96594a62cb9986,
         type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2768840193943411763, guid: 4013d89745c87d44da96594a62cb9986,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2768840193943411763, guid: 4013d89745c87d44da96594a62cb9986,
         type: 3}
