@@ -7,8 +7,10 @@ public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenuPanel;
     public SettingsUI settingsUI;
+    public bool settingsActive = false;
 
     private bool isPaused = false;
+    
 
     private void Start()
     {
@@ -24,7 +26,7 @@ public class PauseMenu : MonoBehaviour
             {
                 PauseGame();
             }
-            else
+            else if (pauseMenuPanel.activeSelf)
             {
                 ResumeGame();
             }
@@ -49,6 +51,7 @@ public class PauseMenu : MonoBehaviour
 
     public void Settings()
     {
+        settingsActive = true;
         settingsUI.ShowSettings(pauseMenuPanel);
     }
 

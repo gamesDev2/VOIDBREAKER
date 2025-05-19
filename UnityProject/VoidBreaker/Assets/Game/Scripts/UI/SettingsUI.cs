@@ -19,6 +19,20 @@ public class SettingsUI : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (currentSubPanel == null)
+            {
+                HideSettings();
+            }
+            else
+            {
+                BackToMainSettings();
+            }
+        }
+    }
 
     public void ShowSettings(GameObject callerPanel)
     {
