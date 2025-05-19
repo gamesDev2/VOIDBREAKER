@@ -276,6 +276,7 @@ public abstract class Entity : MonoBehaviour
     public void TakeDamage(float damage)
     {
         CurrentHealth -= damage;
+        OnHealthChanged(CurrentHealth);
         if (CurrentHealth <= 0)
             Die();
     }

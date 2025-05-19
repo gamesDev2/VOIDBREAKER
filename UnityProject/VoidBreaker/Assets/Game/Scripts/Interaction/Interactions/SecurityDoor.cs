@@ -7,8 +7,7 @@ using UnityEngine.Assertions;
 
 public class SecurityDoor : MonoBehaviour
 {
-    [SerializeField, Tooltip("This is where the door will lerp to when opening")] private Transform OpenPosition;
-    [SerializeField, Tooltip("This is where the door will lerp to when closing")] private Transform ClosedPosition;
+    [SerializeField, Tooltip("All Doors that this script controls")] private DoorMovement[] Doors;
     [SerializeField, Tooltip("The Consoles that control this door")] private DoorConsole[] doorConsoles;
 
     [SerializeField, Tooltip("How long it takes for the door to open/close.")] private float transitionSpeed = 2.0f;
@@ -19,8 +18,7 @@ public class SecurityDoor : MonoBehaviour
 
     void Start()
     {
-        Assert.IsNotNull(OpenPosition);
-        Assert.IsNotNull(ClosedPosition);
+        Assert.IsNotNull(Doors);
         Game_Manager.Instance.on_door_console_update.AddListener(OnConsoleUpdate);
     }
 
@@ -53,7 +51,11 @@ public class SecurityDoor : MonoBehaviour
         {
             doorPosition += Time.deltaTime * transitionSpeed;
             doorPosition = math.clamp(doorPosition, 0f, 1f);
-            transform.position = Vector3.Lerp(ClosedPosition.position, OpenPosition.position, doorPosition);
+
+            foreach (DoorMovement d in Doors)
+            {
+                d.setDoorPosition(doorPosition);
+            }
 
             yield return null;
         }

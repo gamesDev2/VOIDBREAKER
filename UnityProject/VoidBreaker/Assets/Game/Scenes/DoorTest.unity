@@ -375,10 +375,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 459702700799828242, guid: 632c58119d5828f46acf67a92a905e7b,
+        type: 3}
+      propertyPath: doorConsoles.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 459702700799828242, guid: 632c58119d5828f46acf67a92a905e7b,
+        type: 3}
+      propertyPath: doorConsoles.Array.data[0]
+      value: 
+      objectReference: {fileID: 194551275}
     - target: {fileID: 2295572506929910784, guid: 632c58119d5828f46acf67a92a905e7b,
         type: 3}
       propertyPath: m_Name
       value: SecurityDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 3811729511644260729, guid: 632c58119d5828f46acf67a92a905e7b,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3811729511644260729, guid: 632c58119d5828f46acf67a92a905e7b,
         type: 3}
@@ -388,7 +403,7 @@ PrefabInstance:
     - target: {fileID: 3811729511644260729, guid: 632c58119d5828f46acf67a92a905e7b,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.978
+      value: 1.239
       objectReference: {fileID: 0}
     - target: {fileID: 3811729511644260729, guid: 632c58119d5828f46acf67a92a905e7b,
         type: 3}
@@ -433,8 +448,18 @@ PrefabInstance:
     - target: {fileID: 3811729511644260729, guid: 632c58119d5828f46acf67a92a905e7b,
         type: 3}
       propertyPath: m_ConstrainProportionsScale
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7013466343432840079, guid: 632c58119d5828f46acf67a92a905e7b,
+        type: 3}
+      propertyPath: doorConsoles.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7013466343432840079, guid: 632c58119d5828f46acf67a92a905e7b,
+        type: 3}
+      propertyPath: doorConsoles.Array.data[0]
+      value: 
+      objectReference: {fileID: 194551275}
     - target: {fileID: 7237781519666195690, guid: 632c58119d5828f46acf67a92a905e7b,
         type: 3}
       propertyPath: transitionSpeed
@@ -465,6 +490,16 @@ PrefabInstance:
       propertyPath: doorConsoles.Array.data[3]
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 9200563617217666739, guid: 632c58119d5828f46acf67a92a905e7b,
+        type: 3}
+      propertyPath: doorConsoles.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9200563617217666739, guid: 632c58119d5828f46acf67a92a905e7b,
+        type: 3}
+      propertyPath: doorConsoles.Array.data[0]
+      value: 
+      objectReference: {fileID: 194551275}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
