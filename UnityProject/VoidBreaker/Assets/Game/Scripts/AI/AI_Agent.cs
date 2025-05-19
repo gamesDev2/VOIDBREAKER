@@ -205,7 +205,13 @@ public class GOAPAgent : MonoBehaviour
             bool jumpFlag = (horiz < 3f && vert > jumpUp) || (horiz < 5f && vert < jumpDown);
 
             float yaw = Mathf.Atan2(finalDir.x, finalDir.z) * Mathf.Rad2Deg;
-            movementController.SetAIInput(finalDir.x, finalDir.z, false, false, jumpFlag, false, yaw);
+            Vector3 localDir = transform.InverseTransformDirection(finalDir);
+            float vert = Mathf.Clamp(localDir.z, -1f, 1f);   // forward/back
+            float horiz = Mathf.Clamp(localDir.x, -1f, 1f);   // strafe
+
+            movementController.SetAIInput(horiz, vert,
+                                          false, false, jumpFlag, false,
+                                          yaw);
         }
 
         navAgent.nextPosition = transform.position;

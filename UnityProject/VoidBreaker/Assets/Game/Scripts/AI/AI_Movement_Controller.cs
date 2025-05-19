@@ -84,7 +84,6 @@ public class AI_Movement_Controller : Entity
         // Apply rotation: rotate by (rate * dt) around Y axis
         transform.Rotate(0f, controlSignal * dt, 0f, Space.World);
 
-        // Note: horizontalInput/verticalInput are used by Entity.MovePlayer in FixedUpdate
     }
 
     /// <summary>
@@ -110,6 +109,7 @@ public class AI_Movement_Controller : Entity
 
     protected override void Die()
     {
+        NotifyDeath();
         Destroy(gameObject);
     }
 }

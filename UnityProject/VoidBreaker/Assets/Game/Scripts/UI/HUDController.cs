@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
-using UnityEngine;
+using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
 public class HUDController : MonoBehaviour
 {
+    // ---------------- HUD Elements ----------------
     [Header("HUD Elements")]
     public Image healthBarImage;
     public Image energyBarImage;
@@ -15,6 +17,7 @@ public class HUDController : MonoBehaviour
     public TextMeshProUGUI interact_text;
     public Image InteractWindow;
 
+    // ---------------- Keypad UI Elements ----------------
     [Header("Keypad UI Elements")]
     [Tooltip("The overall keypad panel (show/hide).")]
     public Image KeypadWindow;
@@ -29,19 +32,30 @@ public class HUDController : MonoBehaviour
     public Color CodeWindowCorrectColor = Color.green;
     public Color CodeWindowIncorrectColor = Color.red;
 
+    // ---------------- Objective UI Elements ----------------
+    [Header("Objective UI Elements")]
+    public GameObject objectiveWindow;
+    public TextMeshProUGUI objectiveTitleText;
+    public TextMeshProUGUI objectiveDescriptionText;
 
+    // ---------------- PDA Viewer Elements ----------------
     [Header("PDA UI Elements")]
-    [Tooltip("The viewing panel to be shown/hidden")]
-    public Image pdaWindow;
+    [Tooltip("Main PDA window to show/hide")] public Image pdaWindow;
     public TextMeshProUGUI pdaTitle;
     public TextMeshProUGUI pdaEntry;
 
+    [Header("PDA Entry List UI")]
+    [Tooltip("Container that will hold the generated entry buttons (vertical layout recommended)")]
+    [SerializeField] private Transform pdaEntryButtonContainer;
+    [Tooltip("Prefab used to generate buttons for each collected entry")]
+    [SerializeField] private Button pdaEntryButtonPrefab;
+    [Tooltip("Color for the currently‑selected entry button")] public Color selectedEntryColor = new Color(0.6f, 0f, 0f, 1f);
+    [Tooltip("Color for idle / non‑selected entry buttons")] public Color normalEntryColor = Color.white;
+
+    // ---------------- HUD Sway Settings ----------------
     [Header("HUD Sway Settings")]
-    [Tooltip("The RectTransform of the main HUD container.")]
     public RectTransform mainContainer;
-    [Tooltip("Multiplier for how much the HUD sways in response to the player's velocity.")]
     public float swayIntensity = 5f;
-    [Tooltip("Smoothing factor for the HUD sway movement.")]
     public float swaySmoothing = 3f;
 
     // Internal state for sway
@@ -59,9 +73,21 @@ public class HUDController : MonoBehaviour
     private string _currentInput = "";
     private Color _defaultCodeWindowColor;
 
+    // ---------------- PDA Internal State ----------------
+    private class LocalPDAEntry
+    {
+        public string title;
+        public string entry;
+        public Button button;
+    }
+
+    private readonly Dictionary<string, LocalPDAEntry> _pdaEntries = new Dictionary<string, LocalPDAEntry>();
+    private Button _currentSelectedButton;
+
+    // ---------------- MonoBehaviour ----------------
     void Start()
     {
-        // ——— HUD setup ———
+        // —— HUD setup checks ——
         if (healthBarImage == null || energyBarImage == null ||
             healthBackgroundImage == null || energyBackgroundImage == null ||
             interact_text == null || InteractWindow == null)
@@ -70,49 +96,61 @@ public class HUDController : MonoBehaviour
             return;
         }
 
+        // —— Hook up Game‑Manager events ——
         if (Game_Manager.Instance != null)
         {
             Game_Manager.Instance.on_health_changed.AddListener(UpdateHealthBar);
             Game_Manager.Instance.on_energy_changed.AddListener(UpdateEnergyBar);
             Game_Manager.Instance.on_interact.AddListener(UpdateInteractText);
             Game_Manager.Instance.on_view_pda_entry.AddListener(OnViewPDALog);
+            Game_Manager.Instance.on_objective_updated.AddListener(UpdateObjectiveText);
         }
         InteractWindow.gameObject.SetActive(false);
 
-        // ——— Keypad setup ———
+        // —— Keypad references check ——
         if (KeypadWindow == null || CodeInputBackground == null ||
-            keypadInputText == null || keypadButtons == null ||
-            keypadButtons.Length == 0 ||
+            keypadInputText == null || keypadButtons == null || keypadButtons.Length == 0 ||
             keypadDeleteButton == null || keypadSubmitButton == null)
         {
             Debug.LogError("HUDController: Missing keypad references.");
             return;
         }
 
-        // Cache default code‐window color
+        // Cache default code‑window color
         _defaultCodeWindowColor = CodeInputBackground.color;
 
         // Hide keypad at start
         KeypadWindow.gameObject.SetActive(false);
 
         // Listen for show/hide keypad events
-        Game_Manager.Instance.on_keypad_shown.AddListener(OnKeypadShown);
+        Game_Manager.Instance?.on_keypad_shown.AddListener(OnKeypadShown);
 
         // Wire up digit buttons
         for (int i = 0; i < keypadButtons.Length; i++)
         {
-            int digit = i;  // capture in closure
+            int digit = i; // capture in closure
             keypadButtons[i].onClick.AddListener(() => OnDigitPressed(digit));
         }
         keypadDeleteButton.onClick.AddListener(OnDeletePressed);
         keypadSubmitButton.onClick.AddListener(OnSubmitPressed);
+
+        // Make sure PDA window starts hidden
+        if (pdaWindow != null)
+            pdaWindow.gameObject.SetActive(false);
     }
 
     void Update()
     {
         UpdateSway();
+
+        // Handle ESC to close PDA viewer
+        if (pdaWindow != null && pdaWindow.gameObject.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+        {
+            ClosePDAWindow();
+        }
     }
 
+    // ---------------- HUD Sway ----------------
     private void UpdateSway()
     {
         if (Game_Manager.Instance?.player != null && mainContainer != null)
@@ -128,8 +166,7 @@ public class HUDController : MonoBehaviour
         }
     }
 
-    // ——— Health & Energy Bars ———
-
+    // ---------------- Health & Energy Bars ----------------
     public void UpdateHealthBar(float value)
     {
         healthBarTargetValue = value;
@@ -183,8 +220,7 @@ public class HUDController : MonoBehaviour
         onExit?.Invoke();
     }
 
-    // ——— Interaction Prompt ———
-
+    // ---------------- Interaction Prompt ----------------
     public void UpdateInteractText(bool show, string text)
     {
         if (KeypadWindow.gameObject.activeSelf) return; // Don't show interact text if keypad is open
@@ -192,14 +228,13 @@ public class HUDController : MonoBehaviour
         interact_text.text = text;
     }
 
-    // ——— Keypad Handlers ———
-
+    // ---------------- Keypad Handlers ----------------
     private void OnKeypadShown(bool show)
     {
         KeypadWindow.gameObject.SetActive(show);
         Game_Manager.SetCursorLocked(!show);
 
-        // Reset input & code‐window color
+        // Reset input & code‑window color
         _currentInput = "";
         keypadInputText.text = "";
         CodeInputBackground.color = _defaultCodeWindowColor;
@@ -242,10 +277,15 @@ public class HUDController : MonoBehaviour
         }
         else
         {
-            // Flash code‐window red, clear input
+            // Flash code‐window red, clear input and hide the keypad
             PulseCodeWindow(CodeWindowIncorrectColor);
             _currentInput = "";
             keypadInputText.text = "";
+            DOVirtual.DelayedCall(1f, () =>
+            {
+                gm.on_keypad_shown.Invoke(false);
+                gm.activeConsole = null;
+            });
         }
     }
 
@@ -257,14 +297,99 @@ public class HUDController : MonoBehaviour
             .SetEase(Ease.InOutSine);
     }
 
-
-    // ——— PDA Handlers ———
-
-    private void OnViewPDALog(string Title, string Entry)
+    // ---------------- Objective Text ----------------
+    public void UpdateObjectiveText(string title, string description)
     {
+        if (objectiveWindow != null) objectiveWindow.SetActive(true);
+        if (objectiveTitleText != null) objectiveTitleText.text = title;
+        if (objectiveDescriptionText != null) objectiveDescriptionText.text = description;
+        Debug.Log($"Objective Updated: {title} - {description}");
+    }
+
+    // ---------------- PDA Handlers ----------------
+    private void OnViewPDALog(string title, string entry)
+    {
+        if (pdaWindow == null) return;
+
+        AddOrUpdateEntry(title, entry);
+        ShowEntry(title);
+
         pdaWindow.gameObject.SetActive(true);
-        pdaTitle.text = Title;
-        pdaEntry.text = Entry;
         Game_Manager.SetCursorLocked(false);
+    }
+
+    private void AddOrUpdateEntry(string title, string entry)
+    {
+        if (_pdaEntries.TryGetValue(title, out LocalPDAEntry existing))
+        {
+            existing.entry = entry; // Update text if needed
+            return;
+        }
+
+        // Create new button for this entry
+        if (pdaEntryButtonPrefab == null || pdaEntryButtonContainer == null)
+        {
+            Debug.LogWarning("HUDController: Entry button prefab/container not assigned.");
+            return;
+        }
+
+        Button newBtn = Instantiate(pdaEntryButtonPrefab, pdaEntryButtonContainer);
+        TextMeshProUGUI txt = newBtn.GetComponentInChildren<TextMeshProUGUI>();
+        //shorten the title to 20 characters and add ... if it is longer
+        if (txt != null)
+        {
+            txt.text = title.Length > 20 ? title.Substring(0, 20) + "..." : title;
+        }
+        else
+        {
+            Debug.LogWarning("HUDController: Button prefab does not have a TextMeshProUGUI component.");
+            return;
+        }
+
+        newBtn.onClick.AddListener(() => ShowEntry(title));
+
+        LocalPDAEntry newEntry = new LocalPDAEntry
+        {
+            title = title,
+            entry = entry,
+            button = newBtn
+        };
+        _pdaEntries.Add(title, newEntry);
+
+        // Reset colors so newly‑added buttons start unselected
+        SetButtonColors(newBtn, normalEntryColor);
+    }
+
+    private void ShowEntry(string title)
+    {
+        if (!_pdaEntries.TryGetValue(title, out LocalPDAEntry data)) return;
+
+        pdaTitle.text = data.title;
+        pdaEntry.text = data.entry;
+
+        // Highlight selected button
+        if (_currentSelectedButton != null && _currentSelectedButton != data.button)
+        {
+            SetButtonColors(_currentSelectedButton, normalEntryColor);
+        }
+        _currentSelectedButton = data.button;
+        SetButtonColors(_currentSelectedButton, selectedEntryColor);
+    }
+
+    private void SetButtonColors(Button btn, Color c)
+    {
+        if (btn == null) return;
+        ColorBlock cb = btn.colors;
+        cb.normalColor = c;
+        cb.highlightedColor = c;
+        cb.selectedColor = c;
+        cb.pressedColor = c;
+        btn.colors = cb;
+    }
+
+    private void ClosePDAWindow()
+    {
+        pdaWindow.gameObject.SetActive(false);
+        Game_Manager.SetCursorLocked(true);
     }
 }

@@ -164,6 +164,13 @@ public abstract class Entity : MonoBehaviour
     public float sprintEnergyDrain = 5f; // Energy drain per second while sprinting
     public float dashEnergyCost = 20f; // Energy cost for dashing
 
+    // static event to notify when an entity dies
+    public static event System.Action<GameObject> OnDeath;
+    protected void NotifyDeath()
+    {
+        // Invoke only if someone is listening
+        OnDeath?.Invoke(gameObject);
+    }
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();

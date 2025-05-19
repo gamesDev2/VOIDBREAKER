@@ -128,6 +128,7 @@ public class Player_Controller : Entity
     }
     protected override void Die()
     {
+        NotifyDeath();
         DeadPlayer body = Instantiate(deadBody, transform.position, transform.rotation, transform.parent);
 
         body.transform.rotation = Quaternion.LookRotation(playerCamera.transform.forward);

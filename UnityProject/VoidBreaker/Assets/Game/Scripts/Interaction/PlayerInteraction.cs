@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
+
     [Header("Interaction Settings")]
     public float interactDistance = 3f;
     public LayerMask interactableMask;
@@ -15,6 +16,7 @@ public class PlayerInteraction : MonoBehaviour
 
     private PhysicsMovable carriedObject;
     private IInteractable currentInteractable;
+    public static event System.Action<GameObject> OnItemInteracted;
 
     void Update()
     {
@@ -49,6 +51,7 @@ public class PlayerInteraction : MonoBehaviour
             if (Input.GetKeyDown(interactKey))
             {
                 currentInteractable.Interact(gameObject);
+                OnItemInteracted?.Invoke((currentInteractable as MonoBehaviour)?.gameObject);
 
                 // If the interactable is a movable object that can be carried, save the reference.
                 if (currentInteractable is PhysicsMovable movable)

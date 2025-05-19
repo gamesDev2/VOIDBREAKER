@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c1be1b6c95cd2e41b27903b9270817f, type: 3}
   m_Name: Vignette
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   mode:
     m_OverrideState: 1
     m_Value: 0
@@ -225,13 +225,13 @@ MonoBehaviour:
     m_Value: 3.49
   intensity:
     m_OverrideState: 1
-    m_Value: 0.39
+    m_Value: 0.269
   scatter:
     m_OverrideState: 1
-    m_Value: 0.256
+    m_Value: 0.246
   tint:
     m_OverrideState: 1
-    m_Value: {r: 0.8537736, g: 0.9559599, b: 1, a: 1}
+    m_Value: {r: 0.7134022, g: 0.5707547, b: 1, a: 1}
   dirtTexture:
     m_OverrideState: 1
     m_Value: {fileID: 0}
@@ -323,7 +323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f086a068d4c5889438831b3ae9afc11c, type: 3}
   m_Name: Tonemapping
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   mode:
     m_OverrideState: 1
     m_Value: 2
@@ -520,7 +520,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59b6606ef2548734bb6d11b9d160bc7e, type: 3}
   m_Name: HDRISky
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   rotation:
     m_OverrideState: 1
     m_Value: 0
@@ -535,13 +535,13 @@ MonoBehaviour:
     m_Value: 1
   upperHemisphereLuxValue:
     m_OverrideState: 1
-    m_Value: 0.0051182113
+    m_Value: 0.031519264
   upperHemisphereLuxColor:
     m_OverrideState: 1
-    m_Value: {x: 0.30576822, y: 0.5, z: 0.31882754}
+    m_Value: {x: 0.121848546, y: 0.5, z: 0.24273126}
   desiredLuxValue:
     m_OverrideState: 1
-    m_Value: 5000
+    m_Value: 100
   updateMode:
     m_OverrideState: 0
     m_Value: 0
@@ -553,10 +553,10 @@ MonoBehaviour:
     m_Value: 0
   hdriSky:
     m_OverrideState: 1
-    m_Value: {fileID: 8900000, guid: 7b0dc4258ce867140a3419d9bda2613c, type: 3}
+    m_Value: {fileID: 8900000, guid: e1b31605a7c0b924fb179fb2420cd8c5, type: 3}
   distortionMode:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   flowmap:
     m_OverrideState: 0
     m_Value: {fileID: 0}
