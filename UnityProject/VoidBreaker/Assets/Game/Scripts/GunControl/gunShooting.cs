@@ -96,7 +96,6 @@ public class gunShooting : weaponBase
         {
             firing = true;
             timeSinceLastShot = 0;
-            tracerFX.visible(true);
         }
     }
 
@@ -110,6 +109,7 @@ public class gunShooting : weaponBase
 
         tracerFX.visible(false);
 
+        hitting = false;
         firing = false;
         currentBurner = null;
         timeSinceLastReload = 0;
@@ -181,6 +181,8 @@ public class gunShooting : weaponBase
             tracerFX.updateDirection(playerCamera.transform.position + (playerCamera.transform.forward * range));
             hitting = false;
         }
+
+        tracerFX.visible(true);
     }
 
     private void handleHit()
@@ -208,7 +210,7 @@ public class gunShooting : weaponBase
         if (currentBurner == null && !hit.collider.isTrigger)
         {
             currentBurner = Instantiate(laserBurn, hit.point + (hit.normal / 1000), Quaternion.LookRotation(localNormal));
-            currentBurner.impactFX = Instantiate(impactFX, (hit.point + currentBurner.transform.position) + (hit.normal / 1000), Quaternion.LookRotation(-localNormal), currentBurner.transform);
+            currentBurner.impactFX = Instantiate(impactFX, (hit.point) + (hit.normal / 1000), Quaternion.LookRotation(localNormal));
             currentBurner.setObjParams(objId, localNormal, hit.normal, hit.collider.gameObject.transform);
         }
     }

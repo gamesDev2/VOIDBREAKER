@@ -31,6 +31,10 @@ public class laserBurnHandle : MonoBehaviour
         // If our "parent" dies then we die
         if (tester == null)
         {
+            if (impactFX != null)
+            {
+                impactFX.endFX();
+            }
             Destroy(gameObject);
             return;
         }

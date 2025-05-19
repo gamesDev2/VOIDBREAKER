@@ -162,7 +162,7 @@ public class Camera_Controller : MonoBehaviour
 
     private void HandleHeadBob()
     {
-        Vector3 targetPos = _originalLocalPos;
+        Vector3 targetPos = _originalLocalPos + transform.localPosition;
         if (enableHeadBob)
         {
             float horizontal = Input.GetAxis("Horizontal");

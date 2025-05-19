@@ -103,8 +103,7 @@ public class Player_Controller : Entity
         //based on the player's current state and velocity, update the speedline opacity
         if (playerCamera != null)
         {
-            //playerCamera.transform.localPosition = transform.localPosition + head.localPosition;
-
+            playerCamera.transform.position = head.position;
             if (camCtrl != null && rb != null)
             {
 
@@ -119,7 +118,7 @@ public class Player_Controller : Entity
                 deltaRotX(mouseX);
 
                 camCtrl.yRot -= mouseY;
-                //camCtrl.xRot += mouseX;
+                camCtrl.xRot += mouseX;
 
                 camCtrl.timeFlow = timeFlow;
             }
