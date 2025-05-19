@@ -36,6 +36,7 @@ public class PauseMenu : MonoBehaviour
         isPaused = true;
         Time.timeScale = 0.0f;
         pauseMenuPanel.SetActive(true);
+        Game_Manager.Instance.UnlockCursor();
     }
 
     public void ResumeGame()
@@ -43,6 +44,7 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1.0f;
         pauseMenuPanel.SetActive(false);
+        Game_Manager.Instance.LockCursor();
     }
 
     public void Settings()
