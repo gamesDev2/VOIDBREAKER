@@ -52,6 +52,7 @@ public class PhysicsMovable : BaseInteractable
         IsBeingCarried = false;
         carryParent = null;
         rb.useGravity = true;
+        rb.interpolation = RigidbodyInterpolation.None;
 /*        rb.velocity = Vector3.zero;
 */    }
 

@@ -71,8 +71,8 @@ public class AttackAction : GOAPAction
         Player_Controller playerEntity = player.GetComponent<Player_Controller>();
         if (playerEntity == null) return true; // No health script => end
 
-        // Stop attacking once player's health <= 10
-        return (playerEntity.GetHealth() <= 10f);
+        // Stop attacking once player's health <= 0
+        return (playerEntity.GetHealth() <= 0f);
     }
 
     public override bool RequiresInRange()

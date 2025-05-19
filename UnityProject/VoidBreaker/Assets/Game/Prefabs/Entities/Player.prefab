@@ -1972,6 +1972,8 @@ MonoBehaviour:
   crouchKey: 99
   dashKey: 101
   sprintKey: 304
+  deadBody: {fileID: 2305179585762062253, guid: a092c377f00c1394e8ee3960e0b8b45b,
+    type: 3}
 --- !u!114 &2558720202827857326
 MonoBehaviour:
   m_ObjectHideFlags: 0

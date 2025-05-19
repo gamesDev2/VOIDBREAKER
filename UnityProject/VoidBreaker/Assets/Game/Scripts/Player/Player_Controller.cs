@@ -17,6 +17,10 @@ public class Player_Controller : Entity
     public KeyCode dashKey = KeyCode.E;
     public KeyCode sprintKey = KeyCode.LeftShift;
 
+
+    [Header("Dead self")]
+    public DeadPlayer deadBody;
+
     // Roll & camera settings are inherited from EntityMovementController:
     // maxFovIncrease, fovMultiplier, maxCameraRollAngle, rollMultiplier,
     // as well as crouchCameraHeight.
@@ -41,8 +45,6 @@ public class Player_Controller : Entity
             Game_Manager.SetCursorLocked(true); // Lock the cursor.
         }
         camCtrl = playerCamera.GetComponent<Camera_Controller>();
-
-
     }
 
     protected override void ProcessInput()
@@ -126,7 +128,14 @@ public class Player_Controller : Entity
     }
     protected override void Die()
     {
-        Debug.Log("Player has died!");
+        DeadPlayer body = Instantiate(deadBody, transform.position, transform.rotation, transform.parent);
+
+        body.transform.rotation = Quaternion.LookRotation(playerCamera.transform.forward);
+
+        body.playerCamera = playerCamera;
+        body.cameraRotation = playerCamera.transform.rotation;
+
+        Destroy(gameObject);
     }
 
     // Called whenever this player's health changes

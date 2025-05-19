@@ -121,7 +121,7 @@ MonoBehaviour:
   target: {fileID: 0}
   inRange: 0
   attackRange: 2
-  attackDamage: 10
+  attackDamage: 40
   attackCooldown: 2
 --- !u!114 &4918091766540479674
 MonoBehaviour:
@@ -135,6 +135,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05e2fa86faca8ae498117426df2aafa6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyType: 0
+  fleeHealthThreshold: 30
   availableActions: []
   stoppingDistance: 0.2
   stuckThreshold: 0.1
@@ -155,6 +157,7 @@ MonoBehaviour:
   hasTarget: 0
   isReturningToPost: 0
   informRange: 10
+  maxSteerDeviation: 45
 --- !u!114 &254316129621930616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168,6 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxHealth: 100
+  MaxEnergy: 100
   moveSpeed: 6
   groundDrag: 10
   jumpForce: 5
@@ -210,7 +214,15 @@ MonoBehaviour:
   pushCooldown: 1
   groundPoundForce: 20
   maxDeltaTime: 0.016
-  rotationSpeed: 360
+  specialModeEnergyDrain: 20
+  energyRegenRate: 40
+  energyRegenDelay: 4
+  wallRunEnergyDrain: 7
+  sprintEnergyDrain: 5
+  dashEnergyCost: 20
+  yawKp: 5
+  yawKi: 0
+  yawKd: 0.5
 --- !u!136 &1024069977192298185
 CapsuleCollider:
   m_ObjectHideFlags: 0
