@@ -24,12 +24,12 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene(1);
+        LoadingScreen.LoadScene("Dev_2");
     }
 
     public void NewGame()
     {
-        SceneManager.LoadScene(1);
+        LoadingScreen.LoadScene("Dev_2");
     }
 
     public void Settings()
