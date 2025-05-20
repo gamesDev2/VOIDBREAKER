@@ -31,10 +31,12 @@ public class gunShooting : weaponBase
     [Header("Tracer Effect")]
     [SerializeField] private beamControl tracerFX;
 
-    [Header("Layer Mask")]
+    [Header("SoundFX")]
+    [SerializeField] private AudioClip overheat;
+    [SerializeField] private AudioClip warningSounds;
+    [SerializeField] private AudioSource oneShotAudio;
+
     private LayerMask PlayerMask;
-
-
 
     private float timeSinceLastShot = 0;
     private float timeSinceLastReload = 0;
@@ -43,6 +45,7 @@ public class gunShooting : weaponBase
     private bool firing = false;
 
     private laserBurnHandle currentBurner = null;
+    private AudioSource audioPlayer;
 
     private RaycastHit hit;
     private bool hitting;
@@ -50,6 +53,7 @@ public class gunShooting : weaponBase
 
     protected override void Start()
     {
+        audioPlayer = GetComponent<AudioSource>();
         ammoRemaining = ammoCount;
         tracerFX.visible(false);
         PlayerMask = -1;
@@ -59,7 +63,6 @@ public class gunShooting : weaponBase
     {
         timeSinceLastShot += Time.deltaTime;
         timeSinceLastReload += Time.deltaTime;
-
 
         if (timeSinceLastReload > reloadTime / ammoCount &&
             ammoRemaining < ammoCount &&
@@ -74,6 +77,11 @@ public class gunShooting : weaponBase
         {
             reloading = false;
             ammoRemaining = ammoCount;
+        }
+
+        if (ammoRemaining / fireRate < 5 && !oneShotAudio.isPlaying)
+        {
+            oneShotAudio.PlayOneShot(warningSounds);
         }
 
         if (firing)
@@ -96,6 +104,7 @@ public class gunShooting : weaponBase
         {
             firing = true;
             timeSinceLastShot = 0;
+            audioPlayer.Play();
         }
     }
 
@@ -108,6 +117,7 @@ public class gunShooting : weaponBase
         }
 
         tracerFX.visible(false);
+        audioPlayer.Stop();
 
         hitting = false;
         firing = false;
@@ -163,6 +173,7 @@ public class gunShooting : weaponBase
         if (ammoRemaining < 1)
         {
             reloading = true;
+            oneShotAudio.PlayOneShot(overheat);
             stopAttack();
         }
 

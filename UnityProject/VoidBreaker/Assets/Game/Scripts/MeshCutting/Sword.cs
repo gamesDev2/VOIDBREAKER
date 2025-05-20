@@ -42,6 +42,8 @@ public class Sword : weaponBase
     [Header("Camera Shake Settings")]
     public float shakeStrength = 0.5f;
 
+    private AudioSource slashSound;
+
     protected override void Start()
     {
         base.Start();
@@ -55,6 +57,8 @@ public class Sword : weaponBase
 
         if (cutPlane != null)
             cutPlane.gameObject.SetActive(false);
+        
+        slashSound = GetComponent<AudioSource>();
     }
 
     protected override void Update()
@@ -157,6 +161,11 @@ public class Sword : weaponBase
             {
                 slashParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 slashParticles.Play();
+            }
+            // Play slash soundFX.
+            if (slashSound != null)
+            {
+                slashSound.Play();
             }
             ShakeCamera();
         }
