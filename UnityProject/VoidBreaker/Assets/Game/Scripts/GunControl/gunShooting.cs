@@ -22,14 +22,15 @@ public class gunShooting : weaponBase
     [Header("Remaining Ammunition")]
     [SerializeField] private int ammoRemaining;
 
-    [Header("Hit Effects")]
+    [Header("VisualFX")]
     [Tooltip("Prefab to a line renderer that must contain a laserBurnHandle script")]
     [SerializeField] private laserBurnHandle laserBurn;
     [Tooltip("Continuous Impact Particle system goes here.")]
     [SerializeField] private beamImpactFX impactFX;
-
-    [Header("Tracer Effect")]
+    [Tooltip("Tracer Effect")]
     [SerializeField] private beamControl tracerFX;
+    [Tooltip("Overheat Smoke")]
+    [SerializeField] private ParticleSystem smokeFX;
 
     [Header("SoundFX")]
     [SerializeField] private AudioClip overheat;
@@ -76,6 +77,7 @@ public class gunShooting : weaponBase
         if (ammoRemaining >= ammoCount)
         {
             reloading = false;
+            smokeFX.Stop();
             ammoRemaining = ammoCount;
         }
 
@@ -177,6 +179,7 @@ public class gunShooting : weaponBase
         if (ammoRemaining < 1)
         {
             reloading = true;
+            smokeFX.Play();
             oneShotAudio.PlayOneShot(overheat);
             stopAttack();
         }
