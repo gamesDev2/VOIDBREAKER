@@ -78,7 +78,7 @@ public class FlickerLight : MonoBehaviour
             if (timeTillSpark <= 0f)
             {
                 Sparks.Emit(sparkEmmissionCount);
-                timeTillSpark = EmmissionRate;
+                timeTillSpark = 1f / EmmissionRate;
                 yield return null;
             }
             yield return null;
