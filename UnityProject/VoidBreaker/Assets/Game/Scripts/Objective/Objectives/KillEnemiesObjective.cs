@@ -9,7 +9,6 @@ public class KillEnemiesObjective : Objective
     private int _kills;
     private int _total;
 
-    // ??????????? INITIALISE ???????????
     protected override void Initialize()
     {
         // Snapshot total once; we’ll mutate the list afterwards
@@ -22,14 +21,11 @@ public class KillEnemiesObjective : Objective
 
         PushUI();   // show “0 / X” immediately
     }
-
-    // ??????????? CLEAN-UP ???????????
     protected override void TearDown()
     {
         Entity.OnDeath -= OnAnyEntityDied;
     }
 
-    // ??????????? EVENT HANDLER ???????????
     private void OnAnyEntityDied(GameObject deadGo)
     {
         if (!isActive) return;                 // ignore if objective not running
@@ -43,7 +39,6 @@ public class KillEnemiesObjective : Objective
             CompleteObjective();
     }
 
-    // ??????????? HELPER ???????????
     private void PushUI()
     {
         Description = $"Kill the enemies ({_kills}/{_total})";

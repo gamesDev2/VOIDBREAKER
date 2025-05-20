@@ -233,10 +233,10 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: {r: 0.7134022, g: 0.5707547, b: 1, a: 1}
   dirtTexture:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: {fileID: 0}
   dirtIntensity:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
   anamorphic:
     m_OverrideState: 0
@@ -265,7 +265,7 @@ MonoBehaviour:
   active: 1
   quality:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 3
   focusMode:
     m_OverrideState: 1
     m_Value: 1
@@ -292,7 +292,7 @@ MonoBehaviour:
     m_Value: 4
   m_NearMaxBlur:
     m_OverrideState: 1
-    m_Value: 3
+    m_Value: 0
   m_FarSampleCount:
     m_OverrideState: 1
     m_Value: 5

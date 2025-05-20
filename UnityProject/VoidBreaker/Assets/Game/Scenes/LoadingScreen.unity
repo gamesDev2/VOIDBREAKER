@@ -995,10 +995,10 @@ MonoBehaviour:
     between escape and defeat.
   - Interactables often hide in plain sight. Look for context prompts to discover
     hidden opportunities.
-  tipChangeInterval: 2
+  tipChangeInterval: 5
   progressEase: 6
   tipFadeEase: 7
-  minVisibleTime: 3
+  minVisibleTime: 10
 --- !u!1 &2766506827571072513
 GameObject:
   m_ObjectHideFlags: 0
