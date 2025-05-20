@@ -16,6 +16,7 @@ public class HUDController : MonoBehaviour
     public Image energyBackgroundImage;
     public TextMeshProUGUI interact_text;
     public Image InteractWindow;
+    public Image gunOverheatWindow;
 
     // ---------------- Keypad UI Elements ----------------
     [Header("Keypad UI Elements")]
@@ -104,6 +105,7 @@ public class HUDController : MonoBehaviour
             Game_Manager.Instance.on_interact.AddListener(UpdateInteractText);
             Game_Manager.Instance.on_view_pda_entry.AddListener(OnViewPDALog);
             Game_Manager.Instance.on_objective_updated.AddListener(UpdateObjectiveText);
+            Game_Manager.Instance.on_empty_fire.AddListener(OnEmptyFire);
         }
         InteractWindow.gameObject.SetActive(false);
 
@@ -304,6 +306,38 @@ public class HUDController : MonoBehaviour
         if (objectiveTitleText != null) objectiveTitleText.text = title;
         if (objectiveDescriptionText != null) objectiveDescriptionText.text = description;
         Debug.Log($"Objective Updated: {title} - {description}");
+    }
+
+    // ---------------- Gun Overheat Handlers -------
+    private bool WarningActive = false;
+    public void OnEmptyFire()
+    {
+        if (!WarningActive)
+        {
+            // I hate myself for writing this
+            WarningActive = true;
+            Invoke("GunWarningOn", 0f);
+            Invoke("GunWarningOff", 0.2f);
+            Invoke("GunWarningOn", 0.4f);
+            Invoke("GunWarningOff", 0.6f);
+            Invoke("GunWarningOn", 0.8f);
+            Invoke("GunWarningOff", 1f);
+            Invoke("GunWarningFinish", 1f);
+        }
+    }
+    private void GunWarningOn()
+    {
+        gunOverheatWindow.gameObject.SetActive(true);
+    }
+
+    private void GunWarningOff()
+    {
+        gunOverheatWindow.gameObject.SetActive(false);
+    }
+
+    private void GunWarningFinish()
+    {
+        WarningActive = false;
     }
 
     // ---------------- PDA Handlers ----------------

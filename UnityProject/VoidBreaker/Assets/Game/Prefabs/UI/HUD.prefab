@@ -4749,6 +4749,7 @@ MonoBehaviour:
   energyBackgroundImage: {fileID: 7067794468494308587}
   interact_text: {fileID: 4467133420369092446}
   InteractWindow: {fileID: 872805179054714952}
+  gunOverheatWindow: {fileID: 7542190744460768160}
   KeypadWindow: {fileID: 5638908100599932313}
   CodeInputBackground: {fileID: 8688579295803322674}
   keypadInputText: {fileID: 3639670369591589724}

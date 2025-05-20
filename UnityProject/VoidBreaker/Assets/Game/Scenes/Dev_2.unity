@@ -6301,7 +6301,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 1
+  m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2289255228250016682, guid: 9645d7099fd02484094b6971d104eb8c, type: 3}
 --- !u!1 &1253498417
@@ -10146,7 +10146,7 @@ PrefabInstance:
     - target: {fileID: 1948428175826642133, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 967
+      value: 991
       objectReference: {fileID: 0}
     - target: {fileID: 4653753572723734581, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}

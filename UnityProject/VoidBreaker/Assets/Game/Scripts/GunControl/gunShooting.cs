@@ -106,6 +106,10 @@ public class gunShooting : weaponBase
             timeSinceLastShot = 0;
             audioPlayer.Play();
         }
+        else 
+        {
+            Game_Manager.Instance.on_empty_fire.Invoke();
+        }
     }
 
     public override void stopAttack()
