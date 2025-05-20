@@ -114,8 +114,8 @@ public class Player_Controller : Entity
                 camCtrl.setSpeedlineOpacity(speedNormalized);
                 
 
-                float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * timeFlow;
-                float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * timeFlow;
+                float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+                float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
                 deltaRotX(mouseX);
 

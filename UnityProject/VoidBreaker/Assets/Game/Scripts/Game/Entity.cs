@@ -94,6 +94,10 @@ public abstract class Entity : MonoBehaviour
     [Header("Performance Settings")]
     public float maxDeltaTime = 0.016f; // ~60 fps
 
+    [Header("SoundFX")]
+    public AudioClip[] FootSteps;
+    [SerializeField] private AudioSource audioPlayer;
+
     //=== Shared Components & State ===
     protected Rigidbody rb;
     protected CapsuleCollider capsuleCollider;
@@ -152,6 +156,8 @@ public abstract class Entity : MonoBehaviour
 
     // Temporal Control
     private float timeMultiplier = 1.0f;
+
+    
 
     //energy related variables
     [Header("Energy Settings")]
@@ -775,6 +781,15 @@ public abstract class Entity : MonoBehaviour
         rollEffectStartTime = Time.time;
         rb.AddForce(transform.forward * rollForce, ForceMode.Impulse);
         Invoke(nameof(EndRoll), rollDuration);
+    }
+
+    public virtual void PlayFootstepSound()
+    {
+        if (audioPlayer == null)
+            return;
+
+        AudioClip clipToPlay = FootSteps[UnityEngine.Random.Range(0, FootSteps.Length)];
+        audioPlayer.PlayOneShot(clipToPlay);
     }
 
     protected virtual void EndRoll()
