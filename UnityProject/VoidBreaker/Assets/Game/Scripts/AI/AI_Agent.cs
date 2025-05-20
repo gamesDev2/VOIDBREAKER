@@ -206,8 +206,8 @@ public class GOAPAgent : MonoBehaviour
 
             float yaw = Mathf.Atan2(finalDir.x, finalDir.z) * Mathf.Rad2Deg;
             Vector3 localDir = transform.InverseTransformDirection(finalDir);
-            float vert = Mathf.Clamp(localDir.z, -1f, 1f);   // forward/back
-            float horiz = Mathf.Clamp(localDir.x, -1f, 1f);   // strafe
+            vert = Mathf.Clamp(localDir.z, -1f, 1f);   // forward/back
+            horiz = Mathf.Clamp(localDir.x, -1f, 1f);   // strafe
 
             movementController.SetAIInput(horiz, vert,
                                           false, false, jumpFlag, false,

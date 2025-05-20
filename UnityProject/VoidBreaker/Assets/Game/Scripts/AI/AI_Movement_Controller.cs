@@ -107,7 +107,7 @@ public class AI_Movement_Controller : Entity
         aiLookYaw = lookYaw;
     }
 
-    protected override void Die()
+    public override void Die()
     {
         NotifyDeath();
         Destroy(gameObject);

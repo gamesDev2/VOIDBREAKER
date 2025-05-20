@@ -3,6 +3,7 @@ using UnityEngine;
 using DG.Tweening;
 using EzySlice;
 using UnityEngine.VFX;
+using Unity.VisualScripting;
 
 public class Sword : weaponBase
 {
@@ -62,12 +63,12 @@ public class Sword : weaponBase
 
         if (isAttacking && mainCamera != null)
         {
-            transform.rotation = Quaternion.Lerp(transform.rotation, mainCamera.transform.rotation, 0.2f);
+            //transform.rotation = Quaternion.Lerp(transform.rotation, mainCamera.transform.rotation, 0.2f);
             RotatePlane();
         }
         else
         {
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, 0, 0), 0.2f);
+            //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, 0, 0), 0.2f);
         }
 
         // Stop attack if energy is depleted.
@@ -186,6 +187,12 @@ public class Sword : weaponBase
                 {
                     CutObjectManager.Instance.RegisterCutObject(lowerHull);
                     CutObjectManager.Instance.RegisterCutObject(upperHull);
+                }
+
+                Entity check = col.gameObject.GetComponent<Entity>();
+                if (check != null)
+                {
+                    check.Die();
                 }
                 Destroy(col.gameObject);
             }

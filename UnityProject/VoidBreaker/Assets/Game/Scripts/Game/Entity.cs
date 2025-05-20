@@ -293,7 +293,7 @@ public abstract class Entity : MonoBehaviour
     }
     public float GetHealth() { return CurrentHealth; }
     public float GetEnergy() { return CurrentEnergy; }
-    protected abstract void Die();
+    public abstract void Die();
     protected virtual void OnHealthChanged(float newHealth) { }
     protected virtual void OnEnergyChanged(float newEnergy) { }
 
