@@ -31,6 +31,7 @@ public class gunShooting : weaponBase
     [SerializeField] private beamControl tracerFX;
     [Tooltip("Overheat Smoke")]
     [SerializeField] private ParticleSystem smokeFX;
+    [SerializeField] private GameObject GunModel;
 
     [Header("SoundFX")]
     [SerializeField] private AudioClip overheat;
@@ -102,6 +103,9 @@ public class gunShooting : weaponBase
 
     public override void startAttack()
     {
+        if (!isSelectedWeapon)
+            return;
+
         if (!reloading)
         {
             firing = true;
@@ -131,6 +135,18 @@ public class gunShooting : weaponBase
         timeSinceLastReload = 0;
     }
 
+    public override void select()
+    {
+        GunModel.SetActive(true);
+        isSelectedWeapon = true;
+    }
+
+    public override void deselect()
+    {
+        stopAttack();
+        GunModel.SetActive(false);
+        isSelectedWeapon = false;
+    }
 
     private void Shoot()
     {

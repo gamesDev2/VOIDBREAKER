@@ -32,6 +32,7 @@ public class weaponHandle : MonoBehaviour
             if (equippedWeapon != null)
             {
                 equippedWeapon.playerCamera = playerCamera.transform;
+                equippedWeapon.select();
             }
             // Otherwise, auto-equip the first weapon from the list.
             else if (weapons != null && weapons.Count > 0)
@@ -108,12 +109,12 @@ public class weaponHandle : MonoBehaviour
         // Deactivate currently equipped weapon if any.
         if (equippedWeapon != null)
         {
-            equippedWeapon.gameObject.SetActive(false);
+            equippedWeapon.deselect();
         }
 
         currentWeaponIndex = index;
         equippedWeapon = weapons[currentWeaponIndex];
-        equippedWeapon.gameObject.SetActive(true);
+        equippedWeapon.select();
         if (playerCamera != null)
         {
             equippedWeapon.playerCamera = playerCamera.transform;

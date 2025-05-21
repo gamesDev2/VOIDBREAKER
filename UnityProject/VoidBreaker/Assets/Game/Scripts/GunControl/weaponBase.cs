@@ -10,6 +10,7 @@ public abstract class weaponBase : MonoBehaviour
     [Header("Weapon Settings")]
     [Tooltip("Does this weapon handle its own input? (true for melee weapons)")]
     public bool isMeleeWeapon = false;
+    public bool isSelectedWeapon = false;
 
     // Protected virtual methods so derived classes can override.
     protected virtual void Start()
@@ -31,4 +32,6 @@ public abstract class weaponBase : MonoBehaviour
 
     public virtual void startAttack() { }
     public virtual void stopAttack() { }
+    public virtual void deselect() { }
+    public virtual void select() { }
 }

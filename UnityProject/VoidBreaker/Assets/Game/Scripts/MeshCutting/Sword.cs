@@ -120,6 +120,20 @@ public class Sword : weaponBase
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
 
+    public override void select()
+    {
+        isSelectedWeapon = true;
+        gameObject.SetActive(isSelectedWeapon);
+    }
+
+    public override void deselect()
+    {
+        stopAttack();
+        isSelectedWeapon = false;
+        gameObject.SetActive(isSelectedWeapon);
+    }
+
+
     /// <summary>
     /// Rotates the slicing plane based on horizontal mouse movement.
     /// </summary>
