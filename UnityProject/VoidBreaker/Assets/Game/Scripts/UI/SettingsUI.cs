@@ -2,13 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Transactions;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SettingsUI : MonoBehaviour
 {
     public GameObject settingsMainPanel;
 
     public GameObject graphicsSettings;
+
     public GameObject audioSettings;
+    public Slider volumeSlider;
+
     public GameObject controlsSettings;
 
     private GameObject currentSubPanel;
@@ -67,6 +71,13 @@ public class SettingsUI : MonoBehaviour
 
         subPanel.SetActive(true);
         currentSubPanel = subPanel;
+
+        if (subPanel == audioSettings)
+        {
+            float savedVolume = SettingsManager.Instance.userSettings.volume;
+            volumeSlider.value = savedVolume;
+        }
+
     }
 
     public void BackToMainSettings()
@@ -79,6 +90,9 @@ public class SettingsUI : MonoBehaviour
         settingsMainPanel.SetActive(true);
     }
 
-
+    public void ApplySettings(GameObject currentSubPanel)
+    {
+       // if (currentSubPanel. == ) { }
+    }
 
 }
