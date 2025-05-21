@@ -106,20 +106,19 @@ public class weaponHandle : MonoBehaviour
         if (index < 0 || index >= weapons.Count)
             return;
 
-        // Deactivate currently equipped weapon if any.
         if (equippedWeapon != null)
-        {
             equippedWeapon.deselect();
-        }
 
         currentWeaponIndex = index;
         equippedWeapon = weapons[currentWeaponIndex];
         equippedWeapon.select();
         if (playerCamera != null)
-        {
             equippedWeapon.playerCamera = playerCamera.transform;
-        }
+
+        // Fire weapon equipped event
+        Game_Manager.Instance?.on_weapon_equipped.Invoke(equippedWeapon.name);
     }
+
 
     /// <summary>
     /// Equips the specified weapon.
@@ -130,16 +129,18 @@ public class weaponHandle : MonoBehaviour
             return;
 
         if (equippedWeapon != null)
-        {
             equippedWeapon.gameObject.SetActive(false);
-        }
+
         equippedWeapon = newWeapon;
         equippedWeapon.gameObject.SetActive(true);
+
         if (playerCamera != null)
-        {
             equippedWeapon.playerCamera = playerCamera.transform;
-        }
+
+        // Fire weapon equipped event
+        Game_Manager.Instance?.on_weapon_equipped.Invoke(equippedWeapon.name);
     }
+
 
     /// <summary>
     /// Unequips the current weapon.

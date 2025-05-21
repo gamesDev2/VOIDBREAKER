@@ -15,6 +15,7 @@ public class HUDController : MonoBehaviour
     public Image healthBackgroundImage;
     public Image energyBackgroundImage;
     public TextMeshProUGUI interact_text;
+    public TextMeshProUGUI gun_name_text;
     public Image InteractWindow;
     public Image gunOverheatWindow;
 
@@ -111,6 +112,8 @@ public class HUDController : MonoBehaviour
             Game_Manager.Instance.on_objective_updated.AddListener(UpdateObjectiveText);
             Game_Manager.Instance.on_empty_fire.AddListener(OnEmptyFire);
             Game_Manager.Instance.on_fade_to_black.AddListener(FadeToBlack);
+            Game_Manager.Instance.on_weapon_equipped.AddListener(UpdateWeaponName);
+
         }
         InteractWindow.gameObject.SetActive(false);
 
@@ -430,6 +433,14 @@ public class HUDController : MonoBehaviour
     {
         pdaWindow.gameObject.SetActive(false);
         Game_Manager.SetCursorLocked(true);
+    }
+    // ---------------- Weapon Name Handlers ----------------
+    private void UpdateWeaponName(string name)
+    {
+        if (gun_name_text != null)
+        {
+            gun_name_text.text = name;
+        }
     }
 
 

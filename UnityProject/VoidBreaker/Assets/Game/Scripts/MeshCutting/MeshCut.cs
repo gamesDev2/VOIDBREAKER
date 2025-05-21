@@ -1,37 +1,80 @@
-using UnityEngine;
+﻿using UnityEngine;
 using EzySlice;
 
 public static class MeshCuttingSystem
 {
-    /// <summary>
-    /// Attempts to slice the provided GameObject using the specified plane.
-    /// </summary>
     public static SlicedHull SliceObject(GameObject obj, Vector3 planePosition, Vector3 planeNormal, Material crossSectionMaterial = null)
     {
-        if (obj.GetComponent<MeshFilter>() == null)
+        var smr = obj.GetComponent<SkinnedMeshRenderer>();
+        if (smr != null)
+            return SliceSkinned(smr, planePosition, planeNormal, crossSectionMaterial);
+
+        var mf = obj.GetComponent<MeshFilter>();
+        if (mf == null)
             return null;
 
         return obj.Slice(planePosition, planeNormal, crossSectionMaterial);
     }
+    public static GameObject FindSliceableRoot(GameObject obj)
+    {
+        // Traverse upward until we find a root that has either MeshFilter or SkinnedMeshRenderer
+        Transform current = obj.transform;
+        while (current != null)
+        {
+            if (current.GetComponent<MeshFilter>() != null || current.GetComponent<SkinnedMeshRenderer>() != null)
+                return current.gameObject;
 
-    /// <summary>
-    /// Adds physics components to the sliced piece, re-centering it at the original position and applying a milder explosion force.
-    /// </summary>
-    /// <param name="go">The sliced GameObject.</param>
-    /// <param name="originalPosition">The original object's position.</param>
+            current = current.parent;
+        }
+
+        return obj; // fallback to the original object if nothing is found
+    }
+
+    private static SlicedHull SliceSkinned(SkinnedMeshRenderer skinned,
+                                           Vector3 planePos,
+                                           Vector3 planeNormal,
+                                           Material crossSectionMat)
+    {
+        var bakedMesh = new Mesh();
+#if UNITY_2020_1_OR_NEWER
+        skinned.BakeMesh(bakedMesh, true);
+#else
+        skinned.BakeMesh(bakedMesh);
+#endif
+
+        var tmp = new GameObject($"{skinned.name}_BakedForSlice");
+        tmp.transform.SetParent(skinned.transform.parent, false);
+        tmp.transform.localPosition = skinned.transform.localPosition;
+        tmp.transform.localRotation = skinned.transform.localRotation;
+        tmp.transform.localScale = skinned.transform.localScale;
+
+        var mf = tmp.AddComponent<MeshFilter>();
+        var mr = tmp.AddComponent<MeshRenderer>();
+        mf.sharedMesh = bakedMesh;
+        mr.sharedMaterials = skinned.sharedMaterials;
+        mr.shadowCastingMode = skinned.shadowCastingMode;
+        mr.receiveShadows = skinned.receiveShadows;
+        mr.lightProbeUsage = skinned.lightProbeUsage;
+        mr.reflectionProbeUsage = skinned.reflectionProbeUsage;
+
+        SlicedHull hull = tmp.Slice(planePos, planeNormal, crossSectionMat);
+
+        Object.Destroy(tmp);
+        Object.Destroy(bakedMesh);
+        return hull;
+    }
+
     public static void AddHullComponents(GameObject go, Vector3 originalPosition)
     {
-        // Set the layer as needed.
         go.layer = 9;
-        // Recenter the piece to the original object's position.
         go.transform.position = originalPosition;
 
         Rigidbody rb = go.AddComponent<Rigidbody>();
         rb.interpolation = RigidbodyInterpolation.Interpolate;
+
         MeshCollider collider = go.AddComponent<MeshCollider>();
         collider.convex = true;
 
-        // Apply a reduced explosion force.
         rb.AddExplosionForce(150, originalPosition, 5);
     }
 }

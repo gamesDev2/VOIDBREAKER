@@ -192,36 +192,45 @@ public class Sword : weaponBase
     public bool Slice()
     {
         if (cutPlane == null) return false;
+
         bool slicedSomething = false;
         Collider[] hits = Physics.OverlapBox(cutPlane.position, new Vector3(5, 0.1f, 5), cutPlane.rotation, layerMask);
         if (hits.Length <= 0)
             return false;
+
         foreach (Collider col in hits)
         {
-            SlicedHull hull = MeshCuttingSystem.SliceObject(col.gameObject, cutPlane.position, cutPlane.up, crossMaterial);
-            if (hull != null)
-            {
-                slicedSomething = true;
-                GameObject lowerHull = hull.CreateLowerHull(col.gameObject, crossMaterial);
-                GameObject upperHull = hull.CreateUpperHull(col.gameObject, crossMaterial);
-                MeshCuttingSystem.AddHullComponents(lowerHull, col.transform.position);
-                MeshCuttingSystem.AddHullComponents(upperHull, col.transform.position);
-                if (CutObjectManager.Instance != null)
-                {
-                    CutObjectManager.Instance.RegisterCutObject(lowerHull);
-                    CutObjectManager.Instance.RegisterCutObject(upperHull);
-                }
+            GameObject target = MeshCuttingSystem.FindSliceableRoot(col.gameObject);
+            if (target == null) continue;
 
-                Entity check = col.gameObject.GetComponent<Entity>();
-                if (check != null)
-                {
-                    check.Die();
-                }
-                Destroy(col.gameObject);
+            SlicedHull hull = MeshCuttingSystem.SliceObject(
+                target, cutPlane.position, cutPlane.up, crossMaterial);
+            if (hull == null) continue;
+
+            slicedSomething = true;
+
+            GameObject lowerHull = hull.CreateLowerHull(target, crossMaterial);
+            GameObject upperHull = hull.CreateUpperHull(target, crossMaterial);
+
+            MeshCuttingSystem.AddHullComponents(lowerHull, target.transform.position);
+            MeshCuttingSystem.AddHullComponents(upperHull, target.transform.position);
+
+            if (CutObjectManager.Instance != null)
+            {
+                CutObjectManager.Instance.RegisterCutObject(lowerHull);
+                CutObjectManager.Instance.RegisterCutObject(upperHull);
             }
+
+            Entity check = target.GetComponent<Entity>();
+            if (check != null)
+                check.Die();
+
+            Destroy(target);
         }
+
         return slicedSomething;
     }
+
 
     public void ShakeCamera()
     {

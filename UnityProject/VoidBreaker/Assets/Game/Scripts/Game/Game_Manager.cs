@@ -28,6 +28,8 @@ public class Game_Manager : MonoBehaviour
     public UnityEvent<string, string> on_objective_updated = new UnityEvent<string, string>();
     public UnityEvent on_empty_fire = new UnityEvent();
     public UnityEvent<float> on_fade_to_black = new UnityEvent<float>();
+    public UnityEvent<string> on_weapon_equipped = new UnityEvent<string>();
+
 
     // The console currently requesting a code
     [HideInInspector] public DoorConsole activeConsole;

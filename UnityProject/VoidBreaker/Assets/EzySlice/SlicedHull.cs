@@ -2,140 +2,177 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EzySlice {
+namespace EzySlice
+{
 
-	/**
+    /**
 	 * The final generated data structure from a slice operation. This provides easy access
 	 * to utility functions and the final Mesh data for each section of the HULL.
 	 */
-	public sealed class SlicedHull {
-		private Mesh upper_hull;
-		private Mesh lower_hull;
+    public sealed class SlicedHull
+    {
+        private Mesh upper_hull;
+        private Mesh lower_hull;
 
-		public SlicedHull(Mesh upperHull, Mesh lowerHull) {
-			this.upper_hull = upperHull;
-			this.lower_hull = lowerHull;
-		}
+        public SlicedHull(Mesh upperHull, Mesh lowerHull)
+        {
+            this.upper_hull = upperHull;
+            this.lower_hull = lowerHull;
+        }
 
-		public GameObject CreateUpperHull(GameObject original) {
-			return CreateUpperHull(original, null);
-		}
+        public GameObject CreateUpperHull(GameObject original)
+        {
+            return CreateUpperHull(original, null);
+        }
 
-		public GameObject CreateUpperHull(GameObject original, Material crossSectionMat) {
-			GameObject newObject = CreateUpperHull();
+        public GameObject CreateUpperHull(GameObject original, Material crossSectionMat)
+        {
+            GameObject newObject = CreateUpperHull();
 
-			if (newObject != null) {
-				newObject.transform.localPosition = original.transform.localPosition;
-				newObject.transform.localRotation = original.transform.localRotation;
-				newObject.transform.localScale = original.transform.localScale;
+            if (newObject != null)
+            {
+                CopyTransform(original, newObject);
+                AssignMaterials(newObject, original, crossSectionMat, upper_hull);
+            }
 
-				Material[] shared = original.GetComponent<MeshRenderer>().sharedMaterials;
-                Mesh mesh = original.GetComponent<MeshFilter>().sharedMesh;
+            return newObject;
+        }
 
-                // nothing changed in the hierarchy, the cross section must have been batched
-                // with the submeshes, return as is, no need for any changes
-                if (mesh.subMeshCount == upper_hull.subMeshCount) {
-                    // the the material information
-                    newObject.GetComponent<Renderer>().sharedMaterials = shared;
+        public GameObject CreateLowerHull(GameObject original)
+        {
+            return CreateLowerHull(original, null);
+        }
 
-                    return newObject;
-                }
+        public GameObject CreateLowerHull(GameObject original, Material crossSectionMat)
+        {
+            GameObject newObject = CreateLowerHull();
 
-                // otherwise the cross section was added to the back of the submesh array because
-                // it uses a different material. We need to take this into account
-                Material[] newShared = new Material[shared.Length + 1];
+            if (newObject != null)
+            {
+                CopyTransform(original, newObject);
+                AssignMaterials(newObject, original, crossSectionMat, lower_hull);
+            }
 
-                // copy our material arrays across using native copy (should be faster than loop)
-                System.Array.Copy(shared, newShared, shared.Length);
-                newShared[shared.Length] = crossSectionMat;
-
-                // the the material information
-                newObject.GetComponent<Renderer>().sharedMaterials = newShared;
-			}
-
-			return newObject;
-		}
-
-		public GameObject CreateLowerHull(GameObject original) {
-			return CreateLowerHull(original, null);
-		}
-
-		public GameObject CreateLowerHull(GameObject original, Material crossSectionMat) {
-			GameObject newObject = CreateLowerHull();
-
-			if (newObject != null) {
-				newObject.transform.localPosition = original.transform.localPosition;
-				newObject.transform.localRotation = original.transform.localRotation;
-				newObject.transform.localScale = original.transform.localScale;
-
-				Material[] shared = original.GetComponent<MeshRenderer>().sharedMaterials;
-                Mesh mesh = original.GetComponent<MeshFilter>().sharedMesh;
-
-                // nothing changed in the hierarchy, the cross section must have been batched
-                // with the submeshes, return as is, no need for any changes
-                if (mesh.subMeshCount == lower_hull.subMeshCount) {
-                    // the the material information
-                    newObject.GetComponent<Renderer>().sharedMaterials = shared;
-
-                    return newObject;
-                }
-
-                // otherwise the cross section was added to the back of the submesh array because
-                // it uses a different material. We need to take this into account
-                Material[] newShared = new Material[shared.Length + 1];
-
-                // copy our material arrays across using native copy (should be faster than loop)
-                System.Array.Copy(shared, newShared, shared.Length);
-                newShared[shared.Length] = crossSectionMat;
-
-                // the the material information
-                newObject.GetComponent<Renderer>().sharedMaterials = newShared;
-			}
-
-			return newObject;
-		}
+            return newObject;
+        }
 
         /**
-         * Generate a new GameObject from the upper hull of the mesh
-         * This function will return null if upper hull does not exist
-         */
-        public GameObject CreateUpperHull() {
+		 * Generate a new GameObject from the upper hull of the mesh
+		 * This function will return null if upper hull does not exist
+		 */
+        public GameObject CreateUpperHull()
+        {
             return CreateEmptyObject("Upper_Hull", upper_hull);
         }
 
-		/**
+        /**
 		 * Generate a new GameObject from the Lower hull of the mesh
 		 * This function will return null if lower hull does not exist
 		 */
-		public GameObject CreateLowerHull() {
-			return CreateEmptyObject("Lower_Hull", lower_hull);
-		}
+        public GameObject CreateLowerHull()
+        {
+            return CreateEmptyObject("Lower_Hull", lower_hull);
+        }
 
-		public Mesh upperHull {
-			get { return this.upper_hull; }
-		}
+        public Mesh upperHull
+        {
+            get { return this.upper_hull; }
+        }
 
-		public Mesh lowerHull {
-			get { return this.lower_hull; }
-		}
+        public Mesh lowerHull
+        {
+            get { return this.lower_hull; }
+        }
 
-		/**
-		 * Helper function which will create a new GameObject to be able to add
-		 * a new mesh for rendering and return.
-		 */
-		private static GameObject CreateEmptyObject(string name, Mesh hull) {
-			if (hull == null) {
-				return null;
-			}
+        private static GameObject CreateEmptyObject(string name, Mesh hull)
+        {
+            if (hull == null)
+            {
+                return null;
+            }
 
-			GameObject newObject = new GameObject(name);
+            GameObject newObject = new GameObject(name);
+            newObject.AddComponent<MeshRenderer>();
+            MeshFilter filter = newObject.AddComponent<MeshFilter>();
+            filter.mesh = hull;
+            return newObject;
+        }
 
-			newObject.AddComponent<MeshRenderer>();
-			MeshFilter filter = newObject.AddComponent<MeshFilter>();
+        private static void CopyTransform(GameObject source, GameObject dest)
+        {
+            if (source == null || dest == null) return;
+            dest.transform.localPosition = source.transform.localPosition;
+            dest.transform.localRotation = source.transform.localRotation;
+            dest.transform.localScale = source.transform.localScale;
+        }
 
-			filter.mesh = hull;
+        private static void AssignMaterials(GameObject newObject, GameObject original, Material crossSectionMat, Mesh hullMesh)
+        {
+            if (newObject == null || original == null || hullMesh == null) return;
 
-			return newObject;
-		}
-	}
+            Material[] shared = null;
+            Mesh mesh = null;
+
+            var meshRenderer = original.GetComponent<MeshRenderer>();
+            var meshFilter = original.GetComponent<MeshFilter>();
+            var skinnedRenderer = original.GetComponent<SkinnedMeshRenderer>();
+
+            if (meshRenderer != null)
+            {
+                shared = meshRenderer.sharedMaterials;
+                mesh = meshFilter != null ? meshFilter.sharedMesh : null;
+            }
+            else if (skinnedRenderer != null)
+            {
+                shared = skinnedRenderer.sharedMaterials;
+                mesh = skinnedRenderer.sharedMesh;
+            }
+
+            // If mesh/materials were not found, search children
+            if ((shared == null || mesh == null) && original.transform.childCount > 0)
+            {
+                foreach (Transform child in original.transform)
+                {
+                    if (shared == null)
+                    {
+                        var childRenderer = child.GetComponent<Renderer>();
+                        if (childRenderer != null)
+                            shared = childRenderer.sharedMaterials;
+                    }
+
+                    if (mesh == null)
+                    {
+                        var childFilter = child.GetComponent<MeshFilter>();
+                        if (childFilter != null)
+                            mesh = childFilter.sharedMesh;
+
+                        var childSkin = child.GetComponent<SkinnedMeshRenderer>();
+                        if (childSkin != null)
+                            mesh = childSkin.sharedMesh;
+                    }
+                }
+            }
+
+            // Exit if still missing data
+            if (shared == null || mesh == null)
+            {
+                if (crossSectionMat != null)
+                    newObject.GetComponent<Renderer>().sharedMaterial = crossSectionMat;
+                return;
+            }
+
+            if (mesh.subMeshCount == hullMesh.subMeshCount)
+            {
+                newObject.GetComponent<Renderer>().sharedMaterials = shared;
+                return;
+            }
+
+            // Append cross-section material
+            Material[] newShared = new Material[shared.Length + 1];
+            System.Array.Copy(shared, newShared, shared.Length);
+            newShared[shared.Length] = crossSectionMat;
+            newObject.GetComponent<Renderer>().sharedMaterials = newShared;
+        }
+
+    }
 }
