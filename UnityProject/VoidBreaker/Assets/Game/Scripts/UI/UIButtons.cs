@@ -22,7 +22,6 @@ public class UIButtons : MonoBehaviour
         {
             icon.color = hoverColor;
         }
-        Debug.Log("hover button");
     }
 
     public void MouseExit()
@@ -53,6 +52,5 @@ public class UIButtons : MonoBehaviour
         {
             icon.color = normalColor;
         }
-        //Sound??
     }
 }
