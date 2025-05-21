@@ -82,7 +82,7 @@ public class gunShooting : weaponBase
             ammoRemaining = ammoCount;
         }
 
-        if (ammoRemaining / fireRate < 5 && !oneShotAudio.isPlaying)
+        if ((ammoRemaining / fireRate) < 2f && !oneShotAudio.isPlaying && !reloading)
         {
             oneShotAudio.PlayOneShot(warningSounds);
         }

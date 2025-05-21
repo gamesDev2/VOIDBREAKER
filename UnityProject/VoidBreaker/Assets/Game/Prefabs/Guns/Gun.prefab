@@ -5458,7 +5458,7 @@ MonoBehaviour:
   damage: 10
   fireRate: 5
   beamWeapon: 1
-  ammoCount: 30000
+  ammoCount: 30
   reloadTime: 2
   range: 100
   ammoRemaining: 0
