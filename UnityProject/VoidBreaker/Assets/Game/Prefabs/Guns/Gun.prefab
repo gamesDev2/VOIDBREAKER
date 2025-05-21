@@ -5747,11 +5747,6 @@ PrefabInstance:
       propertyPath: m_Positions.Array.data[1].z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6722459432953157688, guid: d33e5e30a6b17d44aa8e508ce46d8fdb,
-        type: 3}
-      propertyPath: InitialModule.startSize.scalar
-      value: 6
-      objectReference: {fileID: 0}
     - target: {fileID: 7470771944760230909, guid: d33e5e30a6b17d44aa8e508ce46d8fdb,
         type: 3}
       propertyPath: m_LocalPosition.x

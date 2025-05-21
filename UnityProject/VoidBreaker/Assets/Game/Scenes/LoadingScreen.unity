@@ -998,7 +998,7 @@ MonoBehaviour:
   tipChangeInterval: 5
   progressEase: 6
   tipFadeEase: 7
-  minVisibleTime: 10
+  minVisibleTime: 3
 --- !u!1 &2766506827571072513
 GameObject:
   m_ObjectHideFlags: 0

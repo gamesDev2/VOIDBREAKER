@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Player_Controller : Entity
@@ -126,6 +127,7 @@ public class Player_Controller : Entity
             }
         }
     }
+
     public override void Die()
     {
         NotifyDeath();
@@ -136,6 +138,7 @@ public class Player_Controller : Entity
         body.playerCamera = playerCamera;
         body.cameraRotation = playerCamera.transform.rotation;
 
+        body.startDeathSequence();
         Destroy(gameObject);
     }
 

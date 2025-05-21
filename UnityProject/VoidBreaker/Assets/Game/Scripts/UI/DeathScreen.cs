@@ -7,11 +7,15 @@ public class DeathScene : MonoBehaviour
 {
     [SerializeField] private Button loadLastCheckpointButton;
     [SerializeField] private Button loadMainMenuButton;
+    [SerializeField] private CanvasGroup DeathCanvas;
+
+    public float fadeInTime;
 
     void Start()
     {
         loadLastCheckpointButton.onClick.AddListener(LoadLastCheckpoint);
         loadMainMenuButton.onClick.AddListener(LoadMainMenu);
+        StartCoroutine(FadeIn());
     }
 
 
@@ -23,5 +27,25 @@ public class DeathScene : MonoBehaviour
     private void LoadMainMenu()
     {
         LoadingScreen.LoadScene("MainMenu");
+    }
+
+
+    IEnumerator FadeIn()
+    {
+        float time = 0f;
+        float fade = 0f;
+
+        while (time < fadeInTime)
+        {
+            time += Time.deltaTime;
+
+            fade = time / fadeInTime;
+
+            DeathCanvas.alpha = fade;
+
+            yield return null;
+        }
+
+        Game_Manager.SetCursorLocked(false);
     }
 }

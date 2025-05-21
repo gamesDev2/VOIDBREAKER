@@ -85,6 +85,10 @@ public class HUDController : MonoBehaviour
     private readonly Dictionary<string, LocalPDAEntry> _pdaEntries = new Dictionary<string, LocalPDAEntry>();
     private Button _currentSelectedButton;
 
+    // ---------------- Fade To Black ----------------
+    private float fadeTime;
+    public CanvasGroup BlackScreen;
+
     // ---------------- MonoBehaviour ----------------
     void Start()
     {
@@ -106,6 +110,7 @@ public class HUDController : MonoBehaviour
             Game_Manager.Instance.on_view_pda_entry.AddListener(OnViewPDALog);
             Game_Manager.Instance.on_objective_updated.AddListener(UpdateObjectiveText);
             Game_Manager.Instance.on_empty_fire.AddListener(OnEmptyFire);
+            Game_Manager.Instance.on_fade_to_black.AddListener(FadeToBlack);
         }
         InteractWindow.gameObject.SetActive(false);
 
@@ -425,5 +430,28 @@ public class HUDController : MonoBehaviour
     {
         pdaWindow.gameObject.SetActive(false);
         Game_Manager.SetCursorLocked(true);
+    }
+
+
+    private void FadeToBlack(float Time)
+    {
+        fadeTime = Time;
+
+        StartCoroutine(fading());
+    }
+
+    private IEnumerator fading()
+    {
+        float fade = 1f;
+        float originalTime = fadeTime;
+
+        while (fadeTime >= 0)
+        {
+            fadeTime -= Time.deltaTime;
+            fade = 1f - (fadeTime / originalTime);
+            BlackScreen.alpha = fade;
+
+            yield return null;
+        }
     }
 }
