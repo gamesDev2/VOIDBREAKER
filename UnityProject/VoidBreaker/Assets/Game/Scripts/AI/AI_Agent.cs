@@ -30,6 +30,8 @@ public class GOAPAgent : MonoBehaviour
     private AI_Movement_Controller movementController;
     private NavMeshAgent navAgent;
     private Rigidbody rb;
+    [Header("Handle to child Model")]
+    [SerializeField] private GameObject ChildModel;
 
     [Header("Movement Settings")]
     [SerializeField] private float stoppingDistance = 1.0f;
@@ -221,6 +223,12 @@ public class GOAPAgent : MonoBehaviour
         }
 
         navAgent.nextPosition = transform.position;
+
+        if (ChildModel == null)
+        {
+            movementController.Die();
+        }
+
     }
 
     public void ExternalSetPlayerSpotted(bool spotted)
