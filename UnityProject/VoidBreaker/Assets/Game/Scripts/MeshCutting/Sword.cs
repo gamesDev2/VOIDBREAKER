@@ -42,6 +42,9 @@ public class Sword : weaponBase
     [Header("Camera Shake Settings")]
     public float shakeStrength = 0.5f;
 
+    [Header("Sword Stats")]
+    public float energyUse = 40f;
+
     private AudioSource slashSound;
 
     protected override void Start()
@@ -149,13 +152,14 @@ public class Sword : weaponBase
     public void Slash()
     {
         // Check cooldown.
-        if (Time.time < lastSlashTime + slashCooldown)
+        if (Time.time < lastSlashTime + slashCooldown && playerHandle.GetEnergy() <= energyUse)
             return;
         lastSlashTime = Time.time;
 
         bool didSlice = Slice();
         if (didSlice)
         {
+            playerHandle.DrainEnergy(energyUse);
             // Optional: animate the slicing plane's child if available.
             if (cutPlane.childCount > 0)
             {
@@ -194,7 +198,7 @@ public class Sword : weaponBase
         if (cutPlane == null) return false;
 
         bool slicedSomething = false;
-        Collider[] hits = Physics.OverlapBox(cutPlane.position, new Vector3(5, 0.1f, 5), cutPlane.rotation, layerMask);
+        Collider[] hits = Physics.OverlapBox(cutPlane.position, new Vector3(2, 0.1f, 2), cutPlane.rotation, layerMask);
         if (hits.Length <= 0)
             return false;
 

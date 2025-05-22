@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 3775358657212481704}
   - component: {fileID: 6916421913748832249}
   m_Layer: 6
-  m_Name: AI_Agent
+  m_Name: AI_Agent_Tank
   m_TagString: AI
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -85,7 +85,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05e2fa86faca8ae498117426df2aafa6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyType: 0
+  enemyType: 1
   fleeHealthThreshold: 30
   availableActions: []
   ChildModel: {fileID: 7793332398993006124}

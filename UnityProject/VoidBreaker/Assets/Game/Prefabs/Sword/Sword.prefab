@@ -5060,6 +5060,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
   isMeleeWeapon: 1
+  isSelectedWeapon: 0
   isAttacking: 0
   normalFOV: 90
   zoomFOV: 45
@@ -5074,6 +5075,7 @@ MonoBehaviour:
   slashVFX: {fileID: 8709569757841954868}
   slashParticles: {fileID: 5201371070937598253}
   shakeStrength: 1.2
+  energyUse: 40
 --- !u!82 &5151587194543956481
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5198,7 +5200,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.87, y: 1.87, z: 1.87}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2571788012197415063}

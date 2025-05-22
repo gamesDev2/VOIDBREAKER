@@ -293,6 +293,13 @@ public abstract class Entity : MonoBehaviour
         if (CurrentHealth <= 0)
             Die();
     }
+
+    public void DrainEnergy(float energy)
+    {
+        CurrentEnergy -= energy;
+        OnEnergyChanged(CurrentEnergy);
+    }
+
     public void Heal(float amount)
     {
         CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth);
