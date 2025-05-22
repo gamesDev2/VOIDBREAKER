@@ -84,7 +84,7 @@ public class gunShooting : weaponBase
 
         if ((ammoRemaining / fireRate) < 2f && !oneShotAudio.isPlaying && !reloading)
         {
-            oneShotAudio.PlayOneShot(warningSounds);
+            
         }
 
         if (firing)
@@ -115,6 +115,8 @@ public class gunShooting : weaponBase
         else 
         {
             Game_Manager.Instance.on_empty_fire.Invoke();
+            if (!oneShotAudio.isPlaying)
+                oneShotAudio.PlayOneShot(warningSounds);
         }
     }
 

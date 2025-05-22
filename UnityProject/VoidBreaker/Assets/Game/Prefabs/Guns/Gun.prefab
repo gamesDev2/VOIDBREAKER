@@ -5470,7 +5470,7 @@ MonoBehaviour:
   smokeFX: {fileID: 2499811198751753040}
   GunModel: {fileID: 1133087730628284112}
   overheat: {fileID: 0}
-  warningSounds: {fileID: 0}
+  warningSounds: {fileID: 8300000, guid: 1304ddafe7efede4fb6a32d07765de0f, type: 3}
   oneShotAudio: {fileID: 2813564629068638135}
 --- !u!82 &6894731335753007923
 AudioSource:
