@@ -1048,6 +1048,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5151587194543956481, guid: e45120c5acec42e4a96baa8876fe1fca,
         type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: a38d68f44cfdcd64caf09d9ad4d89067, type: 3}
+    - target: {fileID: 5151587194543956481, guid: e45120c5acec42e4a96baa8876fe1fca,
+        type: 3}
       propertyPath: rolloffMode
       value: 2
       objectReference: {fileID: 0}
