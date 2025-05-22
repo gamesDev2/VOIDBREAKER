@@ -29,6 +29,7 @@ public class GOAPAgent : MonoBehaviour
     // ---------------------- Movement & NavMesh -----------------------
     private AI_Movement_Controller movementController;
     private NavMeshAgent navAgent;
+    private Rigidbody rb;
 
     [Header("Movement Settings")]
     [SerializeField] private float stoppingDistance = 1.0f;
@@ -78,6 +79,9 @@ public class GOAPAgent : MonoBehaviour
     [Tooltip("Max permitted angle (degrees) between direct‑to‑target direction and actual steering.")]
     public float maxSteerDeviation = 45f;
 
+    // ---------------------- Animation -------------------------------
+    public Animator animator;
+
     // ---------------------- Health Reference ------------------------
     private Entity entity;
 
@@ -86,6 +90,7 @@ public class GOAPAgent : MonoBehaviour
         movementController = GetComponent<AI_Movement_Controller>();
         navAgent = GetComponent<NavMeshAgent>();
         entity = GetComponent<Entity>();
+        rb = GetComponent<Rigidbody>();
 
         navAgent.updatePosition = false;
         navAgent.updateRotation = false;
@@ -169,6 +174,7 @@ public class GOAPAgent : MonoBehaviour
 
         CheckStuck();
 
+        animator.SetFloat("Speed", rb.velocity.magnitude);
         // Movement & steering
         Vector3 desiredVel = navAgent.desiredVelocity;
         if (desiredVel.sqrMagnitude < 0.01f)
