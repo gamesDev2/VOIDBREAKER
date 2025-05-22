@@ -1,16 +1,40 @@
 {
-    "data": [
-      {
-        "Title": "We Win!",
-        "Entry": "we have pushed the aliens back out of the ship!"
-      },
-      {
-        "Title": "We Lose!",
-        "Entry": "The aliens have overun the ship!"
-      },
-      {
-        "Title": "Lorem Ipsum, dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        "Entry": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-      }
-    ]
+  "data": [
+    {
+      "Title": "CMDR REX VAULT – PERSONAL MEMO 042",
+      "Entry": "The person who discovers this message should never believe their eyes or the surrounding quietness.\n\nThe Rift will begin to distort your perception so review this information before it starts.\n\nLeft Click: Attack. Simple.\n\nRight Click activates Sword Mode which provides protection when enemies approach too closely.\n\n1 / 2: Switch weapons on the fly.\n\nShift: Sprint—use it often.\n\nC: Crouch—quiet steps save lives.\n\nE: Dash. The time difference between one second can prove vital.\n\nT: Phase Shift. The ability to pass through reality for a brief instant allows you to dodge attacks or navigate through unstable areas.\n\nUse E to interact with technology. Green means go. Red means… well, good luck.\n\nWhen you start hearing whispers or your vision warps you should immediately exit the Rift zone. Fast.\n\nStay sharp. Stay alive.\n—Cmdr. Vault"
+    },
+    {
+      "Title": "DR. ELENA MIREZ – PERSONAL LOG 021 // RESEARCH WING BETA",
+      "Entry": "I specifically told them to keep the sample outside the facility.\n\nThe Rift sample pulsed—faint at first, like a heartbeat. The walls began to distort their shape when we placed the sample in Chamber 3. Like metal breathing. Like space remembering.\n\nTran remained at the facility to perform extensive scanning operations during the previous night. His communication channels displayed static in the morning while a mysterious stain appeared on the glass surface. The Rift has evolved from a subject of study into an active observer that monitors our activities.\n\nA presence followed me through the corridor without making any audible footsteps. I shut off the lights—if you can’t see it, maybe it can’t see you.\n\nI have secured this terminal. If you are reading this message then stay away from Chamber 3..."
+    },
+    {
+      "Title": "LT. KAI DRENN – COMMAND CENTER // LOG 005",
+      "Entry": "Power’s flickering again. Third blackout today. The Rift's signature continues to rise at an alarming rate as if it were a living entity.\n\nHigh Command has not issued any orders for the past twelve hours. No response. No evac.\n\nI’ve sealed the ops deck. If anyone finds this: do not reconnect the uplink. Whatever’s out there... it’s trying to get in.\n[17:27]\n-LT. Drenn"
+    },
+    {
+      "Title": "LT. KAI DRENN – COMMAND CENTER // LOG 007",
+      "Entry": "The up link automatically restored its connection without any external commands or overrides. Every screen displayed static before a voice whispered my name. It wasn’t human. Not at first. The system transmitted a series of cold pulses that mimicked a dark breath before it started repeating my name repeatedly."
+    },
+    {
+      "Title": "TECHNICIAN JONAS KELL – QUARANTINE BAY // LOG 019",
+      "Entry": "I shouldn’t have listened. The static allowed me to hear only faint whispers at first. Curious, I tuned the comms. The voice became clear as it addressed me by name while offering solutions and hidden truths.\n\nNow, I hear it all the time. In my head. The entity possesses complete knowledge about my deepest fears and my past mistakes. The voice in my head continues to manipulate my thoughts but I remain powerless to stop listening.\n\nI have lost myself to the point where I am unsure if I remain the same person.I cut off power supply and redirected all data streams yet the voice continued to speak through the background noise.\n\nThe Deck 3 log entries have been modified. The recorded timestamps remain the same but the documented events do not match the actual sequence of events. The system appears to be modifying historical records or eliminating our presence from its filing and rewriting it. If anyone finds this don't trust the systems. DON'T LISTEN TO THE VOICE! but if you do for the love of god don't respond - LT.Drenn\nIf anyone finds this, don’t fall for it. Its a trap Run before it finds you too. - Jonas Kell"
+    },
+    {
+      "Title": "ENGINEER LYRA HANE – SERVICE HALLWAY // LOG 023",
+      "Entry": "The voice accompanies me through these hallways with its gentle yet insistent tone that refuses to be dismissed. The voice shares forbidden knowledge to me alone while offering protection if I follow its instructions. The walls seem to vibrate with its words while shadows move like living darkness in the darkness.\n\nI don’t know how much longer I can hold on. My thoughts experience an invasion because something non-human distorts them. If this is my last message, please—don’t answer the calls. The Rift should never be allowed to invade your mental space. Hold on to your sanity.\nStay strong. Stay human. -Lyra Hane"
+    },
+    {
+      "Title": "TECHNICIAN MARCUS REED – ENGINEERING BAY // LOG 031",
+      "Entry": "Power systems are failing faster than predicted. The Rift’s signal is scrambling everything—reactor controls, life support, even comms. Every time I approach the main reactor, the machinery hums with a strange, almost mocking tone. It feels alive, watching me, waiting. My tools are failing, and the backup generators won’t last much longer. I’ve tried rerouting power, but the interference only grows stronger. If anyone finds this log, don’t trust any of the tech left running here. The Rift’s influence isn’t just physical—it’s spreading through our systems, infecting everything connected. Stay alert, and don’t get caught in the blackout.  - Marcus Reed"
+    },
+    {
+      "Title": "MEDIC SOPHIA JIN – ISOLATION WARD // LOG 017",
+      "Entry": "The patients under quarantine show signs of deterioration at a pace that surpasses any medical condition I have encountered. Their eyes become glassy while they speak incoherent words which I cannot understand. The Rift seems to be causing mental deterioration in patients at the same rate it damages their physical health. The medical systems have stopped functioning while I remain trapped inside the ward. The darkness continues to spread through my mind as it corrupts my thoughts and warps my memories. The other patients disappeared but their voices continue to echo from beyond the walls. Any person who receives this message should avoid the Isolation Ward. Don’t let this thing inside you. Preserve what’s left of your mind."
+    },
+    {
+      "Title": "SECURITY OFFICER TREVOR KANE – STORAGE LOCKER // LOG 012",
+      "Entry": "We immediately secured all storage bays after the first security breach. The noises that sound like rodents scratching and scraping against reinforced walls actually come from something else. The unnatural presence outside the walls continues to make its presence known. The silent predator roams through the hallways while remaining invisible to the human eye. The endless supply of ammunition has dwindled but the feeling persists that the enemy is playing a game with me. The darkness in this place contains living entities which observe me while they wait for their meal. I don’t know how much longer I can hold this place. If this is my last log, know that I didn’t go down without a fight. —Trevor Kane"
+    }
+  ]
 }
