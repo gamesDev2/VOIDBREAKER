@@ -18,7 +18,7 @@ public class Intro : MonoBehaviour
 
     [Header("Flow")]
     [Tooltip("Scene to load after the intro.")]
-    [SerializeField] private string nextScene = "Dev_2";
+    [SerializeField] private string nextScene = "MainLevel";
 
     [Tooltip("Seconds for the initial fade-in from black.")]
     [SerializeField] private float fadeInDuration = 1.5f;

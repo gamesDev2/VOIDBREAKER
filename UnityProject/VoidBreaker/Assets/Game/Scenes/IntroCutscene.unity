@@ -1457,7 +1457,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cutsceneAnimator: {fileID: 2083428927}
   cutsceneStateName: 
-  nextScene: Dev_2
+  nextScene: MainLevel
   fadeInDuration: 4
   fadeOutDuration: 3
   blackScreen: {fileID: 7700079039942276020}
