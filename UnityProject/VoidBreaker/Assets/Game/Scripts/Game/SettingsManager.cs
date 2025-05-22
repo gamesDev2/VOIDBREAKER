@@ -24,6 +24,7 @@ public class SettingsManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        AudioListener.volume = userSettings.volume;
     }
 
     public void LoadSettings()
@@ -43,5 +44,6 @@ public class SettingsManager : MonoBehaviour
     {
         string json = JsonUtility.ToJson(userSettings, true);
         File.WriteAllText(settingsPath, json);
+        AudioListener.volume = userSettings.volume;
     }
 }

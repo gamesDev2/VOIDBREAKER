@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Transactions;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class SettingsUI : MonoBehaviour
 {
@@ -71,9 +71,10 @@ public class SettingsUI : MonoBehaviour
 
         subPanel.SetActive(true);
         currentSubPanel = subPanel;
-
+        Debug.Log(subPanel);
         if (subPanel == audioSettings)
         {
+            Debug.Log(subPanel);
             float savedVolume = SettingsManager.Instance.userSettings.volume;
             volumeSlider.value = savedVolume;
         }
@@ -90,9 +91,14 @@ public class SettingsUI : MonoBehaviour
         settingsMainPanel.SetActive(true);
     }
 
-    public void ApplySettings(GameObject currentSubPanel)
+    public void ApplySettings()
     {
-       // if (currentSubPanel. == ) { }
+       if (currentSubPanel == audioSettings) 
+       {
+            float newVolume = volumeSlider.value;
+            SettingsManager.Instance.userSettings.volume = newVolume;
+            SettingsManager.Instance.SaveSettings();
+       }
     }
 
 }
