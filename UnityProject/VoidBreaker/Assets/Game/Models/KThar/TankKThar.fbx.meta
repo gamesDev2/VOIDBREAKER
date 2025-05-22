@@ -60,7 +60,7 @@ ModelImporter:
       - time: 0.16735364
         functionName: PlayFootstepSound
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: 2cca5e81b954dd4459e24490e3b2c7ce,
+        objectReferenceParameter: {fileID: 11500000, guid: fa8708447cf328c48a7108270b96cdd1,
           type: 3}
         floatParameter: 0
         intParameter: 0
@@ -68,7 +68,7 @@ ModelImporter:
       - time: 0.6586974
         functionName: PlayFootstepSound
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: 2cca5e81b954dd4459e24490e3b2c7ce,
+        objectReferenceParameter: {fileID: 11500000, guid: fa8708447cf328c48a7108270b96cdd1,
           type: 3}
         floatParameter: 0
         intParameter: 0
