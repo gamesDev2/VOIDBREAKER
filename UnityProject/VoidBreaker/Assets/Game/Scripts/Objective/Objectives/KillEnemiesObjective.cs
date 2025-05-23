@@ -41,7 +41,7 @@ public class KillEnemiesObjective : Objective
 
     private void PushUI()
     {
-        Description = $"Kill the enemies ({_kills}/{_total})";
+        Description = $"Kill the kthar ({_kills}/{_total})";
         Game_Manager.Instance?.on_objective_updated
             ?.Invoke(Title, Description);
     }

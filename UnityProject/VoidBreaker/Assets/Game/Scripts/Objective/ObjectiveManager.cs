@@ -49,7 +49,7 @@ public class ObjectiveManager : MonoBehaviour
             Debug.Log("All objectives completed.");
 
             Game_Manager.Instance?.on_objective_updated.Invoke("All objectives completed", "");
-/*            Game_Manager.Instance?.on_game_won.Invoke(true);
-*/        }
+            LoadingScreen.LoadScene("MainMenu");
+       }
     }
 }
