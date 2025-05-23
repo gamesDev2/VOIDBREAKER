@@ -12,6 +12,10 @@ public class MainMenu : MonoBehaviour
     private void Start()
     {
         ShowMainMenu();
+        if (Game_Manager.Instance != null)
+        {
+            Game_Manager.SetCursorLocked(false);
+        }
     }
 
     public void ShowMainMenu()
