@@ -12,6 +12,7 @@ public class SecurityDoor : MonoBehaviour
 
     [SerializeField, Tooltip("How long it takes for the door to open/close.")] private float transitionSpeed = 2.0f;
 
+    [SerializeField] private EnableOnTrigger[] additionalTriggers;
     
     private bool doorMoving = false;
     private float doorPosition = 0f;
@@ -74,6 +75,14 @@ public class SecurityDoor : MonoBehaviour
                 return false;
             }
         }
+        if (doorConsoles.Length == 0)
+            return false;
+
+        foreach (EnableOnTrigger e in additionalTriggers)
+        {
+            e.Enable();
+        }
+
         return true;
     }
 }
