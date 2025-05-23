@@ -21,7 +21,7 @@ public class DeathScene : MonoBehaviour
 
     private void LoadLastCheckpoint()
     {
-        LoadingScreen.LoadScene("Dev_2");
+        LoadingScreen.LoadScene("MainLevel");
     }
 
     private void LoadMainMenu()
