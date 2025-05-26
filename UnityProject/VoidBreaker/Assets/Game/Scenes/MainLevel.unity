@@ -185,6 +185,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: vb_broken_tank (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: NaN
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2277,6 +2297,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: vb_broken_tank (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2788,6 +2823,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: vb_broken_tank (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.x
+      value: -2.5130864e-38
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: NaN
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3793,6 +3853,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: vb_broken_tank (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: NaN
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4808,6 +4888,41 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: vb_broken_tank (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.w
+      value: NaN
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.x
+      value: 0.0000000037044705
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: NaN
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.z
+      value: 9.055409e+14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7920,6 +8035,36 @@ PrefabInstance:
       propertyPath: m_Name
       value: vb_broken_tank (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.w
+      value: NaN
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.x
+      value: -13.516447
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: NaN
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10025,6 +10170,36 @@ PrefabInstance:
       propertyPath: m_Name
       value: vb_broken_tank (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.w
+      value: 103
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: 0.0390625
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.z
+      value: 0.046875
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10124,6 +10299,41 @@ PrefabInstance:
       propertyPath: m_Name
       value: vb_broken_tank (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.w
+      value: -1.1825076e+17
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.x
+      value: 5.0162134
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: 1.1825588e-35
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.z
+      value: 2.5108465e+13
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10191,6 +10401,36 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: vb_broken_tank (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.w
+      value: 2.3827407e+29
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: NaN
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.z
+      value: 7.7165946e-29
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -11110,7 +11350,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 9645d7099fd02484094b6971d104eb8c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 215.45114
+      value: 157.07008
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9645d7099fd02484094b6971d104eb8c,
         type: 3}
@@ -12636,6 +12876,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: vb_broken_tank (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: NaN
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13363,6 +13623,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: vb_broken_tank
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 47.746483
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_UseColorTemperature
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_LightShadowCasterMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5069401064350886600, guid: 2679557507fa38c4588d202f69277c88,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: NaN
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
