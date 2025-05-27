@@ -6,7 +6,7 @@ public class CutObjectManager : MonoBehaviour
     public static CutObjectManager Instance { get; private set; }
 
     [Tooltip("Time (in seconds) after which a cut object is automatically destroyed.")]
-    public float lifetime = 10f;
+    public float lifetime = 30f;
 
     [Tooltip("Maximum number of cut objects allowed. If exceeded, the oldest objects are destroyed.")]
     public int maxCutMeshCount = 50;

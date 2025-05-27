@@ -7,26 +7,47 @@ public class CollectItemObjective : Objective
     public List<GameObject> itemsToCollect = new List<GameObject>();
     private HashSet<GameObject> collectedItems = new HashSet<GameObject>();
 
-    protected override void Initialize()
+    private void OnEnable()
     {
         PlayerInteraction.OnItemInteracted += OnItemInteracted;
-        collectedItems.Clear();
     }
 
-    protected override void TearDown()
+    private void OnDisable()
     {
         PlayerInteraction.OnItemInteracted -= OnItemInteracted;
     }
 
+    protected override void Initialize()
+    {
+        collectedItems.Clear();
+    }
+
+    protected override void TearDown() { }
+
     private void OnItemInteracted(GameObject item)
     {
-        if (!isActive || item == null || collectedItems.Contains(item)) return;
+        if (item == null || collectedItems.Contains(item)) return;
+        if (!itemsToCollect.Contains(item)) return;
 
-        if (itemsToCollect.Contains(item))
+        collectedItems.Add(item);
+
+        if (collectedItems.Count >= itemsToCollect.Count)
         {
-            collectedItems.Add(item);
-            if (collectedItems.Count >= itemsToCollect.Count)
+            if (IsActive)
                 CompleteObjective();
+            else
+                ForceCompleteObjective();
         }
+    }
+
+    public override bool IsSatisfiedByGameState()
+    {
+        int collected = 0;
+        foreach (var item in itemsToCollect)
+        {
+            if (item == null || !item.activeInHierarchy)
+                collected++;
+        }
+        return collected >= itemsToCollect.Count;
     }
 }

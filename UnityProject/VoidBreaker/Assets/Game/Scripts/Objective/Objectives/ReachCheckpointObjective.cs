@@ -3,15 +3,40 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class ReachCheckpointObjective : Objective
 {
-    void Awake() => GetComponent<Collider>().isTrigger = true;
+    private Collider checkpointCollider;
+
+    void Awake()
+    {
+        checkpointCollider = GetComponent<Collider>();
+        checkpointCollider.isTrigger = true;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+
+        if (IsActive)
+            CompleteObjective();
+        else
+            ForceCompleteObjective();
+    }
 
     protected override void Initialize() { }
     protected override void TearDown() { }
 
-    void OnTriggerEnter(Collider other)
+    public override bool IsSatisfiedByGameState()
     {
-        if (!isActive) return;
-        if (other.CompareTag("Player"))
-            CompleteObjective();
+        Collider[] hits = Physics.OverlapBox(
+            checkpointCollider.bounds.center,
+            checkpointCollider.bounds.extents,
+            checkpointCollider.transform.rotation,
+            LayerMask.GetMask("Player")
+        );
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Player"))
+                return true;
+        }
+        return false;
     }
 }

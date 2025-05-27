@@ -1,12 +1,13 @@
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using EzySlice;
 using UnityEngine.VFX;
-using Unity.VisualScripting;
 
 public class Sword : weaponBase
 {
+    #region Inspector Fields
     [Header("Sword Settings")]
     [Tooltip("Indicates whether the sword is currently in attack mode.")]
     public bool isAttacking;
@@ -23,8 +24,10 @@ public class Sword : weaponBase
     [Header("Cutting Settings")]
     [Tooltip("Transform used as the slicing plane.")]
     public Transform cutPlane;
-    [Tooltip("Material for the cut cross-section.")]
+    [Tooltip("Material for the default cut cross‑section.")]
     public Material crossMaterial;
+    [Tooltip("Material used for enemy flesh cross‑sections.")]
+    public Material enemyFleshMaterial;
     [Tooltip("Layer mask for sliceable objects.")]
     public LayerMask layerMask;
 
@@ -34,7 +37,7 @@ public class Sword : weaponBase
     private float lastSlashTime = -Mathf.Infinity;
 
     [Header("Slash Effects")]
-    [Tooltip("Visual Effect Graph to trigger on slash (should not auto-play).")]
+    [Tooltip("Visual Effect Graph to trigger on slash (should not auto‑play).")]
     public VisualEffect slashVFX;
     [Tooltip("Particle System to play on slash.")]
     public ParticleSystem slashParticles;
@@ -44,13 +47,14 @@ public class Sword : weaponBase
 
     [Header("Sword Stats")]
     public float energyUse = 40f;
+    #endregion
 
     private AudioSource slashSound;
 
+    #region Unity Callbacks
     protected override void Start()
     {
         base.Start();
-        // This is a melee weapon.
         isMeleeWeapon = true;
 
         if (mainCamera == null)
@@ -60,66 +64,53 @@ public class Sword : weaponBase
 
         if (cutPlane != null)
             cutPlane.gameObject.SetActive(false);
-        
+
         slashSound = GetComponent<AudioSource>();
     }
 
     protected override void Update()
     {
-        base.Update(); // Now ProcessInput() is not used here.
+        base.Update();
 
         if (isAttacking && mainCamera != null)
-        {
-            //transform.rotation = Quaternion.Lerp(transform.rotation, mainCamera.transform.rotation, 0.2f);
             RotatePlane();
-        }
-        else
-        {
-            //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, 0, 0), 0.2f);
-        }
 
-        // Stop attack if energy is depleted.
         if (isAttacking && playerHandle != null && playerHandle.GetEnergy() <= 0.0f)
-        {
             stopAttack();
-        }
     }
+    #endregion
 
-
-    // Remove internal input handling. All input is now handled by the weapon handler.
-
+    #region WeaponBase Overrides
     public override void startAttack()
     {
-        // Check if the player has enough energy to attack.
         if (playerHandle != null && playerHandle.GetEnergy() <= 0.0f)
             return;
-        playerHandle.SetSpecialModeActive(true); // Set special mode active
+
+        playerHandle.SetSpecialModeActive(true);
         isAttacking = true;
         if (cutPlane != null)
             cutPlane.gameObject.SetActive(true);
         if (cameraController != null)
+        {
             cameraController.SetOverrideFOV(zoomFOV);
             cameraController.SetVolumeIntensity(1f);
-        // Slow down time for dramatic effect.
-        //DOTween.To(() => Time.timeScale, x => Time.timeScale = x, (1.0f / playerHandle.timeFlow) * 0.2f, 0.02f);
+        }
         Time.timeScale = (1.0f / playerHandle.timeFlow) * 0.2f;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
 
     public override void stopAttack()
     {
-
         isAttacking = false;
-        playerHandle.SetSpecialModeActive(false); // Clear special mode
+        playerHandle.SetSpecialModeActive(false);
         if (cutPlane != null)
             cutPlane.gameObject.SetActive(false);
         if (cameraController != null)
+        {
             cameraController.ClearOverrideFOV();
             cameraController.SetVolumeIntensity(0.0f);
-
-        // Resume normal time.
-        //DOTween.To(() => Time.timeScale, x => Time.timeScale = x, (1.0f / playerHandle.timeFlow) * 1f, 0.02f);
-        Time.timeScale = (1.0f / playerHandle.timeFlow) * 1f;
+        }
+        Time.timeScale = (1.0f / playerHandle.timeFlow);
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
 
@@ -135,86 +126,91 @@ public class Sword : weaponBase
         isSelectedWeapon = false;
         gameObject.SetActive(isSelectedWeapon);
     }
+    #endregion
 
-
-    /// <summary>
-    /// Rotates the slicing plane based on horizontal mouse movement.
-    /// </summary>
+    #region Plane Rotation
     public void RotatePlane()
     {
         if (cutPlane != null)
             cutPlane.eulerAngles += new Vector3(0, 0, -Input.GetAxis("Mouse X") * 5);
     }
+    #endregion
 
-    /// <summary>
-    /// Performs a single slash.
-    /// </summary>
+    #region Slash Logic
     public void Slash()
     {
-        // Check cooldown.
-        if (Time.time < lastSlashTime + slashCooldown && playerHandle.GetEnergy() <= energyUse)
+        if (Time.time < lastSlashTime + slashCooldown || playerHandle.GetEnergy() < energyUse)
             return;
         lastSlashTime = Time.time;
 
         bool didSlice = Slice();
-        if (didSlice)
+        if (!didSlice) return;
+
+        playerHandle.DrainEnergy(energyUse);
+
+        if (cutPlane.childCount > 0)
         {
-            playerHandle.DrainEnergy(energyUse);
-            // Optional: animate the slicing plane's child if available.
-            if (cutPlane.childCount > 0)
-            {
-                cutPlane.GetChild(0).DOComplete();
-                cutPlane.GetChild(0)
-                    .DOLocalMoveX(cutPlane.GetChild(0).localPosition.x * -1, 0.05f)
-                    .SetEase(Ease.OutExpo);
-            }
-            // Trigger slash VFX.
-            if (slashVFX != null)
-            {
-                slashVFX.Stop();
-                slashVFX.Play();
-            }
-            // Restart the particle system.
-            if (slashParticles != null)
-            {
-                slashParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                slashParticles.Play();
-            }
-            // Play slash soundFX.
-            if (slashSound != null)
-            {
-                slashSound.Play();
-            }
-            ShakeCamera();
+            cutPlane.GetChild(0).DOComplete();
+            cutPlane.GetChild(0)
+                     .DOLocalMoveX(cutPlane.GetChild(0).localPosition.x * -1, 0.05f)
+                     .SetEase(Ease.OutExpo);
         }
+
+        if (slashVFX != null)
+        {
+            slashVFX.Stop();
+            slashVFX.Play();
+        }
+        if (slashParticles != null)
+        {
+            slashParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            slashParticles.Play();
+        }
+        if (slashSound != null)
+            slashSound.Play();
+
+        ShakeCamera();
     }
 
-    /// <summary>
-    /// Attempts to slice nearby objects using the MeshCuttingSystem.
-    /// Returns true if at least one object was sliced.
-    /// </summary>
     public bool Slice()
     {
         if (cutPlane == null) return false;
 
         bool slicedSomething = false;
-        Collider[] hits = Physics.OverlapBox(cutPlane.position, new Vector3(2, 0.1f, 2), cutPlane.rotation, layerMask);
-        if (hits.Length <= 0)
+        Collider[] hits = Physics.OverlapBox(
+            cutPlane.position,
+            new Vector3(2, 0.1f, 2),
+            cutPlane.rotation,
+            layerMask);
+
+        if (hits.Length == 0)
             return false;
 
         foreach (Collider col in hits)
         {
+            bool isEnemy = col.GetComponentInParent<GOAPAgent>() != null;
             GameObject target = MeshCuttingSystem.FindSliceableRoot(col.gameObject);
+            bool wasEnemy =
+                col.GetComponentInParent<GOAPAgent>() != null ||
+                col.GetComponentInParent<EnemyMarker>() != null;
             if (target == null) continue;
 
-            SlicedHull hull = MeshCuttingSystem.SliceObject(
-                target, cutPlane.position, cutPlane.up, crossMaterial);
-            if (hull == null) continue;
+            Material sliceMat = wasEnemy && enemyFleshMaterial != null ? enemyFleshMaterial : crossMaterial;
 
+            SlicedHull hull = MeshCuttingSystem.SliceObject(target, cutPlane.position, cutPlane.up, sliceMat);
+            if (hull == null) continue;
             slicedSomething = true;
 
-            GameObject lowerHull = hull.CreateLowerHull(target, crossMaterial);
-            GameObject upperHull = hull.CreateUpperHull(target, crossMaterial);
+            GameObject lowerHull = hull.CreateLowerHull(target, sliceMat);
+            GameObject upperHull = hull.CreateUpperHull(target, sliceMat);
+            if (wasEnemy)
+            {
+                lowerHull.AddComponent<EnemyMarker>();
+                upperHull.AddComponent<EnemyMarker>();
+            }
+
+            ApplyCrossSectionMaterial(lowerHull, sliceMat);
+            ApplyCrossSectionMaterial(upperHull, sliceMat);
 
             MeshCuttingSystem.AddHullComponents(lowerHull, target.transform.position);
             MeshCuttingSystem.AddHullComponents(upperHull, target.transform.position);
@@ -225,20 +221,42 @@ public class Sword : weaponBase
                 CutObjectManager.Instance.RegisterCutObject(upperHull);
             }
 
-            Entity check = target.GetComponent<Entity>();
-            if (check != null)
-                check.Die();
+            Entity victim = col.GetComponentInParent<Entity>();
+            if (victim != null)
+                victim.Die();
 
             Destroy(target);
         }
 
         return slicedSomething;
     }
+    #endregion
 
+    #region Helpers
+    private static void ApplyCrossSectionMaterial(GameObject hull, Material sliceMat)
+    {
+        if (hull == null || sliceMat == null) return;
+        var renderer = hull.GetComponent<MeshRenderer>();
+        if (renderer == null) return;
+
+        Material[] mats = renderer.sharedMaterials;
+        if (mats == null || mats.Length == 0)
+        {
+            renderer.sharedMaterials = new[] { sliceMat };
+            return;
+        }
+
+        int crossIndex = mats.Length - 1;
+        if (mats[crossIndex] == sliceMat) return;
+
+        mats[crossIndex] = sliceMat;
+        renderer.sharedMaterials = mats;
+    }
 
     public void ShakeCamera()
     {
         if (cameraController != null)
             cameraController.ShakeCamera(shakeStrength);
     }
+    #endregion
 }

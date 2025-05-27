@@ -9,40 +9,58 @@ public class KillEnemiesObjective : Objective
     private int _kills;
     private int _total;
 
-    protected override void Initialize()
+    private void OnEnable()
     {
-        // Snapshot total once; we’ll mutate the list afterwards
-        enemiesToTrack.RemoveAll(e => e == null);   // safety
-        _total = enemiesToTrack.Count;
-        _kills = 0;
-
-        // Subscribe only once (static event, no need to loop)
         Entity.OnDeath += OnAnyEntityDied;
-
-        PushUI();   // show “0 / X” immediately
     }
-    protected override void TearDown()
+
+    private void OnDisable()
     {
         Entity.OnDeath -= OnAnyEntityDied;
     }
 
+    protected override void Initialize()
+    {
+        enemiesToTrack.RemoveAll(e => e == null);
+        _total = enemiesToTrack.Count;
+        _kills = 0;
+
+        PushUI();
+    }
+
+    protected override void TearDown() { }
+
     private void OnAnyEntityDied(GameObject deadGo)
     {
-        if (!isActive) return;                 // ignore if objective not running
-        if (!enemiesToTrack.Remove(deadGo))    // was this one of *our* targets?
-            return;
+        if (!enemiesToTrack.Remove(deadGo)) return;
 
         _kills++;
         PushUI();
 
         if (_kills >= _total)
-            CompleteObjective();
+        {
+            if (IsActive)
+                CompleteObjective();
+            else
+                ForceCompleteObjective();
+        }
     }
 
     private void PushUI()
     {
         Description = $"Kill the kthar ({_kills}/{_total})";
-        Game_Manager.Instance?.on_objective_updated
-            ?.Invoke(Title, Description);
+        if (IsActive)
+            Game_Manager.Instance?.on_objective_updated?.Invoke(Title, Description);
+    }
+
+    public override bool IsSatisfiedByGameState()
+    {
+        int alive = 0;
+        foreach (var enemy in enemiesToTrack)
+        {
+            if (enemy != null)
+                alive++;
+        }
+        return alive == 0;
     }
 }

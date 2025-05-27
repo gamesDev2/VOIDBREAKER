@@ -4,20 +4,46 @@ public class UseConsoleObjective : Objective
 {
     public DoorConsole targetConsole;
 
-    protected override void Initialize()
+    // ------------------------------------------------------------ //
+    //  permanent subscription (objective listens even if inactive) //
+    // ------------------------------------------------------------ //
+
+    void OnEnable()
     {
-        Game_Manager.Instance.on_door_console_update.AddListener(CheckConsole);
-        CheckConsole();
+        if (Game_Manager.Instance != null)
+            Game_Manager.Instance.on_door_console_update.AddListener(CheckConsole);
     }
 
-    protected override void TearDown()
+    void OnDisable()
     {
-        Game_Manager.Instance.on_door_console_update.RemoveListener(CheckConsole);
+        if (Game_Manager.Instance != null)
+            Game_Manager.Instance.on_door_console_update.RemoveListener(CheckConsole);
     }
+
+    // ------------------------------------------------------------ //
+    //  standard objective hooks                                    //
+    // ------------------------------------------------------------ //
+
+    protected override void Initialize() { CheckConsole(); }
+    protected override void TearDown() { /* nothing extra */ }
+
+    // ------------------------------------------------------------ //
+    //  event reaction                                              //
+    // ------------------------------------------------------------ //
 
     private void CheckConsole()
     {
         if (targetConsole != null && targetConsole.Activated)
-            CompleteObjective();
+        {
+            if (IsActive)
+                CompleteObjective();        // normal, in-order finish
+            else
+                ForceCompleteObjective();   // out-of-order finish (triggers skip)
+        }
+    }
+
+    public override bool IsSatisfiedByGameState()
+    {
+        return targetConsole != null && targetConsole.Activated;
     }
 }
