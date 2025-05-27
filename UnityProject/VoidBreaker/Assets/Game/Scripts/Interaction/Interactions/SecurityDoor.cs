@@ -51,16 +51,24 @@ public class SecurityDoor : MonoBehaviour
         do
         {
             doorPosition += Time.deltaTime * transitionSpeed;
-            doorPosition = math.clamp(doorPosition, 0f, 1f);
 
             foreach (DoorMovement d in Doors)
             {
                 d.setDoorPosition(doorPosition);
             }
-
+            Debug.Log(doorPosition);
             yield return null;
         }
-        while (doorPosition != 1f || doorPosition != 0);
+        while (doorPosition <= 1f && doorPosition >= 0);
+
+        if (transitionSpeed < 0f)
+        {
+            doorPosition = 0f;
+        }
+        else 
+        {
+            doorPosition = 1f;
+        }
 
         doorMoving = false;
     }
@@ -80,7 +88,8 @@ public class SecurityDoor : MonoBehaviour
 
         foreach (EnableOnTrigger e in additionalTriggers)
         {
-            e.Enable();
+            if (e != null)
+                e.Enable(2f);
         }
 
         return true;
