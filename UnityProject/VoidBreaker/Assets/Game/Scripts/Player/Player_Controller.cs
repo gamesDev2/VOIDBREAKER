@@ -18,6 +18,8 @@ public class Player_Controller : Entity
     public KeyCode dashKey = KeyCode.E;
     public KeyCode sprintKey = KeyCode.LeftShift;
 
+    [Header("Animation Controller")]
+    public Animator animator;
 
     [Header("Dead self")]
     public DeadPlayer deadBody;
@@ -90,6 +92,9 @@ public class Player_Controller : Entity
 
     private void LateUpdate()
     {
+        float forwardSpeed = Vector3.Dot(rb.velocity, gameObject.transform.forward);
+        animator.SetFloat("ForwardSpeed", forwardSpeed);
+
         if (Game_Manager.IsCursorLocked() == false)
         {
             // If the cursor is not locked, we dont want to do anything else.

@@ -82,6 +82,7 @@ public class GOAPAgent : MonoBehaviour
     public float maxSteerDeviation = 45f;
 
     // ---------------------- Animation -------------------------------
+    [Header("Animation Controller")]
     public Animator animator;
 
     // ---------------------- Health Reference ------------------------
