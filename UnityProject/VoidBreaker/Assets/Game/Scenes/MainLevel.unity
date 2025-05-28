@@ -977,6 +977,9 @@ MonoBehaviour:
   OnObjectiveCompleted:
     m_PersistentCalls:
       m_Calls: []
+  OnObjectiveSkipped:
+    m_PersistentCalls:
+      m_Calls: []
   enemiesToTrack:
   - {fileID: 1691922458}
   - {fileID: 1040641095}
@@ -1441,6 +1444,9 @@ MonoBehaviour:
   OnObjectiveCompleted:
     m_PersistentCalls:
       m_Calls: []
+  OnObjectiveSkipped:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!65 &238433048
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1761,6 +1767,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   OnObjectiveCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnObjectiveSkipped:
     m_PersistentCalls:
       m_Calls: []
   targetConsole: {fileID: 932018923}
@@ -3504,6 +3513,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   OnObjectiveCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnObjectiveSkipped:
     m_PersistentCalls:
       m_Calls: []
   itemsToCollect:
@@ -7608,6 +7620,9 @@ MonoBehaviour:
   OnObjectiveCompleted:
     m_PersistentCalls:
       m_Calls: []
+  OnObjectiveSkipped:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!65 &1290453829
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11036,6 +11051,9 @@ MonoBehaviour:
   OnObjectiveCompleted:
     m_PersistentCalls:
       m_Calls: []
+  OnObjectiveSkipped:
+    m_PersistentCalls:
+      m_Calls: []
   targetConsole: {fileID: 1170639217}
 --- !u!1001 &1829543072
 PrefabInstance:
@@ -11363,6 +11381,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   OnObjectiveCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnObjectiveSkipped:
     m_PersistentCalls:
       m_Calls: []
   enemiesToTrack:
@@ -13766,11 +13787,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5354255865343842913, guid: f93138cca030223478a1b96c5ca95b04,
-        type: 3}
-      propertyPath: m_Volume
-      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8210049194022999932, guid: f93138cca030223478a1b96c5ca95b04,
         type: 3}

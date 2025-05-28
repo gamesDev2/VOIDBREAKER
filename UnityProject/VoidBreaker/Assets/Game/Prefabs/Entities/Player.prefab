@@ -1036,6 +1036,21 @@ PrefabInstance:
       propertyPath: playerHandle
       value: 
       objectReference: {fileID: 2622436924740678069}
+    - target: {fileID: 3750845292773365554, guid: e45120c5acec42e4a96baa8876fe1fca,
+        type: 3}
+      propertyPath: crossMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: b51560e1e7cb9ec47bbe52840b286927, type: 2}
+    - target: {fileID: 3750845292773365554, guid: e45120c5acec42e4a96baa8876fe1fca,
+        type: 3}
+      propertyPath: enemyFleshMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: fad35743d304546498486df3df768df6, type: 2}
+    - target: {fileID: 5151587194543956481, guid: e45120c5acec42e4a96baa8876fe1fca,
+        type: 3}
+      propertyPath: m_Volume
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5151587194543956481, guid: e45120c5acec42e4a96baa8876fe1fca,
         type: 3}
       propertyPath: MaxDistance
