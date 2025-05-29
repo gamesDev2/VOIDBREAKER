@@ -18,6 +18,9 @@ public class HUDController : MonoBehaviour
     public TextMeshProUGUI gun_name_text;
     public Image InteractWindow;
     public Image gunOverheatWindow;
+    // ----------------- Timer Display ----------------
+    [Header("Timer Display")]
+    public TextMeshProUGUI runTimerText;
 
     // ---------------- Keypad UI Elements ----------------
     [Header("Keypad UI Elements")]
@@ -158,6 +161,7 @@ public class HUDController : MonoBehaviour
         {
             ClosePDAWindow();
         }
+        UpdateRunTimer();
     }
 
     // ---------------- HUD Sway ----------------
@@ -465,4 +469,17 @@ public class HUDController : MonoBehaviour
             yield return null;
         }
     }
+    private void UpdateRunTimer()
+    {
+        if (runTimerText == null || Game_Manager.Instance == null) return;
+
+        float time = Game_Manager.Instance.GetElapsedTime();
+
+        int minutes = Mathf.FloorToInt(time / 60f);
+        int seconds = Mathf.FloorToInt(time % 60f);
+        int millis = Mathf.FloorToInt((time * 1000f) % 1000f);
+
+        runTimerText.text = $"{minutes:00}:{seconds:00}.{millis:000}";
+    }
+
 }

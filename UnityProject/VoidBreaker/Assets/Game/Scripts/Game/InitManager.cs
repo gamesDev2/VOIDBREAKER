@@ -1,24 +1,25 @@
-// Automatically initialize the managers on game start.
 using UnityEngine;
 
 public class InitManager : MonoBehaviour
 {
-    private static CutObjectManager instance;
+    private static CutObjectManager cutManager;
     private static Game_Manager gameManager;
     private static PDAManager pdaManager;
+    private static HighScoreManager scoreManager;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void InitializeManager()
     {
-        if (instance == null && gameManager == null && pdaManager == null)
+        if (cutManager == null && gameManager == null &&
+            pdaManager == null && scoreManager == null)
         {
             GameObject go = new GameObject("Managers");
-            instance = go.AddComponent<CutObjectManager>();
-            DontDestroyOnLoad(go);
 
+            cutManager = go.AddComponent<CutObjectManager>();
             gameManager = go.AddComponent<Game_Manager>();
-            DontDestroyOnLoad(go);
-
             pdaManager = go.AddComponent<PDAManager>();
+            scoreManager = go.AddComponent<HighScoreManager>();
+
             DontDestroyOnLoad(go);
         }
     }

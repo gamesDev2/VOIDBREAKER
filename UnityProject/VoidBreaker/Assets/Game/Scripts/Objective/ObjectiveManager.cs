@@ -56,25 +56,29 @@ public class ObjectiveManager : MonoBehaviour
 
     private void BeginNextObjective()
     {
-        // Cancel the old active objective (if any)
+        // Cancel current
         if (currentIndex >= 0 && currentIndex < objectives.Length)
             objectives[currentIndex].CancelObjective();
 
-        // Advance
         currentIndex++;
 
-        // Auto-skip anything that’s already complete or already satisfied
+        // Auto-skip any completed or already-satisfied
         while (currentIndex < objectives.Length &&
-               (objectives[currentIndex].IsComplete ||
-                objectives[currentIndex].IsSatisfiedByGameState()))
+               (objectives[currentIndex].IsComplete || objectives[currentIndex].IsSatisfiedByGameState()))
         {
             objectives[currentIndex].SkipObjective();
             currentIndex++;
         }
 
-        // Start the next real objective, or wrap up the game
+        // Start next or finish
         if (currentIndex < objectives.Length)
         {
+            if (currentIndex == 0)
+            {
+                // First objective starting: begin timer
+                Game_Manager.Instance?.StartGameTimer();
+            }
+
             var obj = objectives[currentIndex];
             obj.StartObjective();
             Game_Manager.Instance?.on_objective_updated?.Invoke(obj.Title, obj.Description);
@@ -83,7 +87,17 @@ public class ObjectiveManager : MonoBehaviour
         {
             Debug.Log("All objectives resolved.");
             Game_Manager.Instance?.on_objective_updated?.Invoke("All objectives completed", "");
+
+            // Stop timer and record high score
+            if (Game_Manager.Instance != null && HighScoreManager.Instance != null)
+            {
+                string name = Game_Manager.Instance.playerName;
+                float time = Game_Manager.Instance.GetElapsedTime();
+                HighScoreManager.Instance.AddScore(name, time);
+            }
+
             LoadingScreen.LoadScene("CreditsScene");
         }
     }
+
 }

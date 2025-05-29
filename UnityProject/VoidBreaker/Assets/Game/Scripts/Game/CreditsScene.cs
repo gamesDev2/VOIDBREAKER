@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public class CreditsScene : MonoBehaviour
 {
-    [SerializeField] private string menuSceneName = "MainMenu";
+    [SerializeField] private string menuSceneName = "LeaderboardScene";
 
     private bool isExiting = false;
 

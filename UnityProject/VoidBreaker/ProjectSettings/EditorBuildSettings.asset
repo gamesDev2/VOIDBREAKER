@@ -14,15 +14,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Game/Scenes/LoadingScreen.unity
     guid: 05fd1edd3c0011a46b947541ea78f5d6
-  - enabled: 0
-    path: Assets/Game/Scenes/Dev_1.unity
-    guid: ec78dbea289b4ce488e797aa70da6c88
-  - enabled: 0
-    path: Assets/Game/Scenes/GunTest.unity
-    guid: 8c85fe4e3206da648aae66bc00796e33
-  - enabled: 0
-    path: Assets/Game/Scenes/PDATest.unity
-    guid: f133cc94d4575c4458bc3569800f62d9
   - enabled: 1
     path: Assets/Game/Scenes/DeathScreen.unity
     guid: bfaae84240b45314da07a543ac25d89d
@@ -35,4 +26,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Game/Scenes/MainLevel.unity
     guid: bff3615c1238e8948a7439d81f6c8c58
+  - enabled: 1
+    path: Assets/Game/Scenes/LeaderboardScene.unity
+    guid: 5d2323a0e160b1742bc4e1f62471e163
   m_configObjects: {}

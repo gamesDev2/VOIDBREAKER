@@ -5,6 +5,17 @@ public class Game_Manager : MonoBehaviour
 {
     public static Game_Manager Instance { get; private set; }
 
+    [Header("Player Info")]
+    public string playerName;
+
+    private float levelStartTime;
+    public float GetElapsedTime() => Time.time - levelStartTime;
+
+    public void StartGameTimer()
+    {
+        levelStartTime = Time.time;
+    }
+
     [System.Serializable]
     public class InteractEvent : UnityEvent<bool, string> { }
 
