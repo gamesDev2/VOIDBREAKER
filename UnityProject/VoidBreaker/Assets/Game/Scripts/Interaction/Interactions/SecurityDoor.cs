@@ -7,11 +7,15 @@ using UnityEngine.Assertions;
 
 public class SecurityDoor : MonoBehaviour
 {
+    [Header("Door consoles and Door movement")]
     [SerializeField, Tooltip("All Doors that this script controls")] private DoorMovement[] Doors;
     [Tooltip("The Consoles that control this door")] public DoorConsole[] doorConsoles;
+    [SerializeField, Tooltip("How long it takes for the door to open/close.")] private float transitionSpeed = 2.0f;
+
+    [Header("Additional Event Triggers")]
     [SerializeField, Header("Events that the door triggers on open")] private EventTrigger[] additionalTriggers;
 
-    [SerializeField, Tooltip("How long it takes for the door to open/close.")] private float transitionSpeed = 2.0f;
+    
     
     private bool doorMoving = false;
     private float doorPosition = 0f;

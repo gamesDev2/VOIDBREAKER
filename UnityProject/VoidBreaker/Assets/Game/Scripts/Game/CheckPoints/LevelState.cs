@@ -13,8 +13,6 @@ public class LevelState : MonoBehaviour
     public SecurityDoor[] Doors;
     [Tooltip("The Objective Manager object")]
     public ObjectiveManager ObjectiveManager;
-    [Tooltip("The Check point manager object")]
-    public CheckPointManager checkPoints;
     [Tooltip("HUD Controller to add PDA entries back in")]
     public HUDController HUD;
 
@@ -49,7 +47,7 @@ public class LevelState : MonoBehaviour
 
         // Checking completed objectives
         level.ObjectiveCompleted = new bool[ObjectiveManager.objectives.Length];
-        for (int i = 0; i <= ObjectiveManager.objectives.Length; i++)
+        for (int i = 0; i < ObjectiveManager.objectives.Length; i++)
         {
             level.ObjectiveCompleted[i] = ObjectiveManager.objectives[i].IsComplete;
         }
@@ -63,14 +61,14 @@ public class LevelState : MonoBehaviour
         return JsonUtility.ToJson(level);
     }
 
-    void convertJsonToLevel(string JSON)
+    public void convertJsonToLevel(string JSON)
     {
         LevelWrapper level = JsonUtility.FromJson<LevelWrapper>(JSON);
 
         Player.Health = level.PlayerHealth;
         Player.Energy = level.PlayerEnergy;
 
-        Transform spawn = checkPoints.checkPoints[level.checkPointIndex].transform;
+        Transform spawn = CheckPointManager.checkPoints[level.checkPointIndex].transform;
         Player.gameObject.transform.position = spawn.position;
         Player.gameObject.transform.rotation = spawn.rotation;
 

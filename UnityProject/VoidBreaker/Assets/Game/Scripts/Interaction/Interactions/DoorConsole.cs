@@ -6,6 +6,8 @@ public class DoorConsole : BaseInteractable
     [Tooltip("The 4-digit PIN required to open this door")]
     [SerializeField] private string securityCode = "1234";
 
+    [SerializeField, Header("Additional Trigger Events")] private EventTrigger[] additionalTriggers;
+
     public bool mActivated = false;
     public bool Activated
     {
@@ -34,8 +36,16 @@ public class DoorConsole : BaseInteractable
     {
         bool ok = entered == securityCode;
         Debug.Log($"[Console:{name}] ValidateCode(“{entered}”) → {ok}");
-        if (ok) mActivated = true;
-        Game_Manager.Instance.on_door_console_update.Invoke();
+        if (ok)
+        {
+            mActivated = true;
+            Game_Manager.Instance.on_door_console_update.Invoke();
+
+            foreach (EventTrigger trigger in additionalTriggers) 
+            {
+                trigger.TriggerEvent.Invoke();
+            }
+        }
         return ok;
     }
 
