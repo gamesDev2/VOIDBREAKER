@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EnableOnTrigger : MonoBehaviour
 {
+    [SerializeField] private EventTrigger Trigger;
+    [SerializeField] private float Delay = 2f;
 
     private AI_Movement_Controller aimove;
     private float moveSpeed;
@@ -12,10 +14,12 @@ public class EnableOnTrigger : MonoBehaviour
         aimove = GetComponent<AI_Movement_Controller>();
         moveSpeed = aimove.moveSpeed;
         aimove.moveSpeed = 0;
+
+        Trigger.TriggerEvent.AddListener(Enable);
     }
-    public void Enable(float _delay)
+    public void Enable()
     {
-        Invoke("_EnableFunc", _delay);
+        Invoke("_EnableFunc", Delay);
     }
 
     private void _EnableFunc()

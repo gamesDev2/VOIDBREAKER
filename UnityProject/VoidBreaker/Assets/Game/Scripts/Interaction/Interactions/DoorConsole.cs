@@ -6,7 +6,7 @@ public class DoorConsole : BaseInteractable
     [Tooltip("The 4-digit PIN required to open this door")]
     [SerializeField] private string securityCode = "1234";
 
-    private bool mActivated = false;
+    public bool mActivated = false;
     public bool Activated
     {
         get => mActivated; // this is used by the door to check if it should open

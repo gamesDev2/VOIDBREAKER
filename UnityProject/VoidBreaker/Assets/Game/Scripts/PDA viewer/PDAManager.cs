@@ -25,7 +25,6 @@ public class PDAManager : MonoBehaviour
         }
 
         pdaDB = Resources.Load(path) as TextAsset;
-
         string json = pdaDB.ToString();
 
         ParsePDAJSON(json);

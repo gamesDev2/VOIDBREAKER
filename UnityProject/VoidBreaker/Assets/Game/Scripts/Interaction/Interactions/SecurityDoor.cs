@@ -8,14 +8,15 @@ using UnityEngine.Assertions;
 public class SecurityDoor : MonoBehaviour
 {
     [SerializeField, Tooltip("All Doors that this script controls")] private DoorMovement[] Doors;
-    [SerializeField, Tooltip("The Consoles that control this door")] private DoorConsole[] doorConsoles;
+    [Tooltip("The Consoles that control this door")] public DoorConsole[] doorConsoles;
+    [SerializeField, Header("Events that the door triggers on open")] private EventTrigger[] additionalTriggers;
 
     [SerializeField, Tooltip("How long it takes for the door to open/close.")] private float transitionSpeed = 2.0f;
-
-    [SerializeField] private EnableOnTrigger[] additionalTriggers;
     
     private bool doorMoving = false;
     private float doorPosition = 0f;
+
+    public bool open = false;
 
     void Start()
     {
@@ -26,7 +27,7 @@ public class SecurityDoor : MonoBehaviour
     // Update is called once per frame
     void OnConsoleUpdate()
     {
-        bool open = isActivated();
+        open = isActivated();
 
         if (open)
         {
@@ -86,10 +87,10 @@ public class SecurityDoor : MonoBehaviour
         if (doorConsoles.Length == 0)
             return false;
 
-        foreach (EnableOnTrigger e in additionalTriggers)
+        foreach (EventTrigger e in additionalTriggers)
         {
             if (e != null)
-                e.Enable(2f);
+                e.TriggerEvent.Invoke();
         }
 
         return true;

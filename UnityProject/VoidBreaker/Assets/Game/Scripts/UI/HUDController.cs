@@ -360,7 +360,7 @@ public class HUDController : MonoBehaviour
         Game_Manager.SetCursorLocked(false);
     }
 
-    private void AddOrUpdateEntry(string title, string entry)
+    public void AddOrUpdateEntry(string title, string entry)
     {
         if (_pdaEntries.TryGetValue(title, out LocalPDAEntry existing))
         {
