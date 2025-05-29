@@ -5065,6 +5065,7 @@ MonoBehaviour:
   gun_name_text: {fileID: 8303900237967142162}
   InteractWindow: {fileID: 872805179054714952}
   gunOverheatWindow: {fileID: 7542190744460768160}
+  runTimerText: {fileID: 7335301585930847705}
   KeypadWindow: {fileID: 5638908100599932313}
   CodeInputBackground: {fileID: 8688579295803322674}
   keypadInputText: {fileID: 3639670369591589724}
