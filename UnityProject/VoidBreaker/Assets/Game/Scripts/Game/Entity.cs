@@ -1,6 +1,7 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public enum EntityState
 {
@@ -828,4 +829,9 @@ public abstract class Entity : MonoBehaviour
     { get { return CurrentHealth; } set { CurrentHealth = value; } }
     public float Energy
     { get { return CurrentEnergy; } set { CurrentEnergy = value; } }
+
+    public Vector3 Position
+    { get { return rb.position; } set {  rb.position = value; } }
+    public Quaternion Rotation
+    { get { return rb.rotation; } set { rb.rotation = value; } }
 }

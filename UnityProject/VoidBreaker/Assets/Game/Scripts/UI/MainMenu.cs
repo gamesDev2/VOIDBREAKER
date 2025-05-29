@@ -114,6 +114,7 @@ public class MainMenu : MonoBehaviour
         if (enterNameSection != null)
             enterNameSection.SetActive(true);
         idleTimer = 0f;
+        CheckPointManager.newGame();
     }
 
     private void OnNameConfirmed()

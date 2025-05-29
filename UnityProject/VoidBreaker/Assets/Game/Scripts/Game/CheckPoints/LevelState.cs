@@ -29,7 +29,7 @@ public class LevelState : MonoBehaviour
         level.DeadEnemies = new bool[Enemies.Length];
         for (int i = 0; i < Enemies.Length; i++)
         {
-            if (Enemies[i] == null)
+            if (Enemies[i] == null || Enemies[i].Health == 0)
             {
                 level.DeadEnemies[i] = true;
             }
@@ -68,9 +68,15 @@ public class LevelState : MonoBehaviour
         Player.Health = level.PlayerHealth;
         Player.Energy = level.PlayerEnergy;
 
-        Transform spawn = CheckPointManager.checkPoints[level.checkPointIndex].transform;
-        Player.gameObject.transform.position = spawn.position;
-        Player.gameObject.transform.rotation = spawn.rotation;
+        if (level.checkPointIndex > -1)
+        {
+            Transform spawn = CheckPointManager.checkPoints[level.checkPointIndex].transform;
+            Player.Position = spawn.position;
+            Player.Rotation = spawn.rotation;
+
+            Player.gameObject.transform.position = spawn.position;
+            Player.gameObject.transform.rotation = spawn.rotation;
+        }
 
         for (int i = 0; i < level.DeadEnemies.Length; i++)
         {
@@ -81,24 +87,13 @@ public class LevelState : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < level.OpenDoors.Length; i++)
-        {
-            if (level.OpenDoors[i])
-            {
-                foreach(DoorConsole c in Doors[i].doorConsoles)
-                {
-                    c.Activated = true;
-                }
-            }
-        }
-
-        Game_Manager.Instance.on_door_console_update.Invoke();
+        StartCoroutine(lateLoad(level));
 
         for (int i = 0; i < level.ObjectiveCompleted.Length; i++)
         {
             if (level.ObjectiveCompleted[i])
             {
-                ObjectiveManager.objectives[i].ForceCompleteObjective();
+                ObjectiveManager.objectives[i].SkipObjective();
             }
         }
 
@@ -112,6 +107,27 @@ public class LevelState : MonoBehaviour
                 HUD.AddOrUpdateEntry(data.Title, data.Entry);
             }
         }
+    }
+
+    private IEnumerator lateLoad(LevelWrapper level)
+    {
+        yield return null;
+
+        
+
+
+        for (int i = 0; i < level.OpenDoors.Length; i++)
+        {
+            if (level.OpenDoors[i])
+            {
+                foreach (DoorConsole c in Doors[i].doorConsoles)
+                {
+                    c.Activated = true;
+                }
+            }
+        }
+
+        Game_Manager.Instance.on_door_console_update.Invoke();
     }
 
     [System.Serializable]

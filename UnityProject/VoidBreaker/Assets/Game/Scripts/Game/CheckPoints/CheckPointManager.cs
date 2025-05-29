@@ -31,13 +31,11 @@ public class CheckPointManager : MonoBehaviour
         Debug.Log(settingsPath);
         if (File.Exists(settingsPath))
         {
-            Debug.Log("Loading Checkpoint");
             string json = File.ReadAllText(settingsPath);
             levelStateManager.convertJsonToLevel(json);
         }
         else
         {
-            Debug.Log("Creating Save file");
             var sr = File.CreateText(settingsPath);
             sr.Close();
             string json = levelStateManager.convertLevelToJSON();
@@ -49,11 +47,14 @@ public class CheckPointManager : MonoBehaviour
     {
         if (checkPoint > checkPointIndex)
         {
-            Debug.Log("Updating CheckPoint");
             checkPointIndex = checkPoint;
             string json = levelStateManager.convertLevelToJSON();
-            Debug.Log(json);
             File.WriteAllTextAsync(settingsPath, json);
         }
+    }
+
+    static public void newGame()
+    {
+        File.Delete(Path.Combine(Application.persistentDataPath, "checkPoint.json"));
     }
 }

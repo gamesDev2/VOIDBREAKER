@@ -177,7 +177,8 @@ public class GOAPAgent : MonoBehaviour
 
         CheckStuck();
 
-        animator.SetFloat("Speed", rb.velocity.magnitude);
+        float forwardSpeed = Vector3.Dot(rb.velocity, gameObject.transform.forward);
+        animator.SetFloat("Speed", forwardSpeed);
         // Movement & steering
         Vector3 desiredVel = navAgent.desiredVelocity;
         if (desiredVel.sqrMagnitude < 0.01f)
