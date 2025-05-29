@@ -6,6 +6,7 @@ public class PDAManager : MonoBehaviour
     public static PDAManager Instance { get; private set; }
 
     public static PDAData[] pdaEntries;
+    public static bool[] CollectedEntries;
     [SerializeField] private static string path = "PDALogs/PDA";
 
     [SerializeField] private static TextAsset pdaDB;
@@ -33,6 +34,7 @@ public class PDAManager : MonoBehaviour
     private static void ParsePDAJSON(string json)
     {
         pdaEntries = JsonUtility.FromJson<JSONWrapper<PDAData>>(json).data;
+        CollectedEntries = new bool[pdaEntries.Length];
     }
 
     [System.Serializable]

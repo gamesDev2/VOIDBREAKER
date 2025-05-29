@@ -824,4 +824,8 @@ public abstract class Entity : MonoBehaviour
         }
     }
 
+    public float Health
+    { get { return CurrentHealth; } set { CurrentHealth = value; } }
+    public float Energy
+    { get { return CurrentEnergy; } set { CurrentEnergy = value; } }
 }

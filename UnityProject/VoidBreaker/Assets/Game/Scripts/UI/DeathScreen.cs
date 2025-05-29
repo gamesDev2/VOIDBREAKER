@@ -35,6 +35,8 @@ public class DeathScene : MonoBehaviour
         float time = 0f;
         float fade = 0f;
 
+        Game_Manager.SetCursorLocked(false);
+
         while (time < fadeInTime)
         {
             time += Time.deltaTime;
@@ -45,7 +47,5 @@ public class DeathScene : MonoBehaviour
 
             yield return null;
         }
-
-        Game_Manager.SetCursorLocked(false);
     }
 }
